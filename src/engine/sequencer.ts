@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { applyDefense, attackTypeOf, cardDefense, ongoingDamageChanges, powerDefense, timingAllows, type DefenseOption } from './abilities'
+import { allyAbsorbs, applyDefense, attackTypeOf, autoStop, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { resolveEffects } from './effects'
@@ -26,7 +26,8 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
   const d = def(db, c)
   const opt = cardDefense(d, attack)
   if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, defender, opt.strike)) return null
-  return timingAllows(s, defender, opt.strike.effects.onPlaySecondary, 'DEFEND') ? opt : null
+  const effects = opt.strike.effects.onPlaySecondary
+  return timingAllows(s, defender, effects, 'DEFEND') && requirementsMet(s, db, defender, effects, c) ? opt : null
 }
 
 /**
@@ -66,6 +67,12 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
 
   if (!isAttackRole(strike.combatRole)) return cleanup(s, db)
   const defender = other(initiator)
+  const stopper = autoStop(s, db, defender, attackTypeOf(strike.combatRole)!)
+  if (stopper) {
+    log(s, 'AUTO_STOP', `${stopper} stops ${label} automatically`, defender)
+    combat.strike.defense = { mode: 'STOP', stages: 0, lifeCards: 0 }
+    return resolveHit(s, db)
+  }
   if (legalDefenses(s, db, defender).length > 0 || legalPowerDefense(s, db, defender)) s.pendingChoice = { kind: 'DEFEND', player: defender }
   else resolveHit(s, db)
 }
@@ -122,9 +129,25 @@ function resolveHit(s: GameState, db: CardDB) {
     return cleanup(s, db)
   }
 
+  // the attack is successful from here on; shields on the table answer that
+  const shield = useShield(s, db, defender, type, false)
+  if (shield) {
+    log(s, 'STOPPED', `${shield} stops the successful ${st.label}`, defender)
+    s.combat!.lastAttack[st.initiator] = { type, success: false }
+    return cleanup(s, db)
+  }
+
   let dmg = computeDamage(s, db, st.initiator, st.strike)
   if (st.defense) dmg = applyDefense(dmg, st.defense)
   dmg = ongoingDamageChanges(s, db, defender, type, dmg)
+  if (dmg.lifeCards > 0) {
+    const lc = useShield(s, db, defender, type, true)
+    if (lc) {
+      log(s, 'PROTECT', `${lc} stops the life card damage`, defender)
+      dmg = { ...dmg, lifeCards: 0 }
+    }
+  }
+  if ((dmg.stages > 0 || dmg.lifeCards > 0) && allyAbsorbs(s, db, defender)) dmg = { stages: 0, lifeCards: 0 }
   st.lifeCardsDealt = applyDamage(s, defender, dmg)
   if (over(s)) return
 

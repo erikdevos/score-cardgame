@@ -44,6 +44,8 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     choiceQueue: [],
     skipCombat: [],
     usedPerGame: [],
+    discardAsLife: [],
+    delayed: [],
     winner: null,
     winReason: null,
     log: [],

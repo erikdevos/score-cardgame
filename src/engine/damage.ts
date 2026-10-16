@@ -66,8 +66,19 @@ export function applyDamage(s: GameState, target: PlayerId, d: Damage): number {
   const paid = Math.min(mp.stage, d.stages)
   mp.stage -= paid
   const overflow = d.stages - paid
-  const totalLife = d.lifeCards + overflow
-  const milled = totalLife > 0 ? millCards(s, target, totalLife) : 0
+  let totalLife = d.lifeCards + overflow
+  // "uses the bottom 3 cards of the discard pile instead of the life deck" for this combat
+  let absorbed = 0
+  const sub = s.discardAsLife.find(x => x.player === target && x.armed && x.remaining > 0)
+  if (sub) {
+    const pile = s.players[target].discard
+    absorbed = Math.min(sub.remaining, totalLife, pile.length)
+    for (let i = 0; i < absorbed; i++) pile.push(pile.shift()!)
+    sub.remaining -= absorbed
+    totalLife -= absorbed
+    if (absorbed) log(s, 'PROTECT', `${sub.source}: ${absorbed} life card(s) of damage taken from the discard pile`, target)
+  }
+  const milled = absorbed + (totalLife > 0 ? millCards(s, target, totalLife) : 0)
   log(s, 'DAMAGE', `Player ${target + 1} takes ${paid} stage(s)${overflow ? ` (+${overflow} overflow)` : ''} and ${milled} life card(s)`, target)
   return milled
 }

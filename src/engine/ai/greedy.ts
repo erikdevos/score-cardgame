@@ -26,10 +26,10 @@ function find(s: GameState, p: PlayerId, iid: string): CardInstance | undefined 
   return pl.hand.find(c => c.iid === iid) ?? pl.nonCombat.find(c => c.iid === iid)
 }
 
-/** A card anywhere in a pick zone (discard pile, Dragon Balls, life deck). */
+/** A card anywhere a pick can reach. */
 function findAnywhere(s: GameState, iid: string): CardInstance | undefined {
   for (const pl of s.players) {
-    const c = [...pl.discard, ...pl.dragonBalls, ...pl.lifeDeck].find(x => x.iid === iid)
+    const c = [...pl.discard, ...pl.dragonBalls, ...pl.lifeDeck, ...pl.hand, ...pl.drills, ...pl.nonCombat, ...pl.allies.map(a => a.card)].find(x => x.iid === iid)
     if (c) return c
   }
 }
@@ -66,8 +66,14 @@ function score(s: GameState, db: CardDB, a: Action): number {
       if (!opt?.defense) return 2
       return opt.defense.mode === 'STOP' ? 11 : 8 // keep cards when the power does the job
     }
-    case 'PICK':
-      return keepValue(db, findAnywhere(s, a.iid)!)
+    case 'PICK': {
+      const pc = s.pendingChoice
+      const v = keepValue(db, findAnywhere(s, a.iid)!)
+      // losing own cards: give up the least useful one; everything else: take the best
+      const own = pc?.kind === 'PICK' && pc.owner === a.player && ['DISCARD', 'REMOVED'].includes(pc.dest)
+      if (pc?.kind === 'PICK' && pc.dest === 'ALLY_TO_MP_STAGES') return s.players[a.player].allies.find(x => x.card.iid === a.iid)?.stage ?? 0
+      return own ? -v : v
+    }
     case 'CONFIRM':
       // optional draws: decline when the life deck is nearly empty
       return a.accept === s.players[a.player].lifeDeck.length > 8 ? 1 : 0

@@ -2,10 +2,11 @@
 import { restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, def, log, mpDef } from '../state'
-import { other, type AttackType, type PlayerId } from '../types'
+import { changeAnger, def, log, millCards, mpDef } from '../state'
+import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
+import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
-import { pickRequest, queueChoice } from './choices'
+import { pickRequest, queueChoice, zoneCards } from './choices'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
 export function targetOf(ctx: EffectContext, t: unknown): PlayerId {
@@ -30,12 +31,107 @@ function fromDiscard(ctx: EffectContext, p: Params, dest: 'HAND' | 'LIFE_TOP' | 
   queueChoice(ctx.s, ctx.db, pickRequest(who, who, 'discard', cards, n, dest, ctx.source))
 }
 
+/** Search filters used by searchDeck. */
+function matchesFilter(s: GameState, db: CardDB, user: PlayerId, d: CardDef, filter: string): boolean {
+  if (filter.startsWith('Dragon Ball')) {
+    if (d.type !== 'Dragon Ball') return false
+    const inPlay = s.players.some(p => p.dragonBalls.some(c => def(db, c).dragonBallNumber === d.dragonBallNumber))
+    return !(inPlay && (s.rules.uniqueDragonBallNumbers || filter.includes('not in play')))
+  }
+  if (filter === 'Ally') {
+    const mine = mpDef(s, db, user).personality!.character
+    return d.type === 'Personality' && d.personality?.level === 1 && d.personality.character !== mine
+  }
+  if (filter === 'Drill') {
+    if (d.type !== 'Drill') return false
+    if (s.rules.uniqueDrillsPerPlayer && s.players[user].drills.some(c => c.defId === d.id)) return false
+    return !(d.exclusiveDrillStyle && s.players.some(p => p.drills.some(c => def(db, c).style === d.exclusiveDrillStyle)))
+  }
+  return false
+}
+
+const ZONE_BY_TYPE: Record<string, PickZone> = { Drill: 'drills', Ally: 'allies', 'Non-Combat': 'nonCombat' }
+
 export const handlers: Record<string, CustomHandler> = {
-  // Read elsewhere (legal actions, defenses, timing), nothing to resolve.
+  // Read elsewhere (legal actions, defenses, timing, damage), nothing to resolve.
   playTiming: noop,
   usageLimit: noop,
   dualUse: noop,
   powerDefense: noop,
+  shieldNextAttack: noop,
+  autoStopAttack: noop,
+
+  removeFromGame(ctx, p) {
+    const { s, db, user } = ctx
+    if (p.target === 'SELF') {
+      // Chiaotzu's Blast: Chiaotzu leaves the game. As an ally that is clear; a main personality stays.
+      const ally = s.players[user].allies.find(a => def(db, a.card).personality?.character === p.card)
+      if (!ally) return log(s, 'NO_EFFECT', `${ctx.source}: ${p.card} is not an ally, the main personality stays in play`)
+      return queueChoice(s, db, pickRequest(user, user, 'allies', [ally.card], 1, 'REMOVED', ctx.source))
+    }
+    const foe = other(user)
+    const zones = ((p.cardTypes ?? []) as string[]).map(t => ZONE_BY_TYPE[t]).filter(Boolean)
+    const cards = zones.flatMap(z => zoneCards(s, foe, z))
+    if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has nothing to remove`)
+    queueChoice(s, db, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'REMOVED', ctx.source))
+  },
+
+  discardFromHand(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    queueChoice(ctx.s, ctx.db, pickRequest(who, who, 'hand', ctx.s.players[who].hand, num(p.amount, 1), 'DISCARD', ctx.source))
+  },
+
+  searchDeck(ctx, p) {
+    const { s, db, user } = ctx
+    const owner = p.target === 'OPPONENT' ? other(user) : user
+    const zones = (Array.isArray(p.from) ? p.from : [p.from ?? 'lifeDeck']) as PickZone[]
+    const cards = zones.flatMap(z => zoneCards(s, owner, z)).filter(c => matchesFilter(s, db, user, def(db, c), String(p.filter ?? '')))
+    if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: no ${p.filter} found`)
+    if (p.which === 'first') {
+      // the first one from the top, no choice (SS-240)
+      return queueChoice(s, db, pickRequest(user, owner, zones, [cards[0]], 1, p.to === 'bottomOfLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'HAND', ctx.source))
+    }
+    const allyStage = p.setPowerStage === 'MAX' ? s.rules.maxStage : undefined
+    queueChoice(s, db, pickRequest(user, owner, zones, cards, 1, p.to === 'play' ? 'PLAY' : 'HAND', ctx.source, { allyStage }))
+  },
+
+  useDiscardAsLifeDeck(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const n = num(p.cards, 3)
+    if (p.requireEnough && ctx.s.players[who].discard.length < n) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: not enough cards in the discard pile`)
+    ctx.s.discardAsLife.push({ player: who, remaining: n, armed: false, source: ctx.source })
+    log(ctx.s, 'PROTECT', `${ctx.source}: player ${who + 1} takes the next combat's life card damage from the bottom ${n} discards`, who)
+  },
+
+  allyEffect(ctx, p) {
+    const { s, db, user } = ctx
+    const allies = s.players[user].allies
+    switch (p.action) {
+      case 'removeFromGame':
+        return queueChoice(s, db, pickRequest(user, user, 'allies', allies.map(a => a.card), num(p.amount, 1), 'REMOVED', ctx.source))
+      case 'transferStages':
+        return queueChoice(s, db, pickRequest(user, user, 'allies', allies.map(a => a.card), 1, 'ALLY_TO_MP_STAGES', ctx.source))
+      case 'damagePerAlly': {
+        const n = allies.length * num(p.lifeCardsPerAlly, 1)
+        const foe = targetOf(ctx, p.target)
+        const done = n > 0 ? millCards(s, foe, n) : 0
+        return log(s, 'MILL', `${ctx.source}: player ${foe + 1} discards ${done} life card(s) (${allies.length} allies)`, foe)
+      }
+      case 'redirectDamage':
+        if (!s.combat) return
+        s.combat.allyShield.push(user)
+        return log(s, 'PROTECT', `${ctx.source}: the damage player ${user + 1} would take this combat destroys an ally instead`, user)
+      case 'plantAlly': {
+        if (s.step === 'NON_COMBAT' && s.attacker === user) s.skipCombat.push({ player: user, turn: s.turn, source: ctx.source })
+        const turn = s.turn + (s.attacker === user ? 2 : 1)
+        s.delayed.push({ player: user, turn, kind: 'plantAlly', character: String(p.character), source: ctx.source })
+        return log(s, 'PLANT', `${ctx.source}: ${p.character} will enter play as an ally on player ${user + 1}'s next turn`, user)
+      }
+      default:
+        // a requirement only (checked before the card can be used), then the effect
+        return resolveEffects(ctx, then(p))
+    }
+  },
 
   preventAttack(ctx, p) {
     const phases = p.duration === 'thisCombat' ? 99 : 1

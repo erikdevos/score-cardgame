@@ -3,14 +3,14 @@
 import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
 import type { Damage } from './damage'
 import { def, log, mpDef } from './state'
-import type { AttackType, CombatState, GameState, PlayerId } from './types'
+import type { AttackType, CardInstance, CombatState, GameState, PlayerId } from './types'
 
 export type Params = Record<string, unknown>
 
 export function newCombat(active: PlayerId): CombatState {
   return {
     active, consecutivePasses: 0, strike: null, usedPowers: [], ended: false,
-    restrictions: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+    restrictions: [], allyShield: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
 
@@ -83,12 +83,84 @@ export function timingAllows(s: GameState, p: PlayerId, effects: Effect[], windo
   return true
 }
 
-/** Board requirements that are not timing ("When the Bulma ally is in play"). */
-export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: Effect[]): boolean {
-  for (const d of findCustom(effects, 'stealOrCaptureDragonBall')) {
-    const ally = d.requiresAlly as string | undefined
-    if (ally && !s.players[p].allies.some(a => def(db, a.card).personality?.character === ally)) return false
+/**
+ * Requirements that are not timing: "when the Bulma ally is in play", "you have to discard
+ * another card", "if there are not enough cards, don't use this ability". `card` is the card
+ * being used, so it does not count as one of the other cards in hand.
+ */
+export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: Effect[], card?: CardInstance): boolean {
+  const pl = s.players[p]
+  const hasAlly = (who: unknown) =>
+    who === true || who === undefined ? pl.allies.length > 0 : pl.allies.some(a => def(db, a.card).personality?.character === who)
+  for (const h of ['stealOrCaptureDragonBall', 'searchDeck']) {
+    for (const d of findCustom(effects, h)) if (d.requiresAlly && !hasAlly(d.requiresAlly)) return false
   }
+  for (const d of findCustom(effects, 'allyEffect')) {
+    if ((d.requiresAlly || ['removeFromGame', 'transferStages', 'redirectDamage'].includes(d.action as string)) && !hasAlly(d.requiresAlly)) return false
+    if (d.requiresMainPersonality && mpDef(s, db, p).personality!.character !== d.requiresMainPersonality) return false
+  }
+  for (const d of findCustom(effects, 'discardFromHand')) {
+    if (d.requirement && pl.hand.filter(c => c.iid !== card?.iid).length < Number(d.amount ?? 1)) return false
+  }
+  for (const d of findCustom(effects, 'useDiscardAsLifeDeck')) {
+    if (d.requireEnough && pl.discard.length < Number(d.cards ?? 3)) return false
+  }
+  return true
+}
+
+/** Cards that only work while lying on the table (shields); there is nothing to "use". */
+export const worksFromTable = (d: CardDef) => findCustom(d.effects.onEnterPlay, 'shieldNextAttack').length > 0
+
+/** Drill "stop the first physical attack made on you in a combat": the drill that stops this one. */
+export function autoStop(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY'): string | null {
+  const c = s.combat!
+  for (const drill of s.players[defender].drills) {
+    const d = def(db, drill)
+    for (const a of findCustom(d.effects.onEnterPlay, 'autoStopAttack')) {
+      if (!typeMatches(a.attackType, attack)) continue
+      const key = `${drill.iid}:autoStop`
+      const used = c.onceKeys.filter(k => k === key).length
+      if (used >= Number(a.count ?? 1)) continue
+      c.onceKeys.push(key)
+      return d.name
+    }
+  }
+  return null
+}
+
+/**
+ * Shields on the table ("the first successful physical attack on you is stopped").
+ * `lifeCardsOnly` picks the kind that only stops life card damage. Returns the shield used.
+ */
+export function useShield(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY', lifeCardsOnly: boolean): string | null {
+  const pl = s.players[defender]
+  for (const card of pl.nonCombat) {
+    const d = def(db, card)
+    const sh = findCustom(d.effects.onEnterPlay, 'shieldNextAttack')[0]
+    if (!sh || !typeMatches(sh.attackType, attack)) continue
+    if ((sh.trigger === 'successfulAttackLifeCardDamage') !== lifeCardsOnly) continue
+    pl.nonCombat = pl.nonCombat.filter(c => c !== card)
+    if (sh.removeAfterUse || d.effects.postResolution === 'REMOVE') pl.removed.push(card)
+    else pl.discard.push(card)
+    return d.name
+  }
+  return null
+}
+
+/** "All the damage you would take this combat destroys one of your allies instead." */
+export function allyAbsorbs(s: GameState, db: CardDB, defender: PlayerId): boolean {
+  const c = s.combat!
+  if (!c.allyShield.includes(defender)) return false
+  const key = `allyShield:${defender}`
+  if (c.onceKeys.includes(key)) return true
+  const pl = s.players[defender]
+  if (!pl.allies.length) return false
+  c.onceKeys.push(key)
+  // assumption: the weakest ally is the one that falls
+  const weakest = [...pl.allies].sort((a, b) => a.stage - b.stage)[0]
+  pl.allies = pl.allies.filter(a => a !== weakest)
+  pl.discard.push(weakest.card)
+  log(s, 'ALLY_DOWN', `${def(db, weakest.card).name} takes the damage and is destroyed`, defender)
   return true
 }
 

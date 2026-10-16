@@ -1,4 +1,4 @@
-import { attackRestriction, findCustom, isAutoOnly, requirementsMet, timingAllows, type Window } from './abilities'
+import { attackRestriction, findCustom, isAutoOnly, requirementsMet, timingAllows, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { canPayCost, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
 import { canUseCard, def, mpDef } from './state'
@@ -40,7 +40,7 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
       return [
         ...s.players[a].hand.filter(c => canPlayNonCombat(s, db, c.iid)).map(c => ({ type: 'PLAY_CARD' as const, player: a, iid: c.iid })),
         // unused Non-Combat powers that are not an attack or block can be used right away
-        ...s.players[a].nonCombat.filter(c => !def(db, c).combatRole && usableNow(s, db, a, def(db, c), 'NON_COMBAT')).map(c => ({ type: 'PLAY_CARD' as const, player: a, iid: c.iid })),
+        ...s.players[a].nonCombat.filter(c => !def(db, c).combatRole && usableNow(s, db, a, c, 'NON_COMBAT')).map(c => ({ type: 'PLAY_CARD' as const, player: a, iid: c.iid })),
         { type: 'END_NON_COMBAT', player: a },
       ]
     case 'DECLARE':
@@ -53,13 +53,13 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
         if (!d.combatRole) return false
         if (!isAttackRole(d.combatRole) && !(d.combatRole === 'COMBAT_EFFECT' && d.usePhase !== 'DEFEND')) return false
         if (attackRestriction(s, p, d.combatRole)) return false
-        return usableNow(s, db, p, d, 'ATTACK') && canPayCost(s, p, strikeOf(db, c))
+        return usableNow(s, db, p, c, 'ATTACK') && canPayCost(s, p, strikeOf(db, c))
       }
       const pl = s.players[p]
       const out: Action[] = [
         ...pl.hand.filter(c => COMBAT_TYPES.has(def(db, c).type) && usableAsAttack(c)),
         // unused Non-Combat cards on the table: as an attack, or their power in place of an attack
-        ...pl.nonCombat.filter(c => !def(db, c).combatRole ? usableNow(s, db, p, def(db, c), 'ATTACK') : usableAsAttack(c)),
+        ...pl.nonCombat.filter(c => !def(db, c).combatRole ? usableNow(s, db, p, c, 'ATTACK') : usableAsAttack(c)),
       ].map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid }))
       const mp = mpDef(s, db, p)
       if (powerUsableInAttack(s, db, p, mp)) out.push({ type: 'USE_POWER', player: p })
@@ -72,9 +72,11 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
 }
 
 /** Usage restriction, play timing and board requirements of a card at this moment. */
-function usableNow(s: GameState, db: CardDB, p: PlayerId, d: CardDef, window: Window) {
+function usableNow(s: GameState, db: CardDB, p: PlayerId, c: CardInstance, window: Window) {
+  const d = def(db, c)
+  if (worksFromTable(d)) return false
   const effects = [...d.effects.onPlaySecondary, ...d.effects.onEnterPlay]
-  return canUseCard(s, db, p, d) && timingAllows(s, p, effects, window) && requirementsMet(s, db, p, effects)
+  return canUseCard(s, db, p, d) && timingAllows(s, p, effects, window) && requirementsMet(s, db, p, effects, c)
 }
 
 /** Attack powers and "in place of an attack" powers; defensive powers wait for the defend window. */

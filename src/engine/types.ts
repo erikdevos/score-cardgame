@@ -85,6 +85,8 @@ export interface CombatState {
   usedPowers: string[]
   ended: boolean
   restrictions: AttackRestriction[]
+  /** "all the damage you would take this combat destroys one of your allies instead" */
+  allyShield: PlayerId[]
   damageMods: CombatDamageMod[]
   /** cards that stay on the table for N more uses this combat, by iid */
   extraUses: Record<string, number>
@@ -99,12 +101,18 @@ export interface LastAttack {
   success: boolean
 }
 
-export type PickZone = 'discard' | 'dragonBalls' | 'lifeDeck'
-export type PickDest = 'HAND' | 'LIFE_TOP' | 'LIFE_BOTTOM' | 'PICKER_DRAGON_BALLS' | 'OWNER_LIFE_BOTTOM'
+export type PickZone = 'discard' | 'dragonBalls' | 'lifeDeck' | 'hand' | 'drills' | 'allies' | 'nonCombat'
+export type PickDest =
+  | 'HAND' | 'LIFE_TOP' | 'LIFE_BOTTOM' | 'PICKER_DRAGON_BALLS' | 'OWNER_LIFE_BOTTOM'
+  | 'DISCARD' | 'REMOVED'
+  /** put into play for the picker: Dragon Ball, drill or ally (ally at `allyStage`) */
+  | 'PLAY'
+  /** an ally gives its power stages to the main personality; the card stays */
+  | 'ALLY_TO_MP_STAGES'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
-  | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zone: PickZone; count: number; dest: PickDest; eligible: string[]; source: string }
+  | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
 
 export type PendingChoice =
@@ -142,6 +150,10 @@ export interface GameState {
   skipCombat: { player: PlayerId; turn: number; source: string }[]
   /** once-per-game uses (keys) */
   usedPerGame: string[]
+  /** "uses the bottom N cards of the discard pile for the next combat instead of the life deck" */
+  discardAsLife: { player: PlayerId; remaining: number; armed: boolean; source: string }[]
+  /** effects that happen at the start of a later turn */
+  delayed: { player: PlayerId; turn: number; kind: 'plantAlly'; character: string; source: string }[]
   winner: PlayerId | null
   winReason: WinReason | null
   log: GameEvent[]

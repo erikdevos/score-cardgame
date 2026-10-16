@@ -58,7 +58,8 @@ const prompt = computed(() => {
 const pickCards = computed<{ card: CardInstance; a: Action }[]>(() => {
   const pc = props.state.pendingChoice
   if (pc?.kind !== 'PICK') return []
-  const zone = props.state.players[pc.owner][pc.zone]
+  const pl = props.state.players[pc.owner]
+  const zone = pc.zones.flatMap(z => (z === 'allies' ? pl.allies.map(x => x.card) : pl[z]))
   return props.legal.flatMap(a => {
     if (a.type !== 'PICK') return []
     const card = zone.find(c => c.iid === a.iid)

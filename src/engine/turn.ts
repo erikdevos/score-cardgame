@@ -13,6 +13,29 @@ export function startTurn(s: GameState, db: CardDB) {
   s.combat = null
   log(s, 'TURN', `Turn ${s.turn}: player ${s.attacker + 1} attacks`, s.attacker)
   drawCards(s, s.attacker, s.rules.drawPerTurn)
+  runDelayed(s, db)
+}
+
+/** "On his next turn, he takes his highest level Saibaimen and puts it into play as an ally." */
+function runDelayed(s: GameState, db: CardDB) {
+  const due = s.delayed.filter(x => x.turn === s.turn && x.player === s.attacker)
+  s.delayed = s.delayed.filter(x => !due.includes(x))
+  for (const x of due) {
+    const pl = s.players[x.player]
+    const zones = [pl.hand, pl.lifeDeck, pl.discard]
+    const candidates = zones.flat().filter(c => def(db, c).personality?.character === x.character)
+    if (!candidates.length) {
+      log(s, 'NO_EFFECT', `${x.source}: no ${x.character} card found`, x.player)
+      continue
+    }
+    const best = candidates.sort((a, b) => def(db, b).personality!.level - def(db, a).personality!.level)[0]
+    for (const z of zones) {
+      const i = z.indexOf(best)
+      if (i >= 0) z.splice(i, 1)
+    }
+    pl.allies.push({ card: best, stage: s.rules.allyStartStage })
+    log(s, 'PLANT', `${x.source}: ${def(db, best).name} enters play as an ally`, x.player)
+  }
 }
 
 // Step 2
@@ -92,6 +115,7 @@ export function declareCombat(s: GameState, db: CardDB) {
   log(s, 'DECLARE', `Player ${s.attacker + 1} declares combat`, s.attacker)
   s.step = 'COMBAT'
   s.combat = newCombat(s.attacker)
+  for (const x of s.discardAsLife) x.armed = true
   drawCards(s, defender, s.rules.defenderCombatDraw)
   if (over(s)) return
   autoPowers(s, db)
@@ -144,6 +168,7 @@ export function advanceCombat(s: GameState, db: CardDB) {
       extra.forEach(x => retire(s, x, def(db, x).effects.postResolution))
     }
     s.combat = null
+    s.discardAsLife = s.discardAsLife.filter(x => !x.armed)
     return beginDiscardStep(s, db)
   }
   endAttackPhase(c, c.active)

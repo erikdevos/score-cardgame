@@ -15,7 +15,18 @@ Implemented in `src/engine/effects/handlers.ts`, `src/engine/abilities.ts` and `
 - `triggeredEffect` on drills (combat start, attack phase, after receiving a successful attack, optional ones ask first) and SS-221's draw at the start of each combat.
 - `playTiming`: `afterOwnSuccessfulEnergyAttack` and `defendingAgainstEnergyAttack` gate the card or power; `combatStart`, `ownAttackStart` and `defenderDraw` powers resolve automatically when combat is declared. `usageLimit` once per game.
 
+- `shieldNextAttack` (SS-30, SS-31, SS-33): works while the card lies face up in the Non-Combat zone; it is not offered as a "use".
+- `autoStopAttack` (SS-134, SS-135): the drill stops the first attack of that type each combat before the defend window opens.
+- `searchDeck`, `removeFromGame`, `discardFromHand` (a requirement: the card is only playable with another card in hand), `useDiscardAsLifeDeck`.
+- `allyEffect`: requirements (an ally, a named ally, a named main personality), remove an ally as a requirement, damage per ally, stages from an ally to the main personality, an ally absorbs all damage this combat, and planting Saibaimen for the next turn.
+
 Known approximations:
+
+- `useDiscardAsLifeDeck` only replaces life card damage, not the defender's 3-card combat draw (the text says "instead of the cards from his life deck"; the damage reading is an assumption).
+- SS-207 moves as many stages as fit below the main personality's highest stage; the text leaves the amount open.
+- SS-156: when the damage arrives, the engine destroys the ally with the lowest stage; the text does not say who chooses.
+- SS-105 (Chiaotzu removes himself): only applies when Chiaotzu is an ally; as a main personality he stays in play.
+- SS-213: a highest level Saibaimen is taken from hand, life deck or discard pile at the start of the next turn; the text does not say where it comes from.
 
 - Choices raised in the middle of a strike (for example "draw 2 cards of your choice" as a secondary effect) are asked after the action has resolved, not mid-strike.
 - `playTiming` `anyTime`, `endOfTurn` and `afterOpponentPaysAttackCost` are not enforced beyond the normal windows; `namedFoe` and the "Earth Dragon Ball" filter are ignored (two players, one Dragon Ball set).
