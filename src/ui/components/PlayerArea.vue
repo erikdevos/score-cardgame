@@ -4,12 +4,13 @@ import { def, handLimit, mpDef, type Action, type GameState, type PlayerId } fro
 import { db } from '../cardDb'
 import CardView from './CardView.vue'
 
-const props = defineProps<{ state: GameState; p: PlayerId; showHand: boolean; legal: Action[]; top?: boolean }>()
+const props = defineProps<{ state: GameState; p: PlayerId; showHand: boolean; legal: Action[]; top?: boolean; acting?: boolean }>()
 const emit = defineEmits<{ act: [Action] }>()
 
 const pl = computed(() => props.state.players[props.p])
 const mp = computed(() => mpDef(props.state, db, props.p))
-const ratings = computed(() => mp.value.personality!.powerRatings)
+const per = computed(() => mp.value.personality!)
+const stages = computed(() => Array.from({ length: props.state.rules.maxStage + 1 }, (_, i) => props.state.rules.maxStage - i))
 
 /** The legal action, if any, that a click on this card instance performs. */
 function actionFor(iid: string): Action | undefined {
@@ -20,66 +21,90 @@ function click(iid: string) {
   if (a) emit('act', a)
 }
 const topDiscard = computed(() => pl.value.discard.at(-1))
+const hasTable = computed(() => pl.value.dragonBalls.length + pl.value.nonCombat.length + pl.value.drills.length + pl.value.allies.length > 0)
 </script>
 
 <template>
-  <section class="player" :class="{ top, active: state.attacker === p }">
-    <div class="mp">
-      <CardView :card="mp" />
-      <div class="track" aria-label="Power stages">
-        <div v-for="i in 11" :key="i" class="stage" :class="{ on: pl.mp.stage === 11 - i }">
-          <span>{{ 11 - i }}</span><span>{{ ratings[11 - i].toLocaleString() }}</span>
+  <section class="player" :class="[per.alignment === 'Villain' ? 'villain' : 'hero', { top, attacker: state.attacker === p, acting }]">
+    <div class="hud">
+      <div class="who">
+        <span class="badge">P{{ p + 1 }}</span>
+        <div>
+          <h3>{{ per.character }} <small>Level {{ pl.mp.levelIndex + 1 }}/{{ pl.mp.stack.length }}</small></h3>
+          <p class="sub">
+            <span :class="per.alignment === 'Villain' ? 'tag villain' : 'tag hero'">{{ per.alignment }}</span>
+            <span class="tag">PUR {{ per.pur }}</span>
+            <span v-if="state.attacker === p" class="tag attack">Attacker</span>
+          </p>
         </div>
       </div>
-      <div class="stats">
-        <h3>Player {{ p + 1 }} <small v-if="state.attacker === p">attacker</small></h3>
-        <p>{{ mp.personality!.character }} · Level {{ pl.mp.levelIndex + 1 }}/{{ pl.mp.stack.length }}</p>
-        <p>PUR {{ mp.personality!.pur }} · {{ mp.personality!.alignment }}</p>
-        <div class="anger" aria-label="Anger">
-          Anger
-          <span v-for="i in state.rules.maxAnger" :key="i" class="pip" :class="{ on: pl.mp.anger >= i }" />
-        </div>
-        <p class="piles">
-          Life deck <b>{{ pl.lifeDeck.length }}</b> · Hand <b>{{ pl.hand.length }}</b> (limit {{ handLimit(state, db, p) }})
-          · Discard <b>{{ pl.discard.length }}</b> · Removed <b>{{ pl.removed.length }}</b>
-        </p>
-        <p v-if="mp.personality!.power" class="power"><b>{{ mp.personality!.power.name }}:</b> {{ mp.personality!.power.text }}</p>
+      <div class="anger" :aria-label="`Anger ${pl.mp.anger} of ${state.rules.maxAnger}`">
+        <span class="lbl">Anger</span>
+        <span v-for="i in state.rules.maxAnger" :key="i" class="pip" :class="{ on: pl.mp.anger >= i }" />
       </div>
-      <div class="pile">
-        <CardView v-if="topDiscard" :card="def(db, topDiscard)" small />
-        <CardView v-else face-down small label="Discard" />
+      <div v-if="!showHand" class="opp-hand" :aria-label="`${pl.hand.length} cards in hand`">
+        <CardView v-for="c in pl.hand" :key="c.iid" face-down size="xs" label="" />
+        <span class="muted">{{ pl.hand.length }} in hand</span>
       </div>
     </div>
 
-    <div class="table">
-      <div v-if="pl.dragonBalls.length" class="zone">
-        <h4>Dragon Balls</h4>
-        <CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" small :playable="!!actionFor(c.iid)" @click="click(c.iid)" />
+    <div class="field">
+      <div class="mp-col">
+        <CardView :card="mp" :size="top ? 'md' : 'lg'" />
+        <p v-if="per.power && !top" class="power"><b>{{ per.power.name }}</b> {{ per.power.text }}</p>
       </div>
-      <div v-if="pl.nonCombat.length" class="zone">
-        <h4>Non-Combat (unused)</h4>
-        <CardView v-for="c in pl.nonCombat" :key="c.iid" :card="def(db, c)" small :playable="!!actionFor(c.iid)" @click="click(c.iid)" />
-      </div>
-      <div v-if="pl.drills.length" class="zone">
-        <h4>Drills</h4>
-        <CardView v-for="c in pl.drills" :key="c.iid" :card="def(db, c)" small />
-      </div>
-      <div v-if="pl.allies.length" class="zone">
-        <h4>Allies</h4>
-        <div v-for="a in pl.allies" :key="a.card.iid" class="ally">
-          <CardView :card="def(db, a.card)" small />
-          <span>stage {{ a.stage }}</span>
+
+      <ol class="meter" aria-label="Power stages">
+        <li v-for="i in stages" :key="i" :class="{ on: pl.mp.stage === i, below: pl.mp.stage > i, zero: i === 0 }">
+          <span class="n">{{ i }}</span><span class="r">{{ per.powerRatings[i].toLocaleString() }}</span>
+        </li>
+      </ol>
+
+      <div class="table">
+        <div v-if="pl.dragonBalls.length" class="zone">
+          <h4>Dragon Balls</h4>
+          <div class="row"><CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" size="sm" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
+        </div>
+        <div v-if="pl.nonCombat.length" class="zone">
+          <h4>Non-Combat (ready)</h4>
+          <div class="row"><CardView v-for="c in pl.nonCombat" :key="c.iid" :card="def(db, c)" size="sm" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
+        </div>
+        <div v-if="pl.drills.length" class="zone">
+          <h4>Drills</h4>
+          <div class="row"><CardView v-for="c in pl.drills" :key="c.iid" :card="def(db, c)" size="sm" /></div>
+        </div>
+        <div v-if="pl.allies.length" class="zone">
+          <h4>Allies</h4>
+          <div class="row">
+            <div v-for="a in pl.allies" :key="a.card.iid" class="ally">
+              <CardView :card="def(db, a.card)" size="sm" />
+              <span>stage {{ a.stage }}</span>
+            </div>
+          </div>
+        </div>
+        <p v-if="!hasTable" class="empty-zone">No cards in play</p>
+        <div class="piles">
+          <div class="pile">
+            <CardView face-down size="sm" label="Life" :count="pl.lifeDeck.length" />
+            <span>Life deck</span>
+          </div>
+          <div class="pile">
+            <CardView v-if="topDiscard" :card="def(db, topDiscard)" size="sm" :count="pl.discard.length" />
+            <div v-else class="slot">empty</div>
+            <span>Discard</span>
+          </div>
+          <p class="muted small">Removed {{ pl.removed.length }}</p>
         </div>
       </div>
+
     </div>
 
-    <div class="hand">
-      <template v-if="showHand">
-        <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" :playable="!!actionFor(c.iid)" @click="click(c.iid)" />
-      </template>
-      <template v-else>
-        <CardView v-for="c in pl.hand" :key="c.iid" face-down small />
-      </template>
+    <div v-if="showHand" class="hand-wrap">
+      <h4>Your hand <small>{{ pl.hand.length }} cards · keep {{ handLimit(state, db, p) }} at end of turn</small></h4>
+      <div class="hand">
+        <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="md" :playable="!!actionFor(c.iid)" @click="click(c.iid)" />
+        <p v-if="!pl.hand.length" class="empty-zone">Empty hand</p>
+      </div>
     </div>
   </section>
 </template>

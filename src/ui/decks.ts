@@ -5,6 +5,8 @@ import { realCards } from './cardDb'
 export interface DeckChoice {
   key: string
   label: string
+  /** Level 1 Main Personality, for the menu preview */
+  mpId: string
   build: (seed: number) => DeckList
 }
 
@@ -46,13 +48,12 @@ function autoDeck(mp: string[], character: string, seed: number): DeckList {
 }
 
 export function deckChoices(): DeckChoice[] {
-  const out: DeckChoice[] = [
-    { key: 'demo-hero', label: 'Demo: Test Hero (fictional cards)', build: () => testDeck(heroMP) },
-    { key: 'demo-villain', label: 'Demo: Test Villain (fictional cards)', build: () => testDeck(villainMP) },
-  ]
-  for (const { character, mp } of realCharacters()) {
-    out.push({ key: `auto-${character}`, label: `${character} (auto deck, real cards)`, build: seed => autoDeck(mp, character, seed) })
-  }
+  const out: DeckChoice[] = realCharacters().map(({ character, mp }) => (
+    { key: `auto-${character}`, label: character, mpId: mp[0], build: (seed: number) => autoDeck(mp, character, seed) }))
+  out.push(
+    { key: 'demo-hero', label: 'Test deck: Hero (fictional, no images)', mpId: heroMP[0], build: () => testDeck(heroMP) },
+    { key: 'demo-villain', label: 'Test deck: Villain (fictional, no images)', mpId: villainMP[0], build: () => testDeck(villainMP) },
+  )
   return out
 }
 

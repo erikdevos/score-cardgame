@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { CardDef } from '../../engine'
+import { hidePreview, showPreview } from '../preview'
 
-const props = defineProps<{ card?: CardDef; faceDown?: boolean; playable?: boolean; small?: boolean; label?: string }>()
-defineEmits<{ click: [] }>()
+const props = defineProps<{ card?: CardDef; faceDown?: boolean; playable?: boolean; size?: 'xs' | 'sm' | 'md' | 'lg'; label?: string; count?: number }>()
+const emit = defineEmits<{ click: [] }>()
+
+const failed = ref(false)
+watch(() => props.card?.imageUrl, () => (failed.value = false))
+const faceUp = computed(() => !!props.card && !props.faceDown)
 
 const summary = computed(() => {
   const c = props.card
@@ -19,24 +24,31 @@ const summary = computed(() => {
   for (const p of c.passives) bits.push(p.kind.toLowerCase())
   return bits.join(' · ')
 })
+
+function onClick() {
+  if (props.playable) return emit('click')
+  if (faceUp.value) showPreview(props.card, true) // touch devices: tap a card to read it
+}
 </script>
 
 <template>
   <button
     class="card"
-    :class="{ small, playable, back: faceDown || !card, [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: card && !faceDown }"
-    :title="card && !faceDown ? `${card.name}\n${card.type}\n${card.rawText}` : ''"
-    :disabled="!playable"
-    @click="$emit('click')"
+    :class="[`size-${size ?? 'md'}`, { playable, back: !faceUp, [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: faceUp }]"
+    :aria-label="faceUp ? `${card!.name}, ${card!.type}` : (label ?? 'Face-down card')"
+    @click="onClick"
+    @mouseenter="faceUp && showPreview(card)"
+    @mouseleave="hidePreview()"
   >
-    <template v-if="card && !faceDown">
-      <img v-if="card.imageUrl" :src="card.imageUrl" :alt="card.name" loading="lazy" />
+    <template v-if="faceUp">
+      <img v-if="card!.imageUrl && !failed" :src="card!.imageUrl" :alt="card!.name" loading="lazy" draggable="false" @error="failed = true" />
       <div v-else class="text-card">
-        <strong>{{ card.name }}</strong>
-        <em>{{ card.type }}</em>
+        <strong>{{ card!.name }}</strong>
+        <em>{{ card!.type }}</em>
         <span>{{ summary }}</span>
       </div>
     </template>
-    <span v-else class="back-label">{{ label ?? 'DBZ' }}</span>
+    <span v-else class="back-art" aria-hidden="true"><span class="ball">&#9733;</span><span class="back-label">{{ label ?? 'DBZ' }}</span></span>
+    <span v-if="count !== undefined" class="count">{{ count }}</span>
   </button>
 </template>
