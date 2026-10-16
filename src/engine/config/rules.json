@@ -1,0 +1,30 @@
+{
+  "mode": "PURE_2000",
+  "deck": { "minLife": 50, "maxLife": 85, "maxCopies": 3, "maxNamedCopies": 4 },
+  "startStage": 5,
+  "levelUpStage": 5,
+  "maxStage": 10,
+  "maxAnger": 5,
+  "drawPerTurn": 3,
+  "defenderCombatDraw": 3,
+  "handLimit": 1,
+  "allyStartStage": 3,
+  "allyPowerUp": 1,
+  "dragonBallCaptureLifeCards": 5,
+  "uniqueDragonBallNumbers": true,
+  "uniqueDrillsPerPlayer": true,
+  "initiative": { "mode": "LOWER_FIRST", "dominanceRatio": 2, "dominantStage": 2, "weakerStage": 10 },
+  "energyAttack": { "defaultCostStages": 2, "defaultLifeCards": 4 },
+  "pat": {
+    "brackets": [0, 500, 1000, 2500, 10000, 20000, 50000],
+    "matrix": [
+      [2, 1, 1, 1, 0, 0, 0],
+      [3, 2, 2, 1, 1, 0, 0],
+      [4, 3, 2, 2, 1, 1, 0],
+      [5, 4, 3, 3, 2, 1, 1],
+      [6, 5, 4, 3, 3, 2, 2],
+      [7, 6, 5, 4, 4, 3, 2],
+      [8, 7, 6, 5, 4, 3, 3]
+    ]
+  }
+}
