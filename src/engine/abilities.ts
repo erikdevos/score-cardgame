@@ -1,0 +1,174 @@
+// Shared rules helpers for card abilities: CUSTOM param lookup, attack restrictions,
+// timing gates, defenses (cards, dual-use cards and personality powers) and damage changes.
+import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
+import type { Damage } from './damage'
+import { def, log, mpDef } from './state'
+import type { AttackType, CombatState, GameState, PlayerId } from './types'
+
+export type Params = Record<string, unknown>
+
+export function newCombat(active: PlayerId): CombatState {
+  return {
+    active, consecutivePasses: 0, strike: null, usedPowers: [], ended: false,
+    restrictions: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+  }
+}
+
+/** Params of every CUSTOM effect with this handler, including ones nested in `then`. */
+export function findCustom(effects: Effect[], handler: string): Params[] {
+  const out: Params[] = []
+  for (const e of effects) {
+    if (e.action !== 'CUSTOM') continue
+    const p = e.params ?? {}
+    if (e.handler === handler) out.push(p)
+    if (Array.isArray(p.then)) out.push(...findCustom(p.then as Effect[], handler))
+  }
+  return out
+}
+
+export const allEffects = (e: StrikeDef['effects']) => [...e.onPlaySecondary, ...e.onHit, ...e.onEnterPlay]
+
+export function attackTypeOf(role?: CombatRole): 'PHYSICAL' | 'ENERGY' | null {
+  return role === 'ATTACK_PHYSICAL' ? 'PHYSICAL' : role === 'ATTACK_ENERGY' ? 'ENERGY' : null
+}
+export const typeMatches = (t: unknown, actual: 'PHYSICAL' | 'ENERGY') => t === undefined || t === 'ANY' || t === actual
+
+/** The effect that currently stops player p from making an attack with this role, if any. */
+export function attackRestriction(s: GameState, p: PlayerId, role?: CombatRole): string | null {
+  const type = attackTypeOf(role)
+  if (!s.combat || !type) return null
+  return s.combat.restrictions.find(r => r.player === p && !r.skipCurrent && typeMatches(r.attackType, type))?.source ?? null
+}
+
+export function restrictAttacks(s: GameState, p: PlayerId, attackType: AttackType, phases: number, source: string) {
+  const c = s.combat
+  if (!c) return log(s, 'WARN', `${source}: no combat to apply the restriction to`)
+  c.restrictions.push({ player: p, attackType, phases, skipCurrent: phases < 99 && c.active === p, source })
+  const what = attackType === 'ANY' ? 'attacks' : `${attackType.toLowerCase()} attacks`
+  log(s, 'RESTRICT', `${source}: player ${p + 1} cannot make ${what} ${phases >= 99 ? 'for the rest of this combat' : 'in their next attack phase'}`, p)
+}
+
+/** Called when player p's attack phase ends. */
+export function endAttackPhase(c: CombatState, p: PlayerId) {
+  for (const r of c.restrictions) {
+    if (r.player !== p) continue
+    if (r.skipCurrent) r.skipCurrent = false
+    else r.phases--
+  }
+  c.restrictions = c.restrictions.filter(r => r.phases > 0)
+}
+
+/** Timings that resolve automatically (personality powers) instead of being chosen. */
+export const AUTO_TIMINGS = new Set(['defenderDraw', 'combatStart', 'ownAttackStart'])
+export type Window = 'NON_COMBAT' | 'ATTACK' | 'DEFEND'
+export const isAutoOnly = (effects: Effect[]) => findCustom(effects, 'playTiming').some(t => AUTO_TIMINGS.has(t.when as string))
+
+function lastAttackWas(s: GameState, p: PlayerId, type: 'PHYSICAL' | 'ENERGY') {
+  const l = s.combat?.lastAttack[p]
+  return !!l && l.success && l.type === type
+}
+
+/** Play timing and requirements printed on a card or power: may p use it now? */
+export function timingAllows(s: GameState, p: PlayerId, effects: Effect[], window: Window): boolean {
+  for (const t of findCustom(effects, 'playTiming')) {
+    const when = t.when as string
+    if (AUTO_TIMINGS.has(when)) return false
+    if (when === 'afterOwnSuccessfulEnergyAttack' && !lastAttackWas(s, p, 'ENERGY')) return false
+    if (when === 'defendingAgainstEnergyAttack' && (window !== 'DEFEND' || attackTypeOf(s.combat?.strike?.strike.combatRole) !== 'ENERGY')) return false
+  }
+  for (const d of findCustom(effects, 'stealOrCaptureDragonBall')) {
+    if (d.trigger === 'afterSuccessfulPhysicalAttack' && !lastAttackWas(s, p, 'PHYSICAL')) return false
+    if (d.trigger === 'afterSuccessfulEnergyAttack' && !lastAttackWas(s, p, 'ENERGY')) return false
+  }
+  return true
+}
+
+/** Board requirements that are not timing ("When the Bulma ally is in play"). */
+export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: Effect[]): boolean {
+  for (const d of findCustom(effects, 'stealOrCaptureDragonBall')) {
+    const ally = d.requiresAlly as string | undefined
+    if (ally && !s.players[p].allies.some(a => def(db, a.card).personality?.character === ally)) return false
+  }
+  return true
+}
+
+const STOP: Defense = { mode: 'STOP', stages: 0, lifeCards: 0 }
+
+function roleFits(role: CombatRole | undefined, attack: 'PHYSICAL' | 'ENERGY') {
+  return role === 'DEFENSE_ANY' || (role === 'DEFENSE_PHYSICAL' && attack === 'PHYSICAL') || (role === 'DEFENSE_ENERGY' && attack === 'ENERGY')
+}
+
+export interface DefenseOption {
+  /** the strike used to pay costs and resolve secondaries */
+  strike: StrikeDef
+  defense: Defense | null
+}
+
+/** How a card can answer an attack of this type, or null when it cannot. */
+export function cardDefense(d: CardDef, attack: 'PHYSICAL' | 'ENERGY'): DefenseOption | null {
+  const strike: StrikeDef = { combatRole: d.combatRole!, cost: d.cost, damage: d.damage, effects: d.effects }
+  if (roleFits(d.combatRole, attack)) return { strike, defense: d.defense ?? STOP }
+  if (d.combatRole === 'COMBAT_EFFECT' && d.usePhase === 'DEFEND') return { strike, defense: d.defense ?? null }
+  return dualUseDefense(strike, attack)
+}
+
+/** "Attack ... or stops an energy attack": the alternative defensive use (rulebook p. 20). */
+function dualUseDefense(strike: StrikeDef, attack: 'PHYSICAL' | 'ENERGY'): DefenseOption | null {
+  const alt = findCustom(strike.effects.onPlaySecondary, 'dualUse')[0]?.alternative as { combatRole?: CombatRole; defense?: unknown } | undefined
+  if (!alt || !roleFits(alt.combatRole, attack)) return null
+  // the attack's own cost (e.g. the default energy cost) does not apply to the defensive use
+  return { strike: { ...strike, combatRole: alt.combatRole!, cost: undefined }, defense: DefenseSchema.parse(alt.defense ?? {}) }
+}
+
+/** The defender's personality power as an answer to the current strike, if it can be used. */
+export function powerDefense(s: GameState, db: CardDB, defender: PlayerId): DefenseOption | null {
+  const c = s.combat
+  const attack = attackTypeOf(c?.strike?.strike.combatRole)
+  if (!c || !attack) return null
+  const mp = mpDef(s, db, defender)
+  const power = mp.personality!.power
+  if (!power || c.usedPowers.includes(`${defender}:${mp.id}`)) return null
+  const strike = power.strike
+  const pd = findCustom(strike.effects.onPlaySecondary, 'powerDefense')[0]
+  if (pd) {
+    if (!typeMatches(pd.attackType, attack)) return null
+    const protects = pd.protects as string[] | undefined
+    if (protects && !protects.includes(mp.personality!.character)) return null
+    return { strike, defense: DefenseSchema.parse({ mode: pd.mode, stages: pd.stages, lifeCards: pd.lifeCards, maxStages: pd.maxStages, maxLifeCards: pd.maxLifeCards }) }
+  }
+  if (isDefenseRole(strike.combatRole)) return roleFits(strike.combatRole, attack) ? { strike, defense: STOP } : null
+  if (strike.combatRole === 'COMBAT_EFFECT') return timingAllows(s, defender, strike.effects.onPlaySecondary, 'DEFEND') && findCustom(strike.effects.onPlaySecondary, 'playTiming').length ? { strike, defense: null } : null
+  return dualUseDefense(strike, attack)
+}
+
+export function applyDefense(dmg: Damage, d: Defense): Damage {
+  if (d.mode === 'REDUCE') return { stages: Math.max(0, dmg.stages - d.stages), lifeCards: Math.max(0, dmg.lifeCards - d.lifeCards) }
+  if (d.mode === 'CAP') return { stages: Math.min(dmg.stages, d.maxStages ?? dmg.stages), lifeCards: Math.min(dmg.lifeCards, d.maxLifeCards ?? dmg.lifeCards) }
+  return { stages: 0, lifeCards: 0 }
+}
+
+/** Ongoing damage changes on attacks against `defender`: combat effects and drills. */
+export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY', dmg: Damage): Damage {
+  const c = s.combat!
+  let { stages, lifeCards } = dmg
+  for (const m of c.damageMods) {
+    if (m.player !== defender || !typeMatches(m.attackType, attack)) continue
+    stages += m.stages
+    lifeCards += m.lifeCards
+    log(s, 'REDUCE', `${m.source} changes the damage`, defender)
+  }
+  for (const drill of s.players[defender].drills) {
+    const d = def(db, drill)
+    for (const m of findCustom(d.effects.onEnterPlay, 'damageModifier')) {
+      if (!m.ongoing || !typeMatches(m.attackType, attack) || lifeCards <= 0) continue
+      if (m.condition === 'foeHasAlly' && !s.players[defender === 0 ? 1 : 0].allies.length) continue
+      const key = `${drill.iid}:damageModifier`
+      if (m.per === 'combat' && c.onceKeys.includes(key)) continue
+      c.onceKeys.push(key)
+      stages += Number(m.stages ?? 0)
+      lifeCards += Number(m.lifeCards ?? 0)
+      log(s, 'REDUCE', `${d.name} changes the damage`, defender)
+    }
+  }
+  return { stages: Math.max(0, stages), lifeCards: Math.max(0, lifeCards) }
+}

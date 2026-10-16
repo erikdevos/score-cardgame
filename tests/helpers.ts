@@ -1,4 +1,4 @@
-import { applyAction, createGame, type Action, type GameState, type PlayerId, type Rules } from '../src/engine'
+import { applyAction, createGame, newCombat, type Action, type GameState, type PlayerId, type Rules } from '../src/engine'
 import { db, heroMP, testDeck, villainMP } from './fixtures/testCards'
 
 export function newGame(seed = 1, rules: Partial<Rules> = {}) {
@@ -19,7 +19,7 @@ export function inCombat(seed = 1, rules: Partial<Rules> = {}): GameState {
   s.attacker = 0
   s.step = 'COMBAT'
   s.pendingChoice = null
-  s.combat = { active: 0, consecutivePasses: 0, strike: null, usedPowers: [], ended: false }
+  s.combat = newCombat(0)
   for (const p of s.players) { p.discard.push(...p.hand); p.hand = [] }
   return s
 }

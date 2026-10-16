@@ -2,6 +2,26 @@
 
 This document lists everything in `src/data/saiyan-saga/cards.json` that the atomic effect DSL in `src/engine/cards.ts` cannot express yet. Cards use `{ "action": "CUSTOM", "handler": "<name>", "params": {...} }` for those parts. All cards are still `verified: false`; the transcription comes from the card images and needs a human check in the review screen.
 
+## Implementation status
+
+Implemented in `src/engine/effects/handlers.ts`, `src/engine/abilities.ts` and `src/engine/effects/triggers.ts` (tests: `tests/handlers.test.ts`):
+
+- `powerDefense`, plus `dualUse` on cards and powers: offered in the defend window (`DEFEND` with an "or stops" card, `DEFEND_POWER` for the personality power). Modes STOP, REDUCE and CAP; `protects` is checked against the defending main personality. Defensive powers are no longer offered as attacks.
+- `preventAttack`, `skipPhase`: attack restrictions per combat (next attack phase of that player, or the rest of the combat) and "skip the combat step of your next turn".
+- `drawFromDiscard`, `recoverFromDiscard`: top, bottom or player's choice (`PICK` choice).
+- `ifUsedBy`, `ifOpponentAlignment`, `optional` (`CONFIRM` choice), `setAnger`, `setLevel`, `staysForExtraUse`.
+- `stealOrCaptureDragonBall`: capture by choice, search own deck, to the bottom of the foe's life deck, `requiresAlly`, and the "after a successful physical/energy attack" timing.
+- `damageModifier`: multiplier on a successful attack, CAP as part of a defense (SS-220), heroes take 1 life card less this combat (SS-250), and the once-per-combat drill reductions (SS-140, SS-141).
+- `triggeredEffect` on drills (combat start, attack phase, after receiving a successful attack, optional ones ask first) and SS-221's draw at the start of each combat.
+- `playTiming`: `afterOwnSuccessfulEnergyAttack` and `defendingAgainstEnergyAttack` gate the card or power; `combatStart`, `ownAttackStart` and `defenderDraw` powers resolve automatically when combat is declared. `usageLimit` once per game.
+
+Known approximations:
+
+- Choices raised in the middle of a strike (for example "draw 2 cards of your choice" as a secondary effect) are asked after the action has resolved, not mid-strike.
+- `playTiming` `anyTime`, `endOfTurn` and `afterOpponentPaysAttackCost` are not enforced beyond the normal windows; `namedFoe` and the "Earth Dragon Ball" filter are ignored (two players, one Dragon Ball set).
+- `extraAttack` (Multi-Form's second attack) is not implemented yet; used as a defense, the power works.
+- `noStacking` is still not enforced.
+
 ## CUSTOM handlers
 
 48 handlers, used by 141 cards. Sorted by number of cards. A card can use several handlers, and CUSTOM effects can be nested (for example `ifUsedBy.then`, `triggeredEffect.then`).

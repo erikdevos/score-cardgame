@@ -1,6 +1,7 @@
 import type { CardDB, Effect } from '../cards'
 import { changeAnger, changeStages, drawCards, log, millCards, over, recoverCards } from '../state'
-import { other, type GameState, type PlayerId } from '../types'
+import { other, type CardInstance, type GameState, type PlayerId } from '../types'
+import { handlers } from './handlers'
 
 export interface EffectContext {
   s: GameState
@@ -8,12 +9,16 @@ export interface EffectContext {
   /** the card user */
   user: PlayerId
   source: string
+  /** the card whose effect this is, when it comes from a card */
+  card?: CardInstance
+  /** resolving an ongoing effect because its trigger happened */
+  triggered?: boolean
 }
 
 export type CustomHandler = (ctx: EffectContext, params: Record<string, unknown>) => void
 
 /** Card-specific behaviour that the atomic DSL cannot express, keyed by handler name. */
-export const customHandlers: Record<string, CustomHandler> = {}
+export const customHandlers: Record<string, CustomHandler> = handlers
 
 export function resolveEffects(ctx: EffectContext, effects: Effect[]) {
   for (const e of effects) {

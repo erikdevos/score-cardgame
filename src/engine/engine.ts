@@ -1,7 +1,8 @@
 import type { CardDB } from './cards'
 import { legalActions } from './legal'
 import { clone } from './state'
-import { defend, stealDragonBall } from './sequencer'
+import { promoteChoice, resolveConfirm, resolvePick } from './effects/choices'
+import { defend, defendWithPower, stealDragonBall } from './sequencer'
 import { advanceCombat, declareCombat, discardFromHand, endNonCombat, passCombat, playCard, rejuvenate, skipCombat, usePower } from './turn'
 import type { Action, GameEvent, GameState } from './types'
 
@@ -26,10 +27,15 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     case 'USE_POWER': usePower(s, db, action.player); break
     case 'PASS': passCombat(s, db, action.player); break
     case 'DEFEND': defend(s, db, action.iid); break
+    case 'DEFEND_POWER': defendWithPower(s, db); break
+    case 'PICK': resolvePick(s, db, action.iid); break
+    case 'CONFIRM': resolveConfirm(s, db, action.accept); break
     case 'STEAL_DB': stealDragonBall(s, db, action.iid); break
     case 'DISCARD': discardFromHand(s, db, action.player, action.iid); break
     case 'REJUVENATE': rejuvenate(s, db, action.accept); break
   }
+  // choices raised by card effects are asked once the action itself has resolved
+  promoteChoice(s, db)
   // Only actions taken inside combat hand the attack phase over; declaring combat does not.
   if (wasInCombat && s.step === 'COMBAT') advanceCombat(s, db)
   return { state: s, events: s.log.slice(before) }

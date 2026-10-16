@@ -1,5 +1,5 @@
 import type rulesJson from './config/rules.json'
-import type { StrikeDef } from './cards'
+import type { Defense, Effect, StrikeDef } from './cards'
 
 export type Rules = typeof rulesJson & { mode: 'PURE_2000' | 'CRD_3' }
 export type PlayerId = 0 | 1
@@ -51,7 +51,30 @@ export interface StrikeState {
   label: string
   phase: StrikePhase
   defenseCard: CardInstance | null
+  /** how the defense (card or power) affects this strike; null = no defense */
+  defense: Defense | null
   lifeCardsDealt: number
+}
+
+export type AttackType = 'PHYSICAL' | 'ENERGY' | 'ANY'
+
+/** "cannot make attacks of type X" for a number of that player's attack phases. */
+export interface AttackRestriction {
+  player: PlayerId
+  attackType: AttackType
+  phases: number
+  /** created during the restricted player's own phase: that phase does not count */
+  skipCurrent: boolean
+  source: string
+}
+
+/** Damage change for attacks on `player` for the rest of this combat. */
+export interface CombatDamageMod {
+  player: PlayerId
+  attackType: AttackType
+  stages: number
+  lifeCards: number
+  source: string
 }
 
 export interface CombatState {
@@ -61,13 +84,36 @@ export interface CombatState {
   strike: StrikeState | null
   usedPowers: string[]
   ended: boolean
+  restrictions: AttackRestriction[]
+  damageMods: CombatDamageMod[]
+  /** cards that stay on the table for N more uses this combat, by iid */
+  extraUses: Record<string, number>
+  /** once-per-combat effects already used (drills etc.) */
+  onceKeys: string[]
+  /** result of each player's most recent attack this combat */
+  lastAttack: [LastAttack | null, LastAttack | null]
 }
+
+export interface LastAttack {
+  type: 'PHYSICAL' | 'ENERGY'
+  success: boolean
+}
+
+export type PickZone = 'discard' | 'dragonBalls' | 'lifeDeck'
+export type PickDest = 'HAND' | 'LIFE_TOP' | 'LIFE_BOTTOM' | 'PICKER_DRAGON_BALLS' | 'OWNER_LIFE_BOTTOM'
+
+/** Choices raised by card effects; they wait until the current action has resolved. */
+export type QueuedChoice =
+  | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zone: PickZone; count: number; dest: PickDest; eligible: string[]; source: string }
+  | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
 
 export type PendingChoice =
   | { kind: 'DEFEND'; player: PlayerId }
   | { kind: 'DB_STEAL'; player: PlayerId }
   | { kind: 'DISCARD_TO_LIMIT'; player: PlayerId; limit: number }
   | { kind: 'REJUVENATE'; player: PlayerId }
+  | (QueuedChoice & { kind: 'PICK' })
+  | (QueuedChoice & { kind: 'CONFIRM' })
 
 export type WinReason = 'SURVIVAL' | 'MPP' | 'DRAGON_BALLS'
 
@@ -91,6 +137,11 @@ export interface GameState {
   pendingChoice: PendingChoice | null
   /** discard step works through attacker, then defender */
   discardQueue: PlayerId[]
+  choiceQueue: QueuedChoice[]
+  /** "skip the combat step of your next turn": player and the turn number it applies to */
+  skipCombat: { player: PlayerId; turn: number; source: string }[]
+  /** once-per-game uses (keys) */
+  usedPerGame: string[]
   winner: PlayerId | null
   winReason: WinReason | null
   log: GameEvent[]
@@ -104,6 +155,9 @@ export type Action =
   | { type: 'USE_POWER'; player: PlayerId }
   | { type: 'PASS'; player: PlayerId }
   | { type: 'DEFEND'; player: PlayerId; iid: string | null }
+  | { type: 'DEFEND_POWER'; player: PlayerId }
+  | { type: 'PICK'; player: PlayerId; iid: string }
+  | { type: 'CONFIRM'; player: PlayerId; accept: boolean }
   | { type: 'STEAL_DB'; player: PlayerId; iid: string | null }
   | { type: 'DISCARD'; player: PlayerId; iid: string }
   | { type: 'REJUVENATE'; player: PlayerId; accept: boolean }

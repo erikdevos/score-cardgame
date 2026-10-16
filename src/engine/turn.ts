@@ -1,6 +1,8 @@
+import { endAttackPhase, findCustom, newCombat } from './abilities'
 import type { CardDB } from './cards'
 import { resolveEffects } from './effects'
-import { beginStrike, strikeOf } from './sequencer'
+import { autoPowers, fireTrigger } from './effects/triggers'
+import { beginStrike, retireUsed, strikeOf } from './sequencer'
 import { changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, takeCard } from './state'
 import { other, type GameState, type PlayerId } from './types'
 
@@ -49,7 +51,7 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
       s.locationPlayedThisTurn = true
       break
   }
-  resolveEffects({ s, db, user: p, source: d.name }, d.effects.onEnterPlay)
+  resolveEffects({ s, db, user: p, source: d.name, card }, d.effects.onEnterPlay)
   if (d.type === 'Dragon Ball') checkDragonBallVictory(s, db)
 }
 
@@ -59,8 +61,8 @@ export function useNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string)
   const d = def(db, card)
   log(s, 'USE', `Player ${p + 1} uses ${d.name}`, p)
   if (s.combat) s.combat.consecutivePasses = 0
-  resolveEffects({ s, db, user: p, source: d.name }, d.effects.onEnterPlay)
-  retire(s, card, d.effects.postResolution)
+  resolveEffects({ s, db, user: p, source: d.name, card }, d.effects.onEnterPlay)
+  retireUsed(s, db, card)
 }
 
 /** PLAY_CARD dispatch: place or play from hand, or use a Non-Combat card already on the table. */
@@ -89,12 +91,23 @@ export function declareCombat(s: GameState, db: CardDB) {
   const defender = other(s.attacker)
   log(s, 'DECLARE', `Player ${s.attacker + 1} declares combat`, s.attacker)
   s.step = 'COMBAT'
-  s.combat = { active: s.attacker, consecutivePasses: 0, strike: null, usedPowers: [], ended: false }
+  s.combat = newCombat(s.attacker)
   drawCards(s, defender, s.rules.defenderCombatDraw)
+  if (over(s)) return
+  autoPowers(s, db)
+  if (over(s)) return
+  fireTrigger(s, db, { kind: 'combatStart' })
+}
+
+/** "Skip the combat step of your next turn" applies to this turn's attacker. */
+export function mustSkipCombat(s: GameState) {
+  return s.skipCombat.some(k => k.player === s.attacker && k.turn === s.turn)
 }
 
 export function skipCombat(s: GameState, db: CardDB) {
-  log(s, 'PASS_COMBAT', `Player ${s.attacker + 1} does not declare combat`, s.attacker)
+  const forced = s.skipCombat.find(k => k.player === s.attacker && k.turn === s.turn)
+  log(s, 'PASS_COMBAT', forced ? `Player ${s.attacker + 1} skips combat (${forced.source})` : `Player ${s.attacker + 1} does not declare combat`, s.attacker)
+  s.skipCombat = s.skipCombat.filter(k => k.turn > s.turn)
   beginDiscardStep(s, db)
 }
 
@@ -109,6 +122,7 @@ export function usePower(s: GameState, db: CardDB, p: PlayerId) {
   const power = d.personality!.power!
   s.combat!.consecutivePasses = 0
   s.combat!.usedPowers.push(`${p}:${d.id}`)
+  if (findCustom(power.strike.effects.onPlaySecondary, 'usageLimit').some(u => u.per === 'game')) s.usedPerGame.push(`${p}:${d.id}`)
   beginStrike(s, db, p, null, power.strike, `${d.name}'s power: ${power.name}`)
 }
 
@@ -123,9 +137,16 @@ export function advanceCombat(s: GameState, db: CardDB) {
   if (!c || c.strike || s.pendingChoice || over(s)) return
   if (c.ended || c.consecutivePasses >= 2) {
     log(s, 'COMBAT_END', 'Combat ends')
+    // cards kept on the table for extra uses leave at the end of combat
+    for (const pl of s.players) {
+      const extra = pl.nonCombat.filter(x => x.iid in c.extraUses)
+      pl.nonCombat = pl.nonCombat.filter(x => !(x.iid in c.extraUses))
+      extra.forEach(x => retire(s, x, def(db, x).effects.postResolution))
+    }
     s.combat = null
     return beginDiscardStep(s, db)
   }
+  endAttackPhase(c, c.active)
   c.active = other(c.active)
 }
 

@@ -225,6 +225,7 @@ code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
 .step { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 999px; color: var(--muted); background: var(--panel-2); }
 .step.on { background: var(--accent); color: var(--accent-text); }
 .prompt { font-size: 15px; font-weight: 600; }
+.pick-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
 .strike { display: flex; gap: 12px; align-items: center; padding: 8px; border-radius: 10px; background: rgba(255, 90, 95, 0.12); border: 1px solid color-mix(in srgb, var(--villain) 50%, transparent); }
 .strike b { font-size: 15px; }
 .strike p { font-size: 12px; margin-top: 2px; }

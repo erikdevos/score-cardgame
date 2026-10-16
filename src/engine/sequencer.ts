@@ -1,8 +1,10 @@
 // The 8-point battle sequencer for a single strike.
-import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from './cards'
+import { applyDefense, attackTypeOf, cardDefense, ongoingDamageChanges, powerDefense, timingAllows, type DefenseOption } from './abilities'
+import { isAttackRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { resolveEffects } from './effects'
-import { canUseCard, checkDragonBallVictory, def, log, millCards, over, retire, takeCard } from './state'
+import { fireTrigger } from './effects/triggers'
+import { canUseCard, checkDragonBallVictory, def, log, millCards, mpDef, over, retire, takeCard } from './state'
 import { other, type CardInstance, type GameState, type PlayerId } from './types'
 
 export function canPayCost(s: GameState, p: PlayerId, strike: StrikeDef): boolean {
@@ -17,25 +19,32 @@ export function strikeOf(db: CardDB, c: CardInstance): StrikeDef {
   return { combatRole: d.combatRole!, cost: d.cost, damage: d.damage, effects: d.effects }
 }
 
+/** How a card in hand or on the table would answer the current strike, if it can. */
+export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: CardInstance): DefenseOption | null {
+  const attack = attackTypeOf(s.combat?.strike?.strike.combatRole)
+  if (!attack) return null
+  const d = def(db, c)
+  const opt = cardDefense(d, attack)
+  if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, defender, opt.strike)) return null
+  return timingAllows(s, defender, opt.strike.effects.onPlaySecondary, 'DEFEND') ? opt : null
+}
+
 /**
  * Cards that can answer the current strike: defense cards in hand or among the unused
- * Non-Combat cards on the table, plus combat effects printed with the defend icon.
+ * Non-Combat cards on the table, combat effects printed with the defend icon, and
+ * attack cards with an "or stops ..." alternative.
  */
 export function legalDefenses(s: GameState, db: CardDB, defender: PlayerId): CardInstance[] {
-  const strike = s.combat?.strike
-  if (!strike) return []
+  if (!s.combat?.strike) return []
   const pl = s.players[defender]
   // Non-Combat cards only block from the table, never straight from hand
-  return [...pl.hand.filter(c => def(db, c).type !== 'Non-Combat'), ...pl.nonCombat].filter(c => {
-    const d = def(db, c)
-    const role = d.combatRole
-    const fits =
-      role === 'DEFENSE_ANY' ||
-      (role === 'DEFENSE_PHYSICAL' && strike.strike.combatRole === 'ATTACK_PHYSICAL') ||
-      (role === 'DEFENSE_ENERGY' && strike.strike.combatRole === 'ATTACK_ENERGY') ||
-      (role === 'COMBAT_EFFECT' && d.usePhase === 'DEFEND')
-    return fits && canUseCard(s, db, defender, def(db, c)) && canPayCost(s, defender, strikeOf(db, c))
-  })
+  return [...pl.hand.filter(c => def(db, c).type !== 'Non-Combat'), ...pl.nonCombat].filter(c => defenseFor(s, db, defender, c))
+}
+
+/** The defender's personality power, if it can answer the current strike (once per combat). */
+export function legalPowerDefense(s: GameState, db: CardDB, defender: PlayerId): DefenseOption | null {
+  const opt = powerDefense(s, db, defender)
+  return opt && canPayCost(s, defender, opt.strike) ? opt : null
 }
 
 function payCost(s: GameState, p: PlayerId, strike: StrikeDef) {
@@ -47,16 +56,17 @@ function payCost(s: GameState, p: PlayerId, strike: StrikeDef) {
 // Steps 1-4: declaration, costs, attacker secondaries, open the defend window.
 export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card: CardInstance | null, strike: StrikeDef, label: string) {
   const combat = s.combat!
-  combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, lifeCardsDealt: 0 }
+  combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0 }
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   payCost(s, initiator, strike)
   if (over(s)) return
-  resolveEffects({ s, db, user: initiator, source: label }, strike.effects.onPlaySecondary)
+  if (isAttackRole(strike.combatRole)) fireTrigger(s, db, { kind: 'attackPhase', player: initiator })
+  resolveEffects({ s, db, user: initiator, source: label, card: card ?? undefined }, strike.effects.onPlaySecondary)
   if (over(s)) return
 
   if (!isAttackRole(strike.combatRole)) return cleanup(s, db)
   const defender = other(initiator)
-  if (legalDefenses(s, db, defender).length > 0) s.pendingChoice = { kind: 'DEFEND', player: defender }
+  if (legalDefenses(s, db, defender).length > 0 || legalPowerDefense(s, db, defender)) s.pendingChoice = { kind: 'DEFEND', player: defender }
   else resolveHit(s, db)
 }
 
@@ -64,15 +74,16 @@ export function defend(s: GameState, db: CardDB, iid: string | null) {
   const st = s.combat!.strike!
   s.pendingChoice = null
   const defender = other(st.initiator)
+  const opt = iid ? defenseFor(s, db, defender, [...s.players[defender].hand, ...s.players[defender].nonCombat].find(c => c.iid === iid)!)! : null
   const card = iid ? takeCard(s, defender, iid) : null
   st.defenseCard = card
-  if (card) {
-    const dstrike = strikeOf(db, card)
+  if (card && opt) {
+    st.defense = opt.defense
     log(s, 'DEFEND', `Player ${defender + 1} defends with ${def(db, card).name}`, defender)
-    payCost(s, defender, dstrike)
+    payCost(s, defender, opt.strike)
     if (over(s)) return
-    // Step 5: defender secondaries
-    resolveEffects({ s, db, user: defender, source: def(db, card).name }, dstrike.effects.onPlaySecondary)
+    // Step 5: defender secondaries (they may still change st.defense, e.g. "prevents all but 1 life card")
+    resolveEffects({ s, db, user: defender, source: def(db, card).name, card }, opt.strike.effects.onPlaySecondary)
     if (over(s)) return
   } else {
     log(s, 'DEFEND', `Player ${defender + 1} takes the attack`, defender)
@@ -80,23 +91,40 @@ export function defend(s: GameState, db: CardDB, iid: string | null) {
   resolveHit(s, db)
 }
 
+/** Block with the defender's personality power instead of a card. */
+export function defendWithPower(s: GameState, db: CardDB) {
+  const st = s.combat!.strike!
+  s.pendingChoice = null
+  const defender = other(st.initiator)
+  const opt = legalPowerDefense(s, db, defender)!
+  const mp = mpDef(s, db, defender)
+  const power = mp.personality!.power!
+  s.combat!.usedPowers.push(`${defender}:${mp.id}`)
+  st.defense = opt.defense
+  log(s, 'DEFEND', `Player ${defender + 1} defends with ${mp.name}'s power: ${power.name}`, defender)
+  payCost(s, defender, opt.strike)
+  if (over(s)) return
+  // a power used as a defense does not make its attack half ("two physical attacks ... or a defense")
+  const secondaries = opt.strike.effects.onPlaySecondary.filter(e => !(e.action === 'CUSTOM' && e.handler === 'extraAttack'))
+  resolveEffects({ s, db, user: defender, source: power.name }, secondaries)
+  if (over(s)) return
+  resolveHit(s, db)
+}
+
 // Steps 6-7: hit check, damage, Dragon Ball capture.
 function resolveHit(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
   const defender = other(st.initiator)
-  // Defense cards stop by default; a defend-phase combat effect only stops when it has a defense field.
-  const dd = st.defenseCard ? def(db, st.defenseCard) : null
-  const defense = dd ? (dd.defense ?? (isDefenseRole(dd.combatRole) ? { mode: 'STOP' as const, stages: 0, lifeCards: 0 } : null)) : null
-  if (defense?.mode === 'STOP') {
+  const type = attackTypeOf(st.strike.combatRole)!
+  if (st.defense?.mode === 'STOP') {
     log(s, 'STOPPED', `${st.label} is stopped`)
+    s.combat!.lastAttack[st.initiator] = { type, success: false }
     return cleanup(s, db)
   }
 
-  const dmg = computeDamage(s, db, st.initiator, st.strike)
-  if (defense) {
-    dmg.stages = Math.max(0, dmg.stages - defense.stages)
-    dmg.lifeCards = Math.max(0, dmg.lifeCards - defense.lifeCards)
-  }
+  let dmg = computeDamage(s, db, st.initiator, st.strike)
+  if (st.defense) dmg = applyDefense(dmg, st.defense)
+  dmg = ongoingDamageChanges(s, db, defender, type, dmg)
   st.lifeCardsDealt = applyDamage(s, defender, dmg)
   if (over(s)) return
 
@@ -125,7 +153,11 @@ export function stealDragonBall(s: GameState, db: CardDB, iid: string | null) {
 
 function finishSuccessful(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
-  resolveEffects({ s, db, user: st.initiator, source: st.label }, st.strike.effects.onHit)
+  const type = attackTypeOf(st.strike.combatRole)!
+  s.combat!.lastAttack[st.initiator] = { type, success: true }
+  resolveEffects({ s, db, user: st.initiator, source: st.label, card: st.card ?? undefined }, st.strike.effects.onHit)
+  if (over(s)) return
+  fireTrigger(s, db, { kind: 'afterReceivingSuccessfulAttack', player: other(st.initiator), attackType: type })
   if (over(s)) return
   cleanup(s, db)
 }
@@ -133,7 +165,18 @@ function finishSuccessful(s: GameState, db: CardDB) {
 // Step 8
 function cleanup(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
-  if (st.card) retire(s, st.card, def(db, st.card).effects.postResolution)
-  if (st.defenseCard) retire(s, st.defenseCard, def(db, st.defenseCard).effects.postResolution)
+  if (st.card) retireUsed(s, db, st.card)
+  if (st.defenseCard) retireUsed(s, db, st.defenseCard)
   s.combat!.strike = null
+}
+
+/** After use: back on the table if it has uses left this combat, else discarded or removed. */
+export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
+  const extra = s.combat?.extraUses
+  if (extra && extra[card.iid] > 0) {
+    extra[card.iid]--
+    s.players[card.owner].nonCombat.push(card)
+    return log(s, 'STAYS', `${def(db, card).name} stays on the table for another use this combat`, card.owner)
+  }
+  retire(s, card, def(db, card).effects.postResolution)
 }

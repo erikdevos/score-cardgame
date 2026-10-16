@@ -2,7 +2,7 @@
 import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from '../cards'
 import { computeDamage } from '../damage'
 import { legalActions } from '../legal'
-import { strikeOf } from '../sequencer'
+import { legalPowerDefense, strikeOf } from '../sequencer'
 import { def, mpDef } from '../state'
 import type { Action, CardInstance, GameState, PlayerId } from '../types'
 
@@ -24,6 +24,14 @@ export function chooseAction(s: GameState, db: CardDB): Action | null {
 function find(s: GameState, p: PlayerId, iid: string): CardInstance | undefined {
   const pl = s.players[p]
   return pl.hand.find(c => c.iid === iid) ?? pl.nonCombat.find(c => c.iid === iid)
+}
+
+/** A card anywhere in a pick zone (discard pile, Dragon Balls, life deck). */
+function findAnywhere(s: GameState, iid: string): CardInstance | undefined {
+  for (const pl of s.players) {
+    const c = [...pl.discard, ...pl.dragonBalls, ...pl.lifeDeck].find(x => x.iid === iid)
+    if (c) return c
+  }
 }
 
 function keepValue(db: CardDB, c: CardInstance): number {
@@ -53,6 +61,16 @@ function score(s: GameState, db: CardDB, a: Action): number {
       const d = def(db, find(s, a.player, a.iid)!)
       return isDefenseRole(d.combatRole) || d.defense ? 10 : 3 // prefer real blocks over defend-phase effects
     }
+    case 'DEFEND_POWER': {
+      const opt = legalPowerDefense(s, db, a.player)
+      if (!opt?.defense) return 2
+      return opt.defense.mode === 'STOP' ? 11 : 8 // keep cards when the power does the job
+    }
+    case 'PICK':
+      return keepValue(db, findAnywhere(s, a.iid)!)
+    case 'CONFIRM':
+      // optional draws: decline when the life deck is nearly empty
+      return a.accept === s.players[a.player].lifeDeck.length > 8 ? 1 : 0
     case 'STEAL_DB':
       return a.iid ? 10 : 0
     case 'REJUVENATE':

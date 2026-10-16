@@ -50,10 +50,14 @@ export const DamageSchema = z.object({
 })
 
 export const DefenseSchema = z.object({
-  mode: z.enum(['STOP', 'REDUCE']).default('STOP'),
+  mode: z.enum(['STOP', 'REDUCE', 'CAP']).default('STOP'),
   stages: z.number().int().nonnegative().default(0),
   lifeCards: z.number().int().nonnegative().default(0),
+  /** CAP only: at most this much damage gets through */
+  maxStages: z.number().int().nonnegative().optional(),
+  maxLifeCards: z.number().int().nonnegative().optional(),
 })
+export type Defense = z.infer<typeof DefenseSchema>
 
 export const EffectsSchema = z.object({
   onPlaySecondary: z.array(EffectSchema).default([]),
