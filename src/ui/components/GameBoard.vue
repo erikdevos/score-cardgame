@@ -9,6 +9,7 @@ import CardView from './CardView.vue'
 import CombatLog from './CombatLog.vue'
 import PlayerDock from './PlayerDock.vue'
 import TableRow from './TableRow.vue'
+import { toast } from '../toast'
 
 const props = defineProps<{ game: Game }>()
 defineEmits<{ quit: [] }>()
@@ -51,6 +52,10 @@ const reasons: Record<string, string> = { SURVIVAL: 'Survival victory', MPP: 'Mo
       <CardPreview />
       <CombatLog :log="s.log" />
     </aside>
+
+    <Transition name="toast">
+      <div v-if="toast" class="toast" role="status">{{ toast }}</div>
+    </Transition>
 
     <div v-if="s.winner !== null" class="victory" role="dialog" aria-label="Game over">
       <div class="victory-card">

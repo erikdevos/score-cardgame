@@ -264,9 +264,14 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .hand-head b { color: var(--gold); font-family: var(--font-digits); }
 .hand-head .muted { text-transform: none; letter-spacing: 0; font-weight: 500; }
 .hand { display: flex; justify-content: center; align-items: flex-end; padding: 18px 10px 16px; min-height: calc(var(--card-hand) * 1.4 + 24px); }
-.hand-slot { transition: transform 0.2s ease, margin 0.2s ease; transform-origin: 50% 120%; margin: 0 -6px; }
+.hand-slot { position: relative; transition: transform 0.2s ease, margin 0.2s ease; transform-origin: 50% 120%; margin: 0 -6px; cursor: zoom-in; }
+.hand-slot.ready { cursor: pointer; }
 .hand.crowded .hand-slot { margin: 0 calc(var(--card-hand) * -0.22); }
-.hand-slot:hover { transform: translateY(-34px) scale(1.14) rotate(0deg) !important; z-index: 50 !important; margin: 0 6px; }
+/* lift only the card, so the hit area under the pointer stays where it is */
+.hand-slot .card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.hand-slot:hover { z-index: 50 !important; }
+.hand-slot:hover .card { transform: translateY(-30px) scale(1.12); }
+.hand-slot.ready:active .card { transform: translateY(-24px) scale(1.08); }
 .opp-hand { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
 .opp-fan { display: flex; justify-content: center; flex-wrap: nowrap; }
 .opp-fan .card { margin: 0 -10px; }
@@ -343,6 +348,13 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .log .e-damage, .log .e-mill { color: #ffb4bf; }
 .log .e-level_up { color: var(--gold); font-weight: 700; }
 
+/* toast */
+.toast { position: fixed; left: 50%; top: 64px; translate: -50% 0; z-index: 45; max-width: min(560px, calc(100vw - 32px)); padding: 12px 18px;
+  border-radius: 14px; background: rgba(12, 16, 38, 0.95); border: 1px solid color-mix(in srgb, var(--gold) 55%, transparent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5); font-weight: 600; text-align: center; }
+.toast-enter-active, .toast-leave-active { transition: opacity 0.2s, transform 0.2s; }
+.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(-10px); }
+
 /* victory */
 .victory { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle, rgba(255, 140, 0, 0.25), rgba(4, 6, 16, 0.85)); backdrop-filter: blur(4px); }
 .victory-card { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 36px 44px; border-radius: 24px; background: var(--glass); border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent); }
@@ -389,7 +401,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .id-info { min-width: 0; flex: 1; }
   .hand { justify-content: flex-start; overflow-x: auto; min-height: 0; padding-top: 22px; }
   .hand-slot { transform: none !important; margin: 0 2px; }
-  .hand-slot:hover { transform: translateY(-8px) !important; }
+  .hand-slot:hover .card { transform: translateY(-8px); }
   .opp-hand { align-items: flex-start; }
   .opp-fan { flex-wrap: wrap; }
   .piles { justify-content: flex-start; }

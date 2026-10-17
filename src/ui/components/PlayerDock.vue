@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { def, handLimit, handRevealed, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
+import { def, handLimit, handRevealed, isDefenseRole, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
 import { db } from '../cardDb'
+import { showToast } from '../toast'
 import CardView from './CardView.vue'
 import ScouterMeter from './ScouterMeter.vue'
 
@@ -20,7 +21,24 @@ function actionFor(iid: string): Action | undefined {
 }
 function click(iid: string) {
   const a = actionFor(iid)
-  if (a) emit('act', a)
+  if (a) return emit('act', a)
+  if (props.mine) showToast(whyNot(iid))
+}
+
+/** Why a card in hand cannot be played right now. */
+function whyNot(iid: string): string {
+  const s = props.state
+  const d = def(db, pl.value.hand.find(c => c.iid === iid)!)
+  const combat = ['Physical Combat', 'Energy Combat', 'Combat'].includes(d.type)
+  if (!props.legal.length) return 'Wait for your turn.'
+  if (s.pendingChoice?.kind === 'DEFEND') return 'Block with a highlighted card, or take the hit.'
+  if (s.pendingChoice) return 'Finish the choice in the middle of the board first.'
+  if (s.step === 'NON_COMBAT' && combat) return `${d.name} is a combat card: power up, declare combat, then play it in your attack phase.`
+  if (s.step === 'DECLARE') return 'Declare combat (or skip it) first.'
+  if (s.step === 'COMBAT' && !combat) return `${d.name} is placed in the Non-Combat step, not during combat.`
+  if (s.step === 'COMBAT' && (isDefenseRole(d.combatRole) || d.usePhase === 'DEFEND')) return `${d.name} is a block: you can play it when your opponent attacks you.`
+  if (s.step === 'COMBAT' && d.combatRole === 'ATTACK_ENERGY') return `${d.name} needs power stages to pay for the energy attack, or energy attacks are blocked this phase.`
+  return `${d.name} can't be played right now (cost, timing or a card restriction).`
 }
 
 /** Fan the hand: a slight rotation and drop towards the edges. */
@@ -62,8 +80,9 @@ function fan(i: number) {
         <span class="muted">keep {{ handLimit(state, db, p) }} at end of turn</span>
       </div>
       <div class="hand" :class="{ crowded: pl.hand.length > 6 }">
-        <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :style="fan(i)">
-          <CardView :card="def(db, c)" size="hand" :playable="!!actionFor(c.iid)" @click="click(c.iid)" />
+        <!-- the slot is the click target and stays put; only the card inside lifts on hover -->
+        <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="fan(i)" @click="click(c.iid)">
+          <CardView :card="def(db, c)" size="hand" :playable="!!actionFor(c.iid)" />
         </div>
         <p v-if="!pl.hand.length" class="empty-zone">No cards in hand</p>
       </div>
