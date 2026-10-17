@@ -5,7 +5,7 @@ import { db } from '../cardDb'
 import CardView from './CardView.vue'
 
 // The middle of the playmat: the strike in progress, or a big title for the current step.
-const props = defineProps<{ state: GameState; actor: PlayerId | null; names: [string, string] }>()
+const props = defineProps<{ state: GameState; actor: PlayerId | null; names: [string, string]; viewer: PlayerId }>()
 
 const strike = computed(() => (props.state.winner === null ? props.state.combat?.strike : null))
 
@@ -25,7 +25,8 @@ const lastStrike = computed(() => {
   const dmg = after.find(x => x.t === 'DAMAGE')
   const defense = after.find(x => x.t === 'DEFEND' && !x.msg.endsWith('takes the attack'))
   const result = stopped ? 'Blocked' : dmg ? dmg.msg.replace(/^Player \d takes /, 'Hit: ').replace('stage(s)', 'stages').replace('life card(s)', 'life cards') : 'Effect resolved'
-  return { by: e.player ?? 0, label, card, result, stopped: !!stopped, defense: defense?.msg.replace(/^Player \d defends with /, '') }
+  const big = stopped ? 'Blocked!' : dmg ? 'Hit!' : 'Done'
+  return { at: i, by: e.player ?? 0, label, card, result, big, stopped: !!stopped, defense: defense?.msg.replace(/^Player \d defends with /, '') }
 })
 const title = computed(() => {
   const s = props.state
@@ -57,12 +58,13 @@ const title = computed(() => {
         <span class="duel-label">{{ names[1 - strike.initiator] }} defend{{ names[1 - strike.initiator] === 'You' ? '' : 's' }}</span>
       </div>
     </div>
-    <div v-else-if="lastStrike" class="last-strike" :class="{ stopped: lastStrike.stopped }">
+    <div v-else-if="lastStrike" :key="lastStrike.at" class="last-strike" :class="[{ stopped: lastStrike.stopped }, lastStrike.by === viewer ? 'from-me' : 'from-them']">
+      <span class="impact" aria-hidden="true">{{ lastStrike.big }}</span>
       <CardView v-if="lastStrike.card" :card="lastStrike.card" size="table" />
       <div class="last-text">
         <span class="eyebrow">Last attack · {{ names[lastStrike.by] }}</span>
         <b>{{ lastStrike.label }}</b>
-        <span v-if="lastStrike.defense" class="muted small">Blocked with {{ lastStrike.defense }}</span>
+        <span v-if="lastStrike.defense" class="muted small">Defended with {{ lastStrike.defense }}</span>
         <span class="result">{{ lastStrike.result }}</span>
       </div>
     </div>

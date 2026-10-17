@@ -467,3 +467,72 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   .review-card img { max-width: 260px; }
   .location { margin-left: 0; }
 }
+
+/* role badge: what a card in hand is for */
+.role-badge {
+  position: absolute; left: 50%; bottom: 6px; translate: -50% 0; display: inline-flex; align-items: center; gap: 4px; max-width: calc(100% - 8px);
+  padding: 2px 8px 2px 5px; border-radius: 999px; font-size: clamp(9px, calc(var(--w) * 0.075), 12px); font-weight: 800; letter-spacing: 0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; background: rgba(10, 12, 30, 0.88);
+  border: 1.5px solid var(--badge, var(--line-2)); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); pointer-events: none;
+}
+.role-badge svg { flex: none; width: 1.35em; height: 1.35em; fill: var(--badge); stroke: var(--badge); stroke-width: 0; }
+.role-badge.physical { --badge: #ff5a6e; }
+.role-badge.energy { --badge: #4db4ff; }
+.role-badge.energy svg { stroke-width: 2.2; stroke-linecap: round; }
+.role-badge.block { --badge: #3ee08f; }
+.role-badge.effect { --badge: #ffc233; }
+.role-badge.setup { --badge: #b9a6ff; }
+.role-badge.setup svg { fill: none; stroke-width: 2; }
+.size-sm .role-badge { font-size: 0; padding: 2px; gap: 0; bottom: 3px; }
+
+/* strike animation: the card flies in from the attacker's side, then the result slams down */
+.showdown .duel-card.attack { animation: fly-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+.showdown .duel-card.defense .card { animation: pop 0.3s ease-out; }
+.last-strike { position: relative; overflow: visible; animation: shake 0.45s 0.35s ease-in-out both; }
+.last-strike.from-them > .card { animation: fly-down 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.last-strike.from-me > .card { animation: fly-up 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.impact {
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 2;
+  font-family: var(--font-display); font-size: clamp(34px, 4vw, 60px); letter-spacing: 0.04em; color: #fff;
+  -webkit-text-stroke: 2px #7a0010; text-shadow: 0 0 24px rgba(255, 61, 90, 0.9), 0 4px 0 #3a0008;
+  animation: slam 1.5s 0.3s ease-out both;
+}
+.last-strike.stopped .impact { -webkit-text-stroke-color: #003a7a; text-shadow: 0 0 24px rgba(58, 160, 255, 0.9), 0 4px 0 #001a3a; }
+.impact::before {
+  content: ''; position: absolute; width: 60px; height: 60px; border-radius: 50%; border: 4px solid rgba(255, 200, 80, 0.9);
+  animation: ring 0.6s 0.3s ease-out both;
+}
+@keyframes fly-in { from { transform: translateY(-60px) scale(0.6) rotate(-8deg); opacity: 0; } }
+@keyframes fly-down { from { transform: translateY(-90px) scale(0.7) rotate(-10deg); opacity: 0; } }
+@keyframes fly-up { from { transform: translateY(90px) scale(0.7) rotate(10deg); opacity: 0; } }
+@keyframes slam {
+  0% { transform: scale(2.6); opacity: 0; }
+  15% { transform: scale(1); opacity: 1; }
+  70% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.1); opacity: 0; }
+}
+@keyframes ring { from { transform: scale(0.3); opacity: 1; } to { transform: scale(4); opacity: 0; } }
+@keyframes shake {
+  20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -2px); }
+  60% { transform: translate(-3px, 1px); } 80% { transform: translate(2px, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .showdown .duel-card.attack, .last-strike, .last-strike > .card, .impact, .impact::before { animation: none; }
+  .impact { display: none; }
+}
+
+/* phones: the opponent's area is a single compact row */
+@media (max-width: 760px) {
+  .dock.theirs { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px 10px; }
+  .dock.theirs .identity { gap: 8px; align-items: center; }
+  .dock.theirs .card.size-opp { --w: 52px; }
+  .dock.theirs .chips .chip:not(.villain):not(.hero):not(.attack), .dock.theirs .anger .lbl { display: none; }
+  .dock.theirs .opp-fan { display: none; }
+  .dock.theirs .opp-hand { grid-column: 1; align-items: flex-start; }
+  .dock.theirs .piles { grid-column: 2; grid-row: 1 / span 2; flex-direction: column; gap: 4px; }
+  .dock.theirs .piles .card.size-sm { --w: 40px; }
+  .dock.theirs .pile > span { display: none; }
+  .dock.theirs .id-info { min-width: 0; gap: 4px 10px; }
+  .dock.theirs .scouter { width: 100%; max-width: 230px; }
+  .dock.theirs .id-name h3 { font-size: 20px; }
+}

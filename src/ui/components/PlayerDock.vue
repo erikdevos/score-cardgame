@@ -82,7 +82,7 @@ function fan(i: number) {
       <div class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p }">
         <!-- the slot is the click target and stays put; only the card inside lifts on hover -->
         <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="fan(i)" @click="click(c.iid)">
-          <CardView :card="def(db, c)" size="hand" :playable="!!actionFor(c.iid)" />
+          <CardView :card="def(db, c)" size="hand" role :playable="!!actionFor(c.iid)" />
         </div>
         <p v-if="!pl.hand.length" class="empty-zone">No cards in hand</p>
       </div>
@@ -90,7 +90,7 @@ function fan(i: number) {
     <div v-else class="opp-hand" :aria-label="`${pl.hand.length} cards in hand`">
       <div class="opp-fan">
         <template v-if="revealed">
-          <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="sm" />
+          <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="sm" role />
         </template>
         <template v-else>
           <CardView v-for="c in pl.hand" :key="c.iid" face-down size="opp" label="" />

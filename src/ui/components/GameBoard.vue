@@ -46,7 +46,7 @@ const reasons: Record<string, string> = { SURVIVAL: 'Survival victory', MPP: 'Mo
 
       <main class="field">
         <TableRow :state="s" :p="them" :legal="legalForMe" theirs @act="g.dispatch" />
-        <BattleCenter :state="s" :actor="g.actor.value" :names="names" />
+        <BattleCenter :state="s" :actor="g.actor.value" :names="names" :viewer="me" />
         <TableRow :state="s" :p="me" :legal="legalForMe" @act="g.dispatch" />
         <p v-if="g.error.value" class="error">{{ g.error.value }}</p>
       </main>
