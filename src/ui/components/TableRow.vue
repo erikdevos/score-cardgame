@@ -24,19 +24,19 @@ const empty = computed(() => !pl.value.dragonBalls.length && !pl.value.nonCombat
     <span class="table-label">{{ theirs ? 'Opponent in play' : 'You in play' }}</span>
     <div v-if="pl.dragonBalls.length" class="zone db">
       <h4>Dragon Balls</h4>
-      <div class="row"><CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
+      <TransitionGroup tag="div" name="land" class="row"><CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></TransitionGroup>
     </div>
     <div v-if="pl.allies.length" class="zone">
       <h4>Allies</h4>
-      <div class="row"><CardView v-for="a in pl.allies" :key="a.card.iid" :card="def(db, a.card)" size="table" :tag="`Stage ${a.stage}`" :playable="!!actionFor(a.card.iid)" @click="click(a.card.iid)" /></div>
+      <TransitionGroup tag="div" name="land" class="row"><CardView v-for="a in pl.allies" :key="a.card.iid" :card="def(db, a.card)" size="table" :tag="`Stage ${a.stage}`" :playable="!!actionFor(a.card.iid)" @click="click(a.card.iid)" /></TransitionGroup>
     </div>
     <div v-if="pl.drills.length" class="zone">
       <h4>Drills</h4>
-      <div class="row"><CardView v-for="c in pl.drills" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
+      <TransitionGroup tag="div" name="land" class="row"><CardView v-for="c in pl.drills" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></TransitionGroup>
     </div>
     <div v-if="pl.nonCombat.length" class="zone">
       <h4>Non-Combat</h4>
-      <div class="row"><CardView v-for="c in pl.nonCombat" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
+      <TransitionGroup tag="div" name="land" class="row"><CardView v-for="c in pl.nonCombat" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></TransitionGroup>
     </div>
     <p v-if="empty" class="empty-zone">Nothing yet</p>
   </div>

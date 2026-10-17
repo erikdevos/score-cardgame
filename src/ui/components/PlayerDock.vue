@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { def, handLimit, handRevealed, isDefenseRole, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
 import { db } from '../cardDb'
 import { showToast } from '../toast'
@@ -41,19 +41,47 @@ function whyNot(iid: string): string {
   return `${d.name} can't be played right now (cost, timing or a card restriction).`
 }
 
+/** Newly drawn cards flip in one after another: the order among the cards that just arrived. */
+const dealOrder = ref(new Map<string, number>())
+watch(() => pl.value.hand.map(c => c.iid), (now, before) => {
+  const old = new Set(before ?? [])
+  const fresh = now.filter(i => !old.has(i))
+  dealOrder.value = new Map(fresh.map((iid, k) => [iid, k]))
+}, { immediate: true })
+
+/** Hits and power-ups: a short-lived class on the dock, plus a floating number. */
+const fx = ref<{ cls: string; text: string; key: number } | null>(null)
+let fxTimer = 0
+function flash(cls: string, text: string) {
+  clearTimeout(fxTimer)
+  fx.value = { cls, text, key: Date.now() }
+  fxTimer = window.setTimeout(() => (fx.value = null), 1400)
+}
+watch(() => [pl.value.mp.stage, pl.value.lifeDeck.length, pl.value.mp.levelIndex, pl.value.hand.length] as const, ([stage, life, lvl, hand], [oldStage, oldLife, oldLvl, oldHand]) => {
+  if (lvl > oldLvl) return flash('levelup', 'Level up!')
+  if (lvl < oldLvl) return flash('hurt', 'Level down')
+  // drawing also shrinks the life deck: only cards that did not go to the hand are damage
+  const lost = oldLife - life - Math.max(0, hand - oldHand)
+  const stages = oldStage - stage
+  if (stages > 0 || lost > 0) return flash('hurt', [stages > 0 ? `-${stages} stage${stages === 1 ? '' : 's'}` : '', lost > 0 ? `-${lost} life` : ''].filter(Boolean).join('  '))
+  if (stage > oldStage) flash('powerup', `+${stage - oldStage} stage${stage - oldStage === 1 ? '' : 's'}`)
+})
+
 /** Fan the hand: a slight rotation and drop towards the edges. */
 function fan(i: number) {
   const n = pl.value.hand.length
   const off = i - (n - 1) / 2
   const spread = n > 6 ? 2.5 : 4
-  return { transform: `rotate(${off * spread}deg) translateY(${off * off * 1.1}px)`, zIndex: i }
+  // a CSS variable rather than an inline transform: list animations overwrite inline transforms
+  return { '--fan': `rotate(${off * spread}deg) translateY(${off * off * 1.1}px)`, zIndex: i }
 }
 </script>
 
 <template>
-  <section class="dock" :class="[mine ? 'mine' : 'theirs', per.alignment === 'Villain' ? 'villain' : 'hero', { acting, attacker: state.attacker === p }]">
+  <section class="dock" :class="[mine ? 'mine' : 'theirs', per.alignment === 'Villain' ? 'villain' : 'hero', fx?.cls, { acting, attacker: state.attacker === p }]">
+    <span v-if="fx" :key="fx.key" class="float-num" :class="fx.cls" aria-hidden="true">{{ fx.text }}</span>
     <div class="identity">
-      <CardView :card="mp" :size="mine ? 'mp' : 'opp'" />
+      <CardView :key="mp.id" class="mp-card" :card="mp" :size="mine ? 'mp' : 'opp'" />
       <div class="id-info">
         <div class="id-name">
           <span class="badge">P{{ p + 1 }}</span>
@@ -79,22 +107,22 @@ function fan(i: number) {
         <span>Hand <b>{{ pl.hand.length }}</b></span>
         <span class="muted">keep {{ handLimit(state, db, p) }} at end of turn</span>
       </div>
-      <div class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p }">
+      <TransitionGroup tag="div" name="deal" appear class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p }">
         <!-- the slot is the click target and stays put; only the card inside lifts on hover -->
-        <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="fan(i)" @click="click(c.iid)">
+        <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="{ ...fan(i), '--deal': dealOrder.get(c.iid) ?? 0 }" @click="click(c.iid)">
           <CardView :card="def(db, c)" size="hand" role :playable="!!actionFor(c.iid)" />
         </div>
-        <p v-if="!pl.hand.length" class="empty-zone">No cards in hand</p>
-      </div>
+        <p v-if="!pl.hand.length" key="empty" class="empty-zone">No cards in hand</p>
+      </TransitionGroup>
     </div>
     <div v-else class="opp-hand" :aria-label="`${pl.hand.length} cards in hand`">
       <div class="opp-fan">
         <template v-if="revealed">
           <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="sm" role />
         </template>
-        <template v-else>
+        <TransitionGroup v-else name="deal-back" appear>
           <CardView v-for="c in pl.hand" :key="c.iid" face-down size="opp" label="" />
-        </template>
+        </TransitionGroup>
       </div>
       <span class="muted">{{ pl.hand.length }} in hand{{ revealed ? ' (revealed)' : '' }}</span>
     </div>

@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import type { CardDef } from '../../engine'
 import { hidePreview, showPreview } from '../preview'
+import { vTilt } from '../tilt'
 
 const props = defineProps<{
   card?: CardDef
@@ -63,7 +64,8 @@ function onClick() {
 <template>
   <button
     class="card"
-    :class="[`size-${size ?? 'md'}`, { playable, back: !faceUp, [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: faceUp }]"
+    v-tilt="size === 'xs' || size === 'sm' ? 0 : undefined"
+    :class="[`size-${size ?? 'md'}`, { playable, back: !faceUp, foil: faceUp && /Rare|Promo/.test(card!.rarity), [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: faceUp }]"
     :aria-label="faceUp ? `${card!.name}, ${card!.type}` : (label ?? 'Face-down card')"
     @click="onClick"
     @mouseenter="faceUp && showPreview(card)"
@@ -78,6 +80,7 @@ function onClick() {
       </div>
     </template>
     <span v-else class="back-art" aria-hidden="true"><span class="ball"><i>&#9733;</i></span><span class="back-label">{{ label ?? 'DBZ' }}</span></span>
+    <span v-if="faceUp" class="shine" aria-hidden="true" />
     <span v-if="count !== undefined" class="count">{{ count }}</span>
     <span v-if="tag" class="tag-corner">{{ tag }}</span>
     <span v-if="badge" class="role-badge" :class="badge.cls">
