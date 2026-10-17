@@ -13,6 +13,9 @@ export function useGame() {
   /** hotseat: who is currently allowed to look at their hand */
   const revealedFor = ref<PlayerId | null>(null)
   let aiTimer: ReturnType<typeof setTimeout> | undefined
+  /** after a strike resolves the AI waits, so the Hit!/Blocked! result stays on screen long enough to read */
+  let holdUntil = 0
+  const STRIKE_HOLD_MS = 2800
 
   const legal = computed(() => (state.value ? legalActions(state.value, db) : []))
   const actor = computed(() => (state.value ? actingPlayer(state.value) : null))
@@ -33,7 +36,9 @@ export function useGame() {
   function dispatch(a: Action) {
     if (!state.value) return
     try {
+      const before = state.value.log.length
       state.value = applyAction(state.value, db, a).state
+      if (state.value.log.slice(before).some(e => e.t === 'STOPPED' || e.t === 'DAMAGE')) holdUntil = Date.now() + STRIKE_HOLD_MS
       error.value = ''
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
@@ -47,7 +52,7 @@ export function useGame() {
     aiTimer = setTimeout(() => {
       const a = state.value && chooseAction(state.value, db)
       if (a) dispatch(a)
-    }, settings.aiDelayMs)
+    }, settings.aiDelayMs && Math.max(settings.aiDelayMs, holdUntil - Date.now()))
   }
 
   function quit() {
