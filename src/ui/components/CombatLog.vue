@@ -7,8 +7,8 @@ const recent = computed(() => props.log.slice(-200).reverse())
 </script>
 
 <template>
-  <section class="log">
-    <h3>Battle log</h3>
+  <section class="log panel">
+    <h3 class="panel-title">Battle log</h3>
     <ol>
       <li v-for="(e, i) in recent" :key="log.length - i" :class="[`e-${e.t.toLowerCase()}`, e.player !== undefined && `p${e.player}`]">{{ e.msg }}</li>
     </ol>

@@ -3,7 +3,16 @@ import { computed, ref, watch } from 'vue'
 import type { CardDef } from '../../engine'
 import { hidePreview, showPreview } from '../preview'
 
-const props = defineProps<{ card?: CardDef; faceDown?: boolean; playable?: boolean; size?: 'xs' | 'sm' | 'md' | 'lg'; label?: string; count?: number }>()
+const props = defineProps<{
+  card?: CardDef
+  faceDown?: boolean
+  playable?: boolean
+  size?: 'xs' | 'sm' | 'table' | 'md' | 'mp' | 'hand' | 'lg' | 'strike'
+  label?: string
+  count?: number
+  /** small label in the top corner, e.g. an ally's stage */
+  tag?: string
+}>()
 const emit = defineEmits<{ click: [] }>()
 
 const failed = ref(false)
@@ -48,7 +57,8 @@ function onClick() {
         <span>{{ summary }}</span>
       </div>
     </template>
-    <span v-else class="back-art" aria-hidden="true"><span class="ball">&#9733;</span><span class="back-label">{{ label ?? 'DBZ' }}</span></span>
+    <span v-else class="back-art" aria-hidden="true"><span class="ball"><i>&#9733;</i></span><span class="back-label">{{ label ?? 'DBZ' }}</span></span>
     <span v-if="count !== undefined" class="count">{{ count }}</span>
+    <span v-if="tag" class="tag-corner">{{ tag }}</span>
   </button>
 </template>

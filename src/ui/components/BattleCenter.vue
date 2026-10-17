@@ -43,7 +43,7 @@ const STEPS: { key: Step[]; label: string }[] = [
 
 const prompt = computed(() => {
   const s = props.state
-  if (s.winner !== null) return `Player ${s.winner + 1} wins by ${s.winReason?.replace('_', ' ').toLowerCase()} victory`
+  if (s.winner !== null) return ''
   const who = `Player ${props.actor! + 1}`
   const pc = s.pendingChoice
   if (pc?.kind === 'DEFEND') return `${who}: block with a highlighted card, or take the hit`
@@ -77,31 +77,47 @@ const pickCards = computed<{ card: CardInstance; a: Action }[]>(() => {
 })
 
 const strike = computed(() => (props.state.winner === null ? props.state.combat?.strike : null))
+const phase = computed(() => {
+  const pc = props.state.pendingChoice
+  if (pc?.kind === 'DEFEND') return 'Defend!'
+  if (pc?.kind === 'WINDOW') return pc.window === 'REACT' ? 'Reaction' : 'End of turn'
+  if (pc && ['PICK', 'CONFIRM', 'OPTION'].includes(pc.kind)) return 'Your choice'
+  return STEPS.find(st => st.key.includes(props.state.step))?.label ?? ''
+})
+const waiting = computed(() => !props.myTurn && props.state.winner === null)
 </script>
 
 <template>
-  <div class="actionbar" :class="{ waiting: !myTurn && state.winner === null, over: state.winner !== null }">
-    <div class="steps" aria-label="Turn steps">
-      <span class="turn">Turn {{ state.turn }}</span>
-      <span v-for="st in STEPS" :key="st.label" class="step" :class="{ on: st.key.includes(state.step) }">{{ st.label }}</span>
-    </div>
+  <section class="battle" :class="{ waiting }">
+    <header class="battle-head">
+      <span class="turn-badge">Turn {{ state.turn }}</span>
+      <ol class="steps" aria-label="Turn steps">
+        <li v-for="st in STEPS" :key="st.label" :class="{ on: st.key.includes(state.step) }">{{ st.label }}</li>
+      </ol>
+    </header>
 
-    <div v-if="strike" class="strike">
-      <CardView v-if="strike.card" :card="def(db, strike.card)" size="sm" />
-      <div>
-        <span class="eyebrow">Incoming from player {{ strike.initiator + 1 }}</span>
-        <b>{{ strike.label }}</b>
-        <p v-if="strike.card" class="muted">{{ def(db, strike.card).rawText }}</p>
+    <div v-if="strike" class="showdown">
+      <div class="duel-card attack">
+        <CardView v-if="strike.card" :card="def(db, strike.card)" size="strike" />
+        <div v-else class="power-card"><span>MP power</span><b>{{ strike.label }}</b></div>
+        <span class="duel-label">Player {{ strike.initiator + 1 }} attacks</span>
+      </div>
+      <span class="versus" aria-hidden="true">VS</span>
+      <div class="duel-card defense">
+        <CardView v-if="strike.defenseCard" :card="def(db, strike.defenseCard)" size="strike" />
+        <div v-else class="power-card empty"><span>?</span></div>
+        <span class="duel-label">Player {{ 2 - strike.initiator }} defends</span>
       </div>
     </div>
+    <h2 v-else class="phase-title" :key="phase">{{ phase }}</h2>
 
     <p class="prompt">{{ prompt }}</p>
     <div v-if="pickCards.length" class="pick-row">
-      <CardView v-for="p in pickCards" :key="p.card.iid" :card="def(db, p.card)" size="sm" playable @click="emit('act', p.a)" />
+      <CardView v-for="p in pickCards" :key="p.card.iid" :card="def(db, p.card)" size="table" playable @click="emit('act', p.a)" />
     </div>
-    <div class="buttons">
-      <button v-for="b in buttons" :key="JSON.stringify(b.a)" :class="{ primary: b.primary }" :disabled="!myTurn" @click="emit('act', b.a)">{{ b.label }}</button>
-      <span v-if="!myTurn && state.winner === null" class="thinking"><span class="dot" />Opponent is thinking</span>
+    <div class="actions">
+      <button v-for="b in buttons" :key="JSON.stringify(b.a)" class="btn" :class="{ primary: b.primary }" :disabled="!myTurn" @click="emit('act', b.a)">{{ b.label }}</button>
+      <span v-if="waiting" class="thinking"><span class="dot" /><span class="dot" /><span class="dot" />Opponent is thinking</span>
     </div>
-  </div>
+  </section>
 </template>

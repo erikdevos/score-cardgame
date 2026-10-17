@@ -13,20 +13,20 @@ const game = useGame()
 const screen = ref<'menu' | 'game' | 'review'>('menu')
 const choices = computed(() => deckChoices())
 const pick = (k: string, fallback: number) => (choices.value.some(c => c.key === k) ? k : choices.value[fallback].key)
-const deck1 = ref(pick('auto-Goku', 0))
-const deck2 = ref(pick('auto-Vegeta', 1))
+const decks = ref([pick('auto-Goku', 0), pick('auto-Vegeta', 1)])
 const seed = ref('')
 const warnings = ref<string[]>([])
+const showSettings = ref(false)
 const find = (k: string) => choices.value.find(c => c.key === k)!
+const mpOf = (k: string) => db[find(k).mpId]
 
 function start(mode: Mode) {
   const s = seed.value ? Number(seed.value) : Date.now()
-  const decks = [find(deck1.value).build(s), find(deck2.value).build(s + 1)] as const
+  const lists = [find(decks.value[0]).build(s), find(decks.value[1]).build(s + 1)] as const
   // Test decks use fictional cards and ignore copy limits; decks of real cards must be legal.
-  const keys = [deck1.value, deck2.value]
-  warnings.value = decks.flatMap((d, i) => (keys[i].startsWith('demo') ? [] : validateDeck(db, d, defaultRulesConfig()).map(e => `Player ${i + 1}: ${e}`)))
+  warnings.value = lists.flatMap((d, i) => (decks.value[i].startsWith('demo') ? [] : validateDeck(db, d, defaultRulesConfig()).map(e => `Player ${i + 1}: ${e}`)))
   if (warnings.value.length) return
-  game.start([decks[0], decks[1]], mode, s)
+  game.start([lists[0], lists[1]], mode, s)
   screen.value = 'game'
 }
 </script>
@@ -35,45 +35,66 @@ function start(mode: Mode) {
   <GameBoard v-if="screen === 'game' && game.state.value" :game="game" @quit="game.quit(); screen = 'menu'" />
   <CardReview v-else-if="screen === 'review'" @back="screen = 'menu'" />
   <main v-else class="menu">
-    <header class="hero-title">
-      <h1>Dragon Ball Z <span>CCG</span></h1>
-      <p>Saiyan Saga · Score Entertainment, 2000</p>
+    <header class="logo">
+      <span class="logo-ball" aria-hidden="true"><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i></span>
+      <h1><span class="l1">Dragon Ball</span><span class="l2">Z</span></h1>
+      <p class="logo-sub">Collectible Card Game · Saiyan Saga</p>
     </header>
 
-    <div class="matchup">
-      <label v-for="(d, i) in [deck1, deck2]" :key="i" class="pick">
-        <span class="eyebrow">Player {{ i + 1 }}{{ i === 1 ? ' / AI' : '' }}</span>
-        <CardView :card="db[find(d).mpId]" size="lg" />
-        <select :value="d" @change="(e) => (i === 0 ? (deck1 = (e.target as HTMLSelectElement).value) : (deck2 = (e.target as HTMLSelectElement).value))">
-          <option v-for="c in choices" :key="c.key" :value="c.key">{{ c.label }}</option>
-        </select>
-      </label>
-      <span class="vs" aria-hidden="true">VS</span>
-    </div>
+    <section class="select">
+      <article v-for="(k, i) in decks" :key="i" class="fighter" :class="mpOf(k).personality?.alignment === 'Villain' ? 'villain' : 'hero'">
+        <span class="eyebrow">Player {{ i + 1 }}{{ i === 1 ? ' · AI in solo play' : '' }}</span>
+        <div class="fighter-main">
+          <CardView :card="mpOf(k)" size="lg" />
+          <div class="fighter-info">
+            <h2>{{ find(k).label.replace(/ \(.*\)$/, '') }}</h2>
+            <span class="chip" :class="mpOf(k).personality?.alignment === 'Villain' ? 'villain' : 'hero'">{{ mpOf(k).personality?.alignment }}</span>
+            <p v-if="mpOf(k).personality?.power" class="muted small"><b>{{ mpOf(k).personality!.power!.name }}</b></p>
+          </div>
+        </div>
+        <div class="roster" role="radiogroup" :aria-label="`Player ${i + 1} character`">
+          <button
+            v-for="c in choices"
+            :key="c.key"
+            class="portrait"
+            :class="{ on: c.key === k, test: c.key.startsWith('demo') }"
+            role="radio"
+            :aria-checked="c.key === k"
+            :title="c.label"
+            @click="decks[i] = c.key"
+          >
+            <img v-if="db[c.mpId]?.imageUrl" :src="db[c.mpId].imageUrl" :alt="c.label" loading="lazy" />
+            <span v-else class="portrait-text">Test</span>
+            <span class="portrait-name">{{ c.label.replace(/^Test deck: /, '').replace(/ \(.*\)$/, '') }}</span>
+          </button>
+        </div>
+      </article>
+      <span class="vs-burst" aria-hidden="true">VS</span>
+    </section>
 
-    <div class="buttons center">
-      <button class="primary big" @click="start('ai')">Play vs AI</button>
-      <button class="big" @click="start('hotseat')">Hotseat (2 players)</button>
-      <button class="ghost" @click="screen = 'review'">Card review</button>
+    <div class="menu-actions">
+      <button class="btn primary huge" @click="start('ai')">Fight the AI</button>
+      <button class="btn huge" @click="start('hotseat')">Hotseat duel</button>
     </div>
     <ul v-if="warnings.length" class="warn"><li v-for="w in warnings" :key="w">{{ w }}</li></ul>
 
-    <details class="settings">
-      <summary>Settings</summary>
+    <nav class="menu-links">
+      <button class="link-btn" @click="showSettings = !showSettings">Settings</button>
+      <button class="link-btn" @click="screen = 'review'">Card review</button>
+    </nav>
+
+    <section v-if="showSettings" class="settings panel">
       <label>Rules
         <select v-model="settings.rulesMode">
           <option value="PURE_2000">Pure 2000 Saiyan Saga</option>
           <option value="CRD_3">CRD 3.0 (rejuvenation step)</option>
         </select>
       </label>
-      <label>AI speed <input v-model.number="settings.aiDelayMs" type="range" min="0" max="2000" step="100" /> {{ settings.aiDelayMs }} ms</label>
+      <label>AI speed <input v-model.number="settings.aiDelayMs" type="range" min="0" max="2000" step="100" /> <span class="muted">{{ settings.aiDelayMs }} ms</span></label>
       <label><input v-model="settings.hideHandsHotseat" type="checkbox" /> Hide hands between players in hotseat</label>
       <label>Seed <input v-model="seed" inputmode="numeric" placeholder="random" /></label>
-    </details>
+    </section>
 
-    <p class="hint small">
-      Decks are built automatically from the {{ realCards.length }} transcribed cards (not yet verified).
-      Card effects the engine cannot run yet are skipped and noted in the log.
-    </p>
+    <p class="foot muted small">{{ realCards.length }} cards from the 2000 Saiyan Saga set. Decks are built automatically per character.</p>
   </main>
 </template>
