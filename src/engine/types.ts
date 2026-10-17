@@ -56,6 +56,10 @@ export interface StrikeState {
   lifeCardsDealt: number
   /** power stages the initiator paid as the cost (opens the reaction window) */
   paidStages: number
+  /** "change the power stage to the maximum for this attack" (SS-17) */
+  tempStage?: number
+  /** "may take the first card discarded from the life deck into hand" (SS-112) */
+  takeFirstMilled?: PlayerId
 }
 
 export type AttackType = 'PHYSICAL' | 'ENERGY' | 'ANY'
@@ -93,6 +97,10 @@ export interface CombatState {
   bonusAttack: { player: PlayerId; attackType: AttackType; remaining: number; active: boolean } | null
   /** card definitions used this combat (for "multiples cannot be used together") */
   usedCardIds: string[]
+  /** stages and anger at the start of combat ("this battle never happened") */
+  startLevels: { stage: number; anger: number }[]
+  /** the physical attack each player defended against with a card (for copying it) */
+  defended: ({ strike: StrikeDef; label: string } | null)[]
   damageMods: CombatDamageMod[]
   /** cards that stay on the table for N more uses this combat, by iid */
   extraUses: Record<string, number>
@@ -122,7 +130,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -180,7 +188,13 @@ export interface GameState {
   /** once-per-game uses (keys) */
   usedPerGame: string[]
   /** "uses the bottom N cards of the discard pile for the next combat instead of the life deck" */
-  discardAsLife: { player: PlayerId; mode: 'DAMAGE' | 'DRAW'; remaining: number; armed: boolean; source: string }[]
+  discardAsLife: { player: PlayerId; mode: 'DAMAGE' | 'DRAW'; position?: 'top' | 'bottom'; remaining: number; armed: boolean; source: string }[]
+  /** "end the very next combat you are forced into" */
+  endNextCombat: PlayerId[]
+  /** anger cannot rise until this player forces a life card discard */
+  angerLock: PlayerId[]
+  /** may keep extra cards in the discard step of this turn */
+  keepHand: { player: PlayerId; turn: number }[]
   /** effects that happen at the start of a later turn */
   delayed: { player: PlayerId; turn: number; kind: 'plantAlly'; character: string; source: string }[]
   winner: PlayerId | null
@@ -203,6 +217,8 @@ export type Action =
   | { type: 'RESPOND'; player: PlayerId; iid: string | null }
   /** use an "at any time" card without spending your attack phase */
   | { type: 'USE_FREE'; player: PlayerId; iid: string }
+  /** repeat the physical attack you defended against (SS-133) */
+  | { type: 'COPY_ATTACK'; player: PlayerId }
   | { type: 'STEAL_DB'; player: PlayerId; iid: string | null }
   | { type: 'DISCARD'; player: PlayerId; iid: string }
   | { type: 'REJUVENATE'; player: PlayerId; accept: boolean }

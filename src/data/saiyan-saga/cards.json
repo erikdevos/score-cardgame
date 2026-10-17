@@ -2916,7 +2916,7 @@
     "effects": {
       "postResolution": "REMOVE"
     },
-    "rawText": "Stop one physical or energy attack from doing damage. Discard this card from the game after use.",
+    "rawText": "Stop one physical or energy attack from doing damage. Discard this card from the game after one use.",
     "imageUrl": "/cards/100-Vegetas-Surprise-Defense.jpg",
     "verified": false
   },
@@ -6693,16 +6693,15 @@
       "onPlaySecondary": [
         {
           "action": "CUSTOM",
-          "handler": "allyEffect",
+          "handler": "requiresCondition",
           "params": {
-            "requiresAlly": "Gohan",
-            "requiresMainPersonality": "Goku",
-            "then": [
-              {
-                "action": "END_COMBAT"
-              }
-            ]
+            "condition": "allyInPlay",
+            "character": "Gohan",
+            "mainPersonality": "Goku"
           }
+        },
+        {
+          "action": "END_COMBAT"
         }
       ]
     },

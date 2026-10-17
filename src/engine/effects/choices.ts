@@ -1,7 +1,7 @@
 // Player choices raised by card effects ("2 cards of your choice", "if you wish").
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
-import { changeStages, checkDragonBallVictory, def, log, schedule } from '../state'
+import { changeAnger, changeStages, checkDragonBallVictory, def, log, schedule } from '../state'
 import type { CardDB } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
@@ -72,6 +72,24 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
   if (q.purpose === 'honorDuel') {
     s.discardAsLife.push({ player: q.player, mode: index === 0 ? 'DAMAGE' : 'DRAW', remaining: Number(q.data.cards), armed: false, source: q.source })
     return
+  }
+  if (q.purpose === 'shuffle') {
+    const pile = index === 0 ? s.players[q.player].lifeDeck : index === 1 ? s.players[q.player].discard : null
+    if (pile) s.rngSeed = shuffleInPlace(pile, s.rngSeed)
+    return
+  }
+  if (q.purpose === 'anger') {
+    const who = (index === 0 ? q.data.first : q.data.second) as PlayerId
+    return changeAnger(s, db, who, Number(q.data.amount))
+  }
+  if (q.purpose === 'nameCard') {
+    const foe = (1 - q.player) as PlayerId
+    const name = q.options[index]
+    const deck = s.players[foe].lifeDeck
+    const hits = deck.filter(c => def(db, c).name === name)
+    s.players[foe].lifeDeck = deck.filter(c => !hits.includes(c))
+    s.players[foe].removed.push(...hits)
+    return log(s, 'REMOVE', `${q.source}: player ${foe + 1} removes ${hits.length} ${name} from their life deck`, foe)
   }
   // transferStages: the option index is the number of stages
   const pl = s.players[q.player]

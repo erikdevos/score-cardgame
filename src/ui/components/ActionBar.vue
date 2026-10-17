@@ -12,6 +12,7 @@ const LABELS: Record<string, string> = {
   DECLARE_COMBAT: 'Declare combat',
   SKIP_COMBAT: 'Skip combat',
   USE_POWER: 'Use MP power',
+  COPY_ATTACK: 'Copy the attack you defended',
   PASS: 'Pass',
 }
 const PRIMARY = new Set(['END_NON_COMBAT', 'DECLARE_COMBAT'])

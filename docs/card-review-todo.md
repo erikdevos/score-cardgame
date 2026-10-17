@@ -74,6 +74,6 @@ Besloten door Erik (geen directe regel in het regelboek, advies op basis van de 
 
 ## F. Eindcontrole
 
-- [ ] Alle 266 kaarten doorlopen in het review-scherm, naast de afbeelding. Geen enkele kaart heeft nog `needsReview`. Tegen de afbeelding gecontroleerd zijn alleen de kaarten uit deel A t/m E en de steekproeven, plus de iconen en alignments via de automatische check.
-- [ ] Per gecontroleerde kaart `verified: true` zetten.
+- [x] Tweede, onafhankelijke controle van alle 266 kaarten tegen de afbeelding (9 subagents, woord voor woord, plus level/PUR/ratings en de getallen in de codering). Resultaat: 1 tekstfout (SS-100 miste "one" in "after one use", gecorrigeerd) en 1 codeerpunt (SS-214: de Gohan-als-ally-voorwaarde is nu een speelvoorwaarde, zodat de STOP niet zonder Gohan werkt). Twee punten vervielen: SS-58 had Erik al besloten, en bij SS-107 is "needs 3 power stages" volgens het regelboek de energy-kost ("unless otherwise noted").
+- [ ] Jouw eigen ronde in het review-scherm (`CardReview.vue`) en per kaart `verified: true` zetten. Dat is jouw handtekening; die zet ik niet zelf.
 - [x] `npx tsx scripts/validate-cards.ts`: 266 kaarten, 0 invalid, 0 needsReview.

@@ -1,6 +1,6 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
-import { canPayCost, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
+import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
 import { canUseCard, def, mpDef } from './state'
 import { mustSkipCombat } from './turn'
 import { other, type Action, type CardInstance, type GameState, type PlayerId } from './types'
@@ -69,7 +69,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         if (!d.combatRole) return false
         if (!isAttackRole(d.combatRole) && !(d.combatRole === 'COMBAT_EFFECT' && d.usePhase !== 'DEFEND')) return false
         if (attackRestriction(s, p, d.combatRole)) return false
-        return usableNow(s, db, p, c, 'ATTACK') && canPayCost(s, p, strikeOf(db, c))
+        return usableNow(s, db, p, c, 'ATTACK') && canPayCost(s, db, p, strikeOf(db, c))
       }
       const pl = s.players[p]
       const out: Action[] = [
@@ -78,7 +78,9 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         ...pl.nonCombat.filter(c => !def(db, c).combatRole ? usableNow(s, db, p, c, 'ATTACK') : usableAsAttack(c)),
       ].map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid }))
       const mp = mpDef(s, db, p)
-      if (powerUsableInAttack(s, db, p, mp)) out.push({ type: 'USE_POWER', player: p })
+      const powerOpt = attackPowerOption(s, db, p)
+      if (powerOpt) out.push({ type: 'USE_POWER', player: p })
+      if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
       out.push({ type: 'PASS', player: p })
       const bonus = s.combat!.bonusAttack
       if (bonus?.active && bonus.player === p) {
@@ -89,7 +91,8 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         }
         return out.filter(a =>
           a.type === 'PASS' ||
-          (a.type === 'USE_POWER' && fits(mp.personality!.power!.strike.combatRole)) ||
+          (a.type === 'USE_POWER' && fits(powerOpt?.strike.combatRole)) ||
+          (a.type === 'COPY_ATTACK' && fits('ATTACK_PHYSICAL')) ||
           (a.type === 'PLAY_CARD' && fits(def(db, [...pl.hand, ...pl.nonCombat].find(c => c.iid === a.iid)!).combatRole)))
       }
       return out
@@ -106,18 +109,6 @@ function usableNow(s: GameState, db: CardDB, p: PlayerId, c: CardInstance, windo
   if (d.noStacking && s.combat?.usedCardIds.includes(d.id)) return false
   const effects = [...d.effects.onPlaySecondary, ...d.effects.onEnterPlay]
   return canUseCard(s, db, p, d) && timingAllows(s, p, effects, window) && requirementsMet(s, db, p, effects, c)
-}
-
-/** Attack powers and "in place of an attack" powers; defensive powers wait for the defend window. */
-function powerUsableInAttack(s: GameState, db: CardDB, p: PlayerId, mp: CardDef) {
-  const power = mp.personality!.power
-  if (!power || s.combat!.usedPowers.includes(`${p}:${mp.id}`)) return false
-  const st = power.strike
-  if (isDefenseRole(st.combatRole) || findCustom(st.effects.onPlaySecondary, 'powerDefense').length) return false
-  if (isAutoOnly(st.effects.onPlaySecondary)) return false
-  if (findCustom(st.effects.onPlaySecondary, 'usageLimit').some(u => u.per === 'game') && s.usedPerGame.includes(`${p}:${mp.id}`)) return false
-  if (attackRestriction(s, p, st.combatRole)) return false
-  return timingAllows(s, p, st.effects.onPlaySecondary, 'ATTACK') && canPayCost(s, p, st)
 }
 
 function canPlayNonCombat(s: GameState, db: CardDB, iid: string): boolean {

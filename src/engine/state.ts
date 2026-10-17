@@ -18,7 +18,9 @@ export function mpDef(s: GameState, db: CardDB, p: PlayerId): CardDef {
 
 export function powerRating(s: GameState, db: CardDB, p: PlayerId): number {
   const d = mpDef(s, db, p)
-  return d.personality!.powerRatings[s.players[p].mp.stage]
+  const st = s.combat?.strike
+  const stage = st && st.initiator === p && st.tempStage !== undefined ? st.tempStage : s.players[p].mp.stage
+  return d.personality!.powerRatings[stage]
 }
 
 export function cardName(db: CardDB, c: CardInstance | null): string {
@@ -114,6 +116,7 @@ export function changeStages(s: GameState, p: PlayerId, delta: number) {
 }
 
 export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number) {
+  if (delta > 0 && s.angerLock.includes(p)) return log(s, 'ANGER', `Player ${p + 1}'s anger cannot rise yet`, p)
   const mp = s.players[p].mp
   mp.anger = Math.max(0, Math.min(s.rules.maxAnger, mp.anger + delta))
   if (delta !== 0) log(s, 'ANGER', `Player ${p + 1} anger ${delta > 0 ? '+' : ''}${delta} (now ${mp.anger})`, p)

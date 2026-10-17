@@ -2,43 +2,6 @@
 
 This document lists everything in `src/data/saiyan-saga/cards.json` that the atomic effect DSL in `src/engine/cards.ts` cannot express yet. Cards use `{ "action": "CUSTOM", "handler": "<name>", "params": {...} }` for those parts. All cards are still `verified: false`; the transcription comes from the card images and needs a human check in the review screen.
 
-## Implementation status
-
-Implemented in `src/engine/effects/handlers.ts`, `src/engine/abilities.ts` and `src/engine/effects/triggers.ts` (tests: `tests/handlers.test.ts`):
-
-- `powerDefense`, plus `dualUse` on cards and powers: offered in the defend window (`DEFEND` with an "or stops" card, `DEFEND_POWER` for the personality power). Modes STOP, REDUCE and CAP; `protects` is checked against the defending main personality. Defensive powers are no longer offered as attacks.
-- `preventAttack`, `skipPhase`: attack restrictions per combat (next attack phase of that player, or the rest of the combat) and "skip the combat step of your next turn".
-- `drawFromDiscard`, `recoverFromDiscard`: top, bottom or player's choice (`PICK` choice).
-- `ifUsedBy`, `ifOpponentAlignment`, `optional` (`CONFIRM` choice), `setAnger`, `setLevel`, `staysForExtraUse`.
-- `stealOrCaptureDragonBall`: capture by choice, search own deck, to the bottom of the foe's life deck, `requiresAlly`, and the "after a successful physical/energy attack" timing.
-- `damageModifier`: multiplier on a successful attack, CAP as part of a defense (SS-220), heroes take 1 life card less this combat (SS-250), and the once-per-combat drill reductions (SS-140, SS-141).
-- `triggeredEffect` on drills (combat start, attack phase, after receiving a successful attack, optional ones ask first) and SS-221's draw at the start of each combat.
-- `playTiming`: `afterOwnSuccessfulEnergyAttack` and `defendingAgainstEnergyAttack` gate the card or power; `combatStart`, `ownAttackStart` and `defenderDraw` powers resolve automatically when combat is declared. `usageLimit` once per game.
-
-- `shieldNextAttack` (SS-30, SS-31, SS-33): works while the card lies face up in the Non-Combat zone; it is not offered as a "use".
-- `autoStopAttack` (SS-134, SS-135): the drill stops the first attack of that type each combat before the defend window opens.
-- `searchDeck`, `removeFromGame`, `discardFromHand` (a requirement: the card is only playable with another card in hand), `useDiscardAsLifeDeck`.
-- `allyEffect`: requirements (an ally, a named ally, a named main personality), remove an ally as a requirement, damage per ally, stages from an ally to the main personality, an ally absorbs all damage this combat, and planting Saibaimen for the next turn.
-
-Resolution model: everything that resolves (effects, strike steps, triggers, timing windows) is a frame on `GameState.stack`, run by the driver in `src/engine/engine.ts`. Resolution pauses whenever a player has to decide (`pendingChoice`) and continues exactly where it stopped, also in the middle of a strike.
-
-Timing windows: `afterOpponentPaysAttackCost` opens a reaction window right after the attacker pays a power-stage cost (SS-39), `endOfTurn` opens a window for each player at the end of every turn (SS-238, SS-239), and `anyTime` cards on the table can be used as a free action whenever their owner has to act (SS-225), also in the defend window; the open decision comes back afterwards.
-
-Rulings (Erik, 2026-10-17):
-
-- SS-101 to SS-103 (Honor Duel): a modal choice when the card is used: the bottom 3 discards replace either the life card damage of the next combat (up to 3) or the defender's 3-card combat draw (draw mode only does something when the user is the defender in that combat). The damage mode absorbs up to 3 life cards, matching the printed "bottom 3 cards" (confirmed). Note: the printed 2000 card text has no "or"; the modal choice is a ruling.
-- SS-207 (Power Gifting): the player chooses any amount, up to the main personality's highest stage.
-- SS-156 (Ally's Sacrifice): the owner chooses the ally when the card is played.
-- SS-105: a main personality can never be removed from the game this way; as main personality the effect fails.
-- SS-213 (Plant Two Saibaimen): the highest level Saibaimen comes from the life deck, which is shuffled afterwards.
-- `extraAttack` (Multi-Form, SS-82, SS-163): the attacker makes the extra physical attack right away, before the phase passes.
-- `noStacking` (SS-250): a second copy cannot be used in the same combat.
-
-Known approximations:
-
-- `anyTime` cards are only usable when their owner has to act; there is no priority window in every step for the other player.
-- `useDiscardAsLifeDeck` damage mode: absorbed cards count as life cards dealt for the Dragon Ball capture rule.
-
 ## CUSTOM handlers
 
 48 handlers, used by 141 cards. Sorted by number of cards. A card can use several handlers, and CUSTOM effects can be nested (for example `ifUsedBy.then`, `triggeredEffect.then`).
@@ -50,8 +13,8 @@ Known approximations:
 | `drawFromDiscard` | 10 | SS-25, SS-136, SS-137, SS-180, SS-204, SS-221, SS-P5, SS-P5-SILVER, SS-P6, SS-P6-SILVER | Move N cards from the discard pile (top/bottom/choice) into hand; may be ongoing (each combat) or add to a combat draw. |
 | `recoverFromDiscard` | 10 | SS-23, SS-79, SS-80, SS-89, SS-98, SS-169, SS-187, SS-190, SS-193, SS-199 | Like RECOVER but with source/destination: `from` top/bottom/choice of the discard pile, `to` top/bottom of the life deck. |
 | `playTiming` | 9 | SS-39, SS-164, SS-175, SS-180, SS-182, SS-185, SS-225, SS-238, SS-239 | Card or power may only be used at a specific moment (`when`): anyTime, endOfTurn, combatStart, defenderDraw, afterSuccessfulEnergyAttackAgainstYou, afterOwnSuccessfulEnergyAttack, afterOpponentPaysAttackCost (reaction). |
-| `allyEffect` | 7 | SS-156, SS-194, SS-207, SS-213, SS-214, SS-217, SS-229 | Effects that use or target allies: require an ally, sacrifice/remove an ally as cost, redirect damage to an ally, transfer stages to an ally, damage per ally, plant an ally. |
 | `stealOrCaptureDragonBall` | 7 | SS-48, SS-157, SS-175, SS-188, SS-189, SS-222, SS-241 | Capture one (or N) of the opponent's Dragon Balls outside the normal 5-life-card rule, or search one from own deck; often after a successful attack or with a requirement (ally Bulma). |
+| `allyEffect` | 6 | SS-156, SS-194, SS-207, SS-213, SS-217, SS-229 | Effects that use or target allies: require an ally, sacrifice/remove an ally as cost, redirect damage to an ally, transfer stages to an ally, damage per ally, plant an ally. |
 | `damageModifier` | 6 | SS-46, SS-140, SS-141, SS-210, SS-220, SS-250 | Change damage outside the flat DAMAGE_MOD passive: cap incoming damage (maxLifeCards/maxStages), reduce by N for a limited number of uses or under a condition, or multiply an attack's damage (multiplier). |
 | `triggeredEffect` | 6 | SS-127, SS-128, SS-129, SS-136, SS-137, SS-144 | Ongoing effect: when `trigger` happens (combat start, own attack phase, defending vs energy, receiving a successful attack, defender combat draw), resolve `then` effects; optional limit/optional flag. |
 | `dualUse` | 5 | SS-13, SS-66, SS-70, SS-82, SS-163 | Card text with "or": the player chooses to play it with its own combatRole or as `alternative` (usually a STOP defense); rulebook p. 20. The CUSTOM sits in onPlaySecondary only as a carrier: the engine must read it when listing legal defenses and must not resolve it as a secondary. Effects outside the "or" (anger changes) happen in either mode. |
@@ -69,6 +32,7 @@ Known approximations:
 | `ifOpponentAlignment` | 2 | SS-117, SS-118 | Resolve `then` only when the opposing main personality has the given alignment (Hero). |
 | `optional` | 2 | SS-75, SS-77 | The player may choose to resolve `then` ("if you wish"). |
 | `replaceDrawSource` | 2 | SS-195, SS-196 | For the next combat, the player draws from the discard pile (top/bottom) instead of the life deck. |
+| `requiresCondition` | 2 | SS-214, SS-246 | Play condition, not a side effect: the card or power may only be used when the board condition holds (SS-246: more than one Saibaimen in play; SS-214: Gohan is the ally of a Goku main personality). |
 | `retaliationDrain` | 2 | SS-138, SS-139 | Ongoing: for every X life cards/stages the owner loses, the foe loses N stages (not below a floor). |
 | `revealHand` | 2 | SS-211, SS-224 | Ongoing: (villain) opponents play with their hand revealed, optionally while a character is in play. |
 | `setAnger` | 2 | SS-200, SS-208 | Set a personality's anger to a fixed value (no SET_ANGER atom exists; MODIFY_ANGER is relative). |
@@ -88,7 +52,6 @@ Known approximations:
 | `protectDrills` | 1 | SS-234 | Owner's drills cannot be affected until the personality advances a level. |
 | `recurringDamage` | 1 | SS-227 | While in play, deal 1 life card per combat when the owner attacks, until destroyed by an energy attack. |
 | `removeNamedCardFromDecks` | 1 | SS-198 | Name a card; opponents remove all copies from their decks from the game. |
-| `requiresCondition` | 1 | SS-246 | Gate a power/attack on a board condition (more than one Saibaimen in play). Should be a play condition, not a side effect. |
 | `resetBattle` | 1 | SS-242 | End the combat and restore power stages and anger of all players to their values at the start of this combat (Erik's ruling for SS-242). |
 | `sweepCards` | 1 | SS-126 | Discard all cards of a type (drills) controlled by others from play. |
 | `takeDiscardedLifeCard` | 1 | SS-112 | When the character discards from the life deck this combat, they may take the first discarded card into hand. |
@@ -124,7 +87,7 @@ Possible consolidations once the engine implements these: `shieldNextAttack` / `
 - **PUR > 4**: SS-P115-ERROR prints PUR 5; the schema caps `pur` at 4, so it is stored as 4 with needsReview.
 - **Optional effects**: DRAW has no "if you wish" flag, so SS-75 and SS-77 wrap it in CUSTOM `optional`.
 - **Defensive personality powers**: Saiyan Saga rulebook p. 16/20: a personality power may be used once per Combat step, either to attack (phase b) or to block an attack (phase c). The engine only offers `USE_POWER` to the active player and `defend` only takes hand cards, and `StrikeSchema` has no `defense` field. Needed: `defense` on StrikeSchema and a power option in the defend window (SS-86, SS-87, SS-160, SS-170, SS-173, SS-176, SS-178, SS-184, SS-243-245, SS-P7).
-- **Play condition vs. side effect**: SS-246 Saibaimen Lv4's attack is only allowed with more than one Saibaimen in play; this is a gate, not an effect.
+- **Play condition vs. side effect**: `requiresCondition` (SS-246, SS-214) is a gate on playing the card or power, not an effect to resolve.
 - **Timing**: cards played at unusual moments ("Play this card during combat", after costs are paid, "at the beginning of this combat round") have no timing field: SS-39, SS-119, SS-187, SS-212, plus `playTiming` cards.
 - **Dual-role cards**: one `combatRole` per card; attack-or-defense cards use `dualUse` (SS-13, SS-66, SS-70).
 - **Power-up recipient**: rulebook p. 23: "Allies can be chosen to benefit from power-up cards instead of the Main Personality." `Target` has no "MP or one of your allies" value, so these cards use SELF for now: SS-22 Power Up!, SS-97 Power Up More!, SS-98 Power Up the Most!, SS-201 The Tail Grows Back (all "a/the personality"). Not included: SS-43 Senzu Bean ("the main personality"), SS-119 ("this Saiyan"), SS-26 (Gohan). Open question: do the Dragon Balls' "power up to full" (SS-15, SS-77) count as power-up cards? Proposed: a `SELF_OR_ALLY` target.

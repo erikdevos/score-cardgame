@@ -1,9 +1,9 @@
-import { endAttackPhase, findCustom, newCombat, requirementsMet, timingAllows } from './abilities'
+import { drillsProtected, endAttackPhase, findCustom, newCombat, requirementsMet, tableEffects, timingAllows } from './abilities'
 import type { CardDB } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
 import { shuffleInPlace } from './rng'
-import { beginStrike, react, strikeOf } from './sequencer'
-import { canUseCard, changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard } from './state'
+import { attackPowerOption, beginStrike, react, strikeOf } from './sequencer'
+import { canUseCard, changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
 import { other, type Frame, type GameState, type PlayerId } from './types'
 
 // Step 1
@@ -54,6 +54,7 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
     case 'Drill':
       // a new drill of a restricted style knocks out the restricted drills of that style
       for (const other of s.players) {
+        if (drillsProtected(s, db, other.id)) continue
         const out = other.drills.filter(c => d.style && def(db, c).exclusiveDrillStyle === d.style)
         if (!out.length) continue
         other.drills = other.drills.filter(c => !out.includes(c))
@@ -122,10 +123,29 @@ export function declareCombat(s: GameState, db: CardDB) {
   log(s, 'DECLARE', `Player ${s.attacker + 1} declares combat`, s.attacker)
   s.step = 'COMBAT'
   s.combat = newCombat(s.attacker)
+  s.combat.startLevels = s.players.map(pl => ({ stage: pl.mp.stage, anger: pl.mp.anger }))
   for (const x of s.discardAsLife) x.armed = true
+  // SS-76: the very next combat this player is forced into ends before any damage
+  if (s.endNextCombat.includes(defender)) {
+    s.endNextCombat = s.endNextCombat.filter(x => x !== defender)
+    s.combat.ended = true
+    return log(s, 'END_COMBAT', `Player ${defender + 1}'s Dragon Ball ends the combat before any damage`, defender)
+  }
   defenderDraw(s, db, defender)
   if (over(s)) return
+  // SS-227: a creature that hurts the foe in every combat its owner attacks in
+  for (const { card, params } of tableEffects(s, db, s.attacker, 'recurringDamage')) {
+    const n = millCards(s, defender, Number(params.lifeCards ?? 1))
+    log(s, 'MILL', `${def(db, card).name}: player ${defender + 1} discards ${n} life card(s)`, defender)
+    if (over(s)) return
+  }
   const frames: Frame[] = [...autoPowerFrames(s, db), ...triggerFrames(s, db, { kind: 'combatStart' })]
+  // SS-149: shuffle a pile before the combat
+  for (const p of [s.attacker, defender] as PlayerId[]) {
+    for (const { card } of tableEffects(s, db, p, 'optionalShuffle')) {
+      frames.unshift({ k: 'choice', q: { kind: 'OPTION', player: p, source: def(db, card).name, prompt: `${def(db, card).name}: shuffle a pile before combat?`, options: ['Shuffle life deck', 'Shuffle discard pile', 'No'], purpose: 'shuffle', data: {} } })
+    }
+  }
   schedule(s, ...frames)
 }
 
@@ -136,7 +156,8 @@ function defenderDraw(s: GameState, db: CardDB, defender: PlayerId) {
   if (sub) {
     const pl = s.players[defender]
     const k = Math.min(sub.remaining, n, pl.discard.length)
-    pl.hand.push(...pl.discard.splice(0, k))
+    // discard pile: index 0 = bottom, last = top
+    pl.hand.push(...(sub.position === 'top' ? pl.discard.splice(pl.discard.length - k, k).reverse() : pl.discard.splice(0, k)))
     sub.remaining -= k
     n -= k
     log(s, 'DRAW', `${sub.source}: player ${defender + 1} draws ${k} from the bottom of the discard pile`, defender)
@@ -164,7 +185,7 @@ export function playCombatCard(s: GameState, db: CardDB, p: PlayerId, iid: strin
 
 export function usePower(s: GameState, db: CardDB, p: PlayerId) {
   const d = mpDef(s, db, p)
-  const power = d.personality!.power!
+  const power = attackPowerOption(s, db, p)!
   s.combat!.consecutivePasses = 0
   s.combat!.usedPowers.push(`${p}:${d.id}`)
   if (findCustom(power.strike.effects.onPlaySecondary, 'usageLimit').some(u => u.per === 'game')) s.usedPerGame.push(`${p}:${d.id}`)
@@ -215,13 +236,15 @@ function nextDiscard(s: GameState, db: CardDB) {
   while (s.discardQueue.length) {
     const p = s.discardQueue[0]
     const limit = handLimit(s, db, p)
-    if (s.players[p].hand.length > limit) {
+    const keeps = s.keepHand.some(k => k.player === p && k.turn === s.turn)
+    if (!keeps && s.players[p].hand.length > limit) {
       s.pendingChoice = { kind: 'DISCARD_TO_LIMIT', player: p, limit }
       return
     }
     s.discardQueue.shift()
   }
   s.pendingChoice = null
+  s.keepHand = s.keepHand.filter(k => k.turn > s.turn)
   // Step 7 (CRD only)
   if (s.rules.mode === 'CRD_3' && s.players[s.attacker].discard.length > 0) {
     s.step = 'REJUVENATE'

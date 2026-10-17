@@ -2,7 +2,7 @@
 import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from '../cards'
 import { computeDamage } from '../damage'
 import { legalActions } from '../legal'
-import { legalPowerDefense, strikeOf } from '../sequencer'
+import { attackPowerOption, copyableAttack, legalPowerDefense, strikeOf } from '../sequencer'
 import { def, mpDef } from '../state'
 import type { Action, CardInstance, GameState, PlayerId } from '../types'
 
@@ -102,7 +102,9 @@ function score(s: GameState, db: CardDB, a: Action): number {
     case 'PASS':
       return 0
     case 'USE_POWER':
-      return strikeValue(s, db, a.player, mpDef(s, db, a.player).personality!.power!.strike)
+      return strikeValue(s, db, a.player, attackPowerOption(s, db, a.player)!.strike)
+    case 'COPY_ATTACK':
+      return strikeValue(s, db, a.player, copyableAttack(s, db, a.player)!.strike)
     case 'PLAY_CARD': {
       const c = find(s, a.player, a.iid)!
       const d = def(db, c)

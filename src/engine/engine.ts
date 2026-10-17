@@ -3,7 +3,7 @@ import { runEffectsFrame } from './effects'
 import { resolveConfirm, resolveOption, resolvePick, runChoiceFrame } from './effects/choices'
 import { legalActions } from './legal'
 import {
-  cleanup, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
+  cleanup, copyAttack, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
 import { clone, schedule } from './state'
@@ -47,13 +47,14 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
       useNonCombat(s, db, action.player, action.iid, true)
       break
     }
+    case 'COPY_ATTACK': copyAttack(s, db, action.player); break
     case 'STEAL_DB': stealDragonBall(s, db, action.iid); break
     case 'DISCARD': discardFromHand(s, db, action.player, action.iid); break
     case 'REJUVENATE': rejuvenate(s, db, action.accept); break
   }
   run(s, db)
   // Only actions taken inside combat hand the attack phase over; declaring combat and free uses do not.
-  if (wasInCombat && action.type !== 'USE_FREE' && s.step === 'COMBAT' && !s.stack.length) {
+  if ((wasInCombat || s.combat?.ended) && action.type !== 'USE_FREE' && s.step === 'COMBAT' && !s.stack.length) {
     advanceCombat(s, db)
     run(s, db)
   }

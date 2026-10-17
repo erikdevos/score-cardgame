@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { def, handLimit, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
+import { def, handLimit, handRevealed, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
 import { db } from '../cardDb'
 import CardView from './CardView.vue'
 
@@ -43,7 +43,12 @@ const hasTable = computed(() => pl.value.dragonBalls.length + pl.value.nonCombat
         <span v-for="i in state.rules.maxAnger" :key="i" class="pip" :class="{ on: pl.mp.anger >= i }" />
       </div>
       <div v-if="!showHand" class="opp-hand" :aria-label="`${pl.hand.length} cards in hand`">
-        <CardView v-for="c in pl.hand" :key="c.iid" face-down size="xs" label="" />
+        <template v-if="handRevealed(state, db, p)">
+          <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="sm" />
+        </template>
+        <template v-else>
+          <CardView v-for="c in pl.hand" :key="c.iid" face-down size="xs" label="" />
+        </template>
         <span class="muted">{{ pl.hand.length }} in hand</span>
       </div>
     </div>

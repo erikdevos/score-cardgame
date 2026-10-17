@@ -1,13 +1,13 @@
 // The 8-point battle sequencer for a single strike.
-import { allyAbsorbs, applyDefense, attackTypeOf, autoStop, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
-import { isAttackRole, type CardDB, type StrikeDef } from './cards'
+import { allyAbsorbs, applyDefense, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { triggerFrames } from './effects/triggers'
-import { canUseCard, checkDragonBallVictory, def, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
+import { canUseCard, changeStages, checkDragonBallVictory, def, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from './types'
 
-export function canPayCost(s: GameState, p: PlayerId, strike: StrikeDef): boolean {
-  const cost = strikeCost(strike, s.rules)
+export function canPayCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef): boolean {
+  const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole)
   if (cost.type === 'POWER_STAGES') return s.players[p].mp.stage >= cost.amount
   if (cost.type === 'LIFE_CARDS') return s.players[p].lifeDeck.length >= cost.amount
   return true
@@ -24,7 +24,7 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
   if (!attack) return null
   const d = def(db, c)
   const opt = cardDefense(d, attack)
-  if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, defender, opt.strike)) return null
+  if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, db, defender, opt.strike)) return null
   if (d.noStacking && s.combat!.usedCardIds.includes(d.id)) return null
   const effects = opt.strike.effects.onPlaySecondary
   return timingAllows(s, defender, effects, 'DEFEND') && requirementsMet(s, db, defender, effects, c) ? opt : null
@@ -45,12 +45,26 @@ export function legalDefenses(s: GameState, db: CardDB, defender: PlayerId): Car
 /** The defender's personality power, if it can answer the current strike (once per combat). */
 export function legalPowerDefense(s: GameState, db: CardDB, defender: PlayerId): DefenseOption | null {
   const opt = powerDefense(s, db, defender)
-  return opt && canPayCost(s, defender, opt.strike) ? opt : null
+  return opt && canPayCost(s, db, defender, opt.strike) ? opt : null
+}
+
+/** The personality power p can use as an attack (or in place of one) right now, if any. */
+export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
+  const mp = mpDef(s, db, p)
+  if (s.combat!.usedPowers.includes(`${p}:${mp.id}`)) return null
+  return powerOptions(s, db, p).find(power => {
+    const st = power.strike
+    const effects = st.effects.onPlaySecondary
+    if (isDefenseRole(st.combatRole) || findCustom(effects, 'powerDefense').length || isAutoOnly(effects)) return false
+    if (findCustom(effects, 'usageLimit').some(u => u.per === 'game') && s.usedPerGame.includes(`${p}:${mp.id}`)) return false
+    if (attackRestriction(s, p, st.combatRole)) return false
+    return timingAllows(s, p, effects, 'ATTACK') && requirementsMet(s, db, p, effects) && canPayCost(s, db, p, st)
+  }) ?? null
 }
 
 /** Pays the cost; returns the power stages paid. */
-function payCost(s: GameState, p: PlayerId, strike: StrikeDef): number {
-  const cost = strikeCost(strike, s.rules)
+function payCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef): number {
+  const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole)
   if (cost.type === 'POWER_STAGES') {
     s.players[p].mp.stage -= cost.amount
     return cost.amount
@@ -69,7 +83,7 @@ export function reactionCards(s: GameState, db: CardDB, p: PlayerId): CardInstan
     const d = def(db, c)
     const effects = d.effects.onPlaySecondary
     const isReaction = effects.some(e => e.action === 'CUSTOM' && e.handler === 'playTiming' && e.params?.when === 'afterOpponentPaysAttackCost')
-    return isReaction && canUseCard(s, db, p, d) && requirementsMet(s, db, p, effects, c) && canPayCost(s, p, strikeOf(db, c))
+    return isReaction && canUseCard(s, db, p, d) && requirementsMet(s, db, p, effects, c) && canPayCost(s, db, p, strikeOf(db, c))
   })
 }
 
@@ -79,7 +93,7 @@ export function react(s: GameState, db: CardDB, p: PlayerId, iid: string) {
   s.resolving.push(card)
   const d = def(db, card)
   log(s, 'REACT', `Player ${p + 1} reacts with ${d.name}`, p)
-  payCost(s, p, strikeOf(db, card))
+  payCost(s, db, p, strikeOf(db, card))
   schedule(s, effectsFrame(p, d.name, d.effects.onPlaySecondary, card), step('retire', { iid }))
 }
 
@@ -97,7 +111,7 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
   combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 }
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
-  combat.strike.paidStages = payCost(s, initiator, strike)
+  combat.strike.paidStages = payCost(s, db, initiator, strike)
   if (over(s)) return
   schedule(s,
     step('strike.react'),
@@ -144,8 +158,9 @@ export function defend(s: GameState, db: CardDB, iid: string | null) {
   if (card && opt) {
     st.defense = opt.defense
     s.combat!.usedCardIds.push(card.defId)
+    if (st.strike.combatRole === 'ATTACK_PHYSICAL') s.combat!.defended[defender] = { strike: st.strike, label: st.label }
     log(s, 'DEFEND', `Player ${defender + 1} defends with ${def(db, card).name}`, defender)
-    payCost(s, defender, opt.strike)
+    payCost(s, db, defender, opt.strike)
     if (over(s)) return
     // Step 5: defender secondaries (they may still change st.defense, e.g. "prevents all but 1 life card")
     return schedule(s, effectsFrame(defender, def(db, card).name, opt.strike.effects.onPlaySecondary, card), step('strike.resolveHit'))
@@ -165,7 +180,7 @@ export function defendWithPower(s: GameState, db: CardDB) {
   s.combat!.usedPowers.push(`${defender}:${mp.id}`)
   st.defense = opt.defense
   log(s, 'DEFEND', `Player ${defender + 1} defends with ${mp.name}'s power: ${power.name}`, defender)
-  payCost(s, defender, opt.strike)
+  payCost(s, db, defender, opt.strike)
   if (over(s)) return
   // a power used as a defense does not make its attack half ("two physical attacks ... or a defense")
   const secondaries = opt.strike.effects.onPlaySecondary.filter(e => !(e.action === 'CUSTOM' && e.handler === 'extraAttack'))
@@ -202,15 +217,76 @@ export function resolveHit(s: GameState, db: CardDB) {
     }
   }
   if ((dmg.stages > 0 || dmg.lifeCards > 0) && allyAbsorbs(s, db, defender)) dmg = { stages: 0, lifeCards: 0 }
+  dmg = creatureOnTable(s, db, defender, type, dmg)
+  const stageBefore = s.players[defender].mp.stage
   st.lifeCardsDealt = applyDamage(s, defender, dmg)
   if (over(s)) return
+  afterDamage(s, db, defender, stageBefore - s.players[defender].mp.stage, st.lifeCardsDealt)
+  if (over(s)) return
 
-  if (st.lifeCardsDealt >= s.rules.dragonBallCaptureLifeCards && s.players[defender].dragonBalls.length > 0) {
+  if (st.lifeCardsDealt >= s.rules.dragonBallCaptureLifeCards && s.players[defender].dragonBalls.length > 0 && !dragonBallsProtected(s, db, defender)) {
     st.phase = 'AWAIT_DB_STEAL'
     s.pendingChoice = { kind: 'DB_STEAL', player: st.initiator }
     return
   }
   finishSuccessful(s, db)
+}
+
+/** SS-226 takes physical damage for its owner; an energy attack kills it (and still hits). SS-227 dies to energy too. */
+function creatureOnTable(s: GameState, db: CardDB, defender: PlayerId, type: 'PHYSICAL' | 'ENERGY', dmg: { stages: number; lifeCards: number }) {
+  const pl = s.players[defender]
+  for (const h of ['damageAbsorber', 'recurringDamage']) {
+    for (const { card } of tableEffects(s, db, defender, h)) {
+      if (type === 'ENERGY') {
+        pl.nonCombat = pl.nonCombat.filter(c => c !== card)
+        retire(s, card, def(db, card).effects.postResolution === 'STAYS' ? 'DISCARD' : def(db, card).effects.postResolution)
+        log(s, 'DESTROYED', `${def(db, card).name} is destroyed by the energy attack`, defender)
+      } else if (h === 'damageAbsorber') {
+        log(s, 'PROTECT', `${def(db, card).name} takes the physical damage`, defender)
+        dmg = { stages: 0, lifeCards: 0 }
+      }
+    }
+  }
+  return dmg
+}
+
+/** Effects of damage taken in combat: retaliation drills, "take the first discarded card", anger locks. */
+function afterDamage(s: GameState, db: CardDB, defender: PlayerId, stagesLost: number, lifeLost: number) {
+  const st = s.combat!.strike!
+  const foe = st.initiator
+  for (const { card, params } of tableEffects(s, db, defender, 'retaliationDrain')) {
+    const lost = params.per === 'lifeCard' ? lifeLost : stagesLost
+    const n = Math.floor(lost / Number(params.every ?? 1)) * Math.abs(Number(params.opponentStages ?? -1))
+    if (n <= 0) continue
+    changeStages(s, foe, -n)
+    log(s, 'STAGES', `${def(db, card).name}: player ${foe + 1} loses ${n} power stage(s)`, foe)
+  }
+  if (st.takeFirstMilled === defender && lifeLost > 0) {
+    const pile = s.players[defender].discard
+    const [first] = pile.splice(pile.length - lifeLost, 1)
+    s.players[defender].hand.push(first)
+    log(s, 'MOVE', `Player ${defender + 1} takes ${def(db, first).name} into their hand`, defender)
+  }
+  if (lifeLost > 0 && s.angerLock.includes(foe)) {
+    s.angerLock = s.angerLock.filter(x => x !== foe)
+    log(s, 'ANGER', `Player ${foe + 1}'s anger can rise again`, foe)
+  }
+}
+
+/** SS-133: repeat the physical attack you defended against this combat, once per combat. */
+export function copyableAttack(s: GameState, db: CardDB, p: PlayerId) {
+  const c = s.combat
+  const saved = c?.defended[p]
+  if (!c || !saved || c.onceKeys.includes(`copy:${p}`) || !tableEffects(s, db, p, 'copyDefendedAttack').length) return null
+  if (attackRestriction(s, p, saved.strike.combatRole) || !canPayCost(s, db, p, saved.strike)) return null
+  return saved
+}
+
+export function copyAttack(s: GameState, db: CardDB, p: PlayerId) {
+  const saved = copyableAttack(s, db, p)!
+  s.combat!.onceKeys.push(`copy:${p}`)
+  s.combat!.consecutivePasses = 0
+  beginStrike(s, db, p, null, saved.strike, `Copy of ${saved.label}`)
 }
 
 export function stealDragonBall(s: GameState, db: CardDB, iid: string | null) {

@@ -355,3 +355,89 @@ describe('rulings', () => {
     expect(s.players[a].allies.map(x => x.card.iid)).toEqual([best])
   })
 })
+
+describe('rare effects (simple versions)', () => {
+  it('SS-17 uses the maximum stage for its damage', () => {
+    let s = inCombat()
+    s.players[0].mp.stage = 0
+    s.players[1].mp.stage = 10
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'SS-17') })
+    expect(s.players[1].mp.stage).toBeLessThan(10)
+  })
+
+  it('SS-126 sweeps the opponent\'s drills, unless SS-234 protects them', () => {
+    let s = newGame()
+    const a = s.attacker
+    const foe = (1 - a) as PlayerId
+    place(s, foe, 'TEST-DRILL', 'drills')
+    s = act(s, { type: 'PLAY_CARD', player: a, iid: give(s, a, 'SS-126') })
+    expect(s.players[foe].drills).toEqual([])
+    let t = newGame()
+    place(t, foe, 'TEST-DRILL', 'drills')
+    place(t, foe, 'SS-234', 'drills')
+    t = act(t, { type: 'PLAY_CARD', player: a, iid: give(t, a, 'SS-126') })
+    expect(t.players[foe].drills.length).toBe(2)
+  })
+
+  it('SS-138 drains the attacker 1 stage per life card lost', () => {
+    let s = inCombat()
+    place(s, 1, 'SS-138', 'drills')
+    s.players[0].mp.stage = 10
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-BIG-BLAST') })
+    expect(s.players[0].mp.stage).toBe(10 - 2 - 6)
+  })
+
+  it('SS-146 makes energy attacks cost 1 stage for the attacker', () => {
+    let s = inCombat()
+    place(s, 0, 'SS-146', 'drills')
+    s.players[0].mp.stage = 5
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-BLAST') })
+    expect(s.players[0].mp.stage).toBe(4)
+  })
+
+  it('SS-237 keeps Dragon Balls from being captured', () => {
+    let s = inCombat()
+    place(s, 1, 'SS-237', 'drills')
+    place(s, 1, 'TEST-DB-1', 'dragonBalls')
+    s.players[0].mp.stage = 10
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-BIG-BLAST') })
+    expect(s.pendingChoice).toBeNull()
+    expect(s.players[1].dragonBalls.length).toBe(1)
+  })
+
+  it('SS-242 resets stages and anger and ends combat', () => {
+    let s = inCombat()
+    s.combat!.startLevels = s.players.map(p => ({ stage: p.mp.stage, anger: p.mp.anger }))
+    const start = s.players[1].mp.stage
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-PUNCH') })
+    expect(s.players[1].mp.stage).toBeLessThan(start)
+    const reset = give(s, 1, 'SS-242')
+    s = act(s, { type: 'PASS', player: 1 })
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-BLAST') })
+    s = act(s, { type: 'DEFEND', player: 1, iid: reset })
+    expect(s.players[1].mp.stage).toBe(start)
+    expect(s.step).not.toBe('COMBAT')
+  })
+
+  it('SS-76 ends the next combat the owner is forced into', () => {
+    let s = newGame()
+    const a = s.attacker
+    const foe = (1 - a) as PlayerId
+    s.endNextCombat.push(foe)
+    s = act(s, { type: 'END_NON_COMBAT', player: a })
+    const life = s.players[foe].lifeDeck.length
+    s = act(s, { type: 'DECLARE_COMBAT', player: a })
+    expect(s.step).not.toBe('COMBAT')
+    expect(s.players[foe].lifeDeck.length).toBe(life) // no defender draw, no damage
+  })
+
+  it('SS-224 reveals a villain opponent\'s hand', async () => {
+    const { handRevealed } = await import('../src/engine')
+    const s = newGame()
+    setMP(s, 1, 'SS-176')
+    expect(handRevealed(s, db, 1)).toBe(false)
+    place(s, 0, 'SS-224', 'drills')
+    expect(handRevealed(s, db, 1)).toBe(true)
+  })
+})
+

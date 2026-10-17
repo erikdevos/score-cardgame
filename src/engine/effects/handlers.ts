@@ -1,8 +1,8 @@
 // CUSTOM effect handlers for card text the atomic DSL cannot express (see docs/dsl-gaps.md).
-import { restrictAttacks, type Params } from '../abilities'
+import { dragonBallsProtected, drillsProtected, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, def, log, millCards, mpDef } from '../state'
+import { changeAnger, changeStages, def, log, millCards, mpDef } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -59,6 +59,93 @@ export const handlers: Record<string, CustomHandler> = {
   dualUse: noop,
   powerDefense: noop,
   shieldNextAttack: noop,
+  // ongoing effects read where they matter (damage, costs, legal actions, UI)
+  retaliationDrain: noop,
+  attackCostModifier: noop,
+  copyDefendedAttack: noop,
+  revealHand: noop,
+  damageAbsorber: noop,
+  recurringDamage: noop,
+  allowMixedDrills: noop, // the engine has no one-style-per-player limit to lift
+  protectDrills: noop,
+  preventDragonBallCapture: noop,
+  optionalShuffle: noop,
+  requiresCondition: noop,
+  useOtherLevelPower: noop,
+
+  temporaryStage(ctx) {
+    const st = ctx.s.combat?.strike
+    if (st) st.tempStage = ctx.s.rules.maxStage
+  },
+
+  endNextCombat(ctx) {
+    ctx.s.endNextCombat.push(ctx.user)
+    log(ctx.s, 'PROTECT', `${ctx.source}: the next combat player ${ctx.user + 1} is forced into ends before damage`, ctx.user)
+  },
+
+  takeDiscardedLifeCard(ctx) {
+    const st = ctx.s.combat?.strike
+    if (st) st.takeFirstMilled = ctx.user
+  },
+
+  sweepCards(ctx) {
+    const { s, db, user } = ctx
+    const foe = other(user)
+    if (drillsProtected(s, db, foe)) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1}'s drills are protected`)
+    const gone = s.players[foe].drills
+    s.players[foe].drills = []
+    s.players[foe].discard.push(...gone)
+    log(s, 'DISCARD', `${ctx.source}: player ${foe + 1}'s drills are swept from the table (${gone.length})`, foe)
+  },
+
+  replaceDrawSource(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    ctx.s.discardAsLife.push({ player: who, mode: 'DRAW', position: p.position === 'top' ? 'top' : 'bottom', remaining: ctx.s.rules.defenderCombatDraw, armed: false, source: ctx.source })
+    log(ctx.s, 'DRAW', `${ctx.source}: player ${who + 1} draws from the discard pile in the next combat`, who)
+  },
+
+  removeNamedCardFromDecks(ctx) {
+    const names = [...new Set(Object.values(ctx.db).filter(d => d.type === 'Non-Combat' && !d.id.startsWith('TEST')).map(d => d.name))].sort()
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a Non-Combat card', options: names, purpose: 'nameCard', data: {} })
+  },
+
+  endTurn(ctx) {
+    ctx.s.keepHand.push({ player: ctx.user, turn: ctx.s.turn })
+  },
+
+  modifyStagesByRole(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    changeStages(ctx.s, who, num(p.amount, 0))
+    log(ctx.s, 'STAGES', `${ctx.source}: player ${who + 1} ${num(p.amount, 0) >= 0 ? 'gains' : 'loses'} ${Math.abs(num(p.amount, 0))} power stage(s)`, who)
+  },
+
+  angerLock(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    if (!ctx.s.angerLock.includes(who)) ctx.s.angerLock.push(who)
+    log(ctx.s, 'ANGER', `${ctx.source}: player ${who + 1}'s anger cannot rise until they force a life card discard`, who)
+  },
+
+  modifyAngerFiltered(ctx, p) {
+    const levels = (p.personalityLevels ?? []) as number[]
+    const ok = [ctx.user, other(ctx.user)].filter(pid => levels.includes(ctx.s.players[pid].mp.levelIndex + 1))
+    if (!ok.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no personality at level ${levels.join(' or ')}`)
+    const options = ok.map(pid => (pid === ctx.user ? 'Your main personality' : "The opponent's main personality"))
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: whose anger rises ${num(p.amount, 1)}?`, options, purpose: 'anger', data: { first: ok[0], second: ok[1] ?? -1, amount: num(p.amount, 1) } })
+  },
+
+  resetBattle(ctx) {
+    const { s } = ctx
+    const c = s.combat
+    if (!c) return
+    c.startLevels.forEach((l, i) => {
+      s.players[i].mp.stage = l.stage
+      s.players[i].mp.anger = l.anger
+    })
+    c.ended = true
+    // the attack in progress never happened either
+    if (c.strike) c.strike.defense = { mode: 'STOP', stages: 0, lifeCards: 0 }
+    log(s, 'RESET', `${ctx.source}: this battle never happened, stages and anger are back to the start of combat`)
+  },
 
   /** Multi-Form: "two physical attacks, one after another" */
   extraAttack(ctx, p) {
@@ -78,7 +165,7 @@ export const handlers: Record<string, CustomHandler> = {
       return queueChoice(s, pickRequest(user, user, 'allies', [ally.card], 1, 'REMOVED', ctx.source))
     }
     const foe = other(user)
-    const zones = ((p.cardTypes ?? []) as string[]).map(t => ZONE_BY_TYPE[t]).filter(Boolean)
+    const zones = ((p.cardTypes ?? []) as string[]).map(t => ZONE_BY_TYPE[t]).filter(z => z && !(z === 'drills' && drillsProtected(s, db, foe)))
     const cards = zones.flatMap(z => zoneCards(s, foe, z))
     if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has nothing to remove`)
     queueChoice(s, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'REMOVED', ctx.source))
@@ -215,7 +302,8 @@ export const handlers: Record<string, CustomHandler> = {
     }
     const n = num(p.captureFromFoe ?? p.amount, p.searchOwnDeck ? 0 : 1)
     const dest = p.destination === 'bottomOfOpponentLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'PICKER_DRAGON_BALLS'
-    if (n > 0 && !s.players[foe].dragonBalls.length) log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no Dragon Balls`)
+    if (n > 0 && dragonBallsProtected(s, db, foe)) log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1}'s Dragon Balls cannot be captured`)
+    else if (n > 0 && !s.players[foe].dragonBalls.length) log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no Dragon Balls`)
     else if (n > 0) picks.push(pickRequest(user, foe, 'dragonBalls', s.players[foe].dragonBalls, n, dest, ctx.source))
     queueChoice(s, ...picks)
   },

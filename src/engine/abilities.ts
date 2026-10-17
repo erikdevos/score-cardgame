@@ -10,7 +10,7 @@ export type Params = Record<string, unknown>
 export function newCombat(active: PlayerId): CombatState {
   return {
     active, consecutivePasses: 0, strike: null, usedPowers: [], ended: false,
-    restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+    restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
 
@@ -109,6 +109,15 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
   for (const d of findCustom(effects, 'discardFromHand')) {
     if (d.requirement && pl.hand.filter(c => c.iid !== card?.iid).length < Number(d.amount ?? 1)) return false
   }
+  for (const d of findCustom(effects, 'replaceDrawSource')) {
+    if (d.failIfInsufficient && pl.discard.length < s.rules.defenderCombatDraw) return false
+  }
+  for (const d of findCustom(effects, 'requiresCondition')) {
+    if (d.condition !== 'moreThanOneInPlay') continue
+    const count = s.players.reduce((n, x, i) =>
+      n + (mpDef(s, db, i as PlayerId).personality!.character === d.character ? 1 : 0) + x.allies.filter(a => def(db, a.card).personality?.character === d.character).length, 0)
+    if (count < 2) return false
+  }
   for (const d of findCustom(effects, 'setLevel')) {
     const foe = s.players[p === 0 ? 1 : 0].mp
     if (foe.levelIndex + 1 !== d.fromLevel) return false
@@ -119,8 +128,48 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
   return true
 }
 
-/** Cards that only work while lying on the table (shields); there is nothing to "use". */
-export const worksFromTable = (d: CardDef) => findCustom(d.effects.onEnterPlay, 'shieldNextAttack').length > 0
+/** Cards that only work while lying on the table (shields, creatures, ...); there is nothing to "use". */
+const TABLE_HANDLERS = ['shieldNextAttack', 'damageAbsorber', 'recurringDamage', 'revealHand']
+export const worksFromTable = (d: CardDef) => TABLE_HANDLERS.some(h => findCustom(d.effects.onEnterPlay, h).length > 0)
+
+/** Ongoing effects of a player's drills and table cards with this handler. */
+export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): { card: CardInstance; params: Params }[] {
+  const pl = s.players[p]
+  return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
+}
+
+export const drillsProtected = (s: GameState, db: CardDB, p: PlayerId) => tableEffects(s, db, p, 'protectDrills').length > 0
+export const dragonBallsProtected = (s: GameState, db: CardDB, p: PlayerId) => tableEffects(s, db, p, 'preventDragonBallCapture').length > 0
+
+/** SS-211 / SS-224: must this player play with their hand face up? */
+export function handRevealed(s: GameState, db: CardDB, p: PlayerId): boolean {
+  if (mpDef(s, db, p).personality!.alignment !== 'Villain') return false
+  const foe: PlayerId = p === 0 ? 1 : 0
+  return tableEffects(s, db, foe, 'revealHand').some(({ params }) => {
+    const need = (params.condition as { inPlay?: string } | undefined)?.inPlay
+    if (!need) return true
+    return s.players.some((pl, i) => mpDef(s, db, i as PlayerId).personality!.character === need || pl.allies.some(a => def(db, a.card).personality?.character === need))
+  })
+}
+
+/** The power(s) a personality can use: its own, or a choice of other levels' powers (SS-172, SS-P2). */
+export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
+  const power = mpDef(s, db, p).personality!.power
+  if (!power) return []
+  const other = findCustom(power.strike.effects.onPlaySecondary, 'useOtherLevelPower')[0]
+  if (!other) return [power]
+  return ((other.options ?? []) as string[]).map(id => db[id]?.personality?.power).filter((x): x is NonNullable<typeof x> => !!x)
+}
+
+/** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
+export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole) {
+  if (cost.type !== 'POWER_STAGES' || role !== 'ATTACK_ENERGY') return cost
+  for (const { params } of tableEffects(s, db, p, 'attackCostModifier')) {
+    if (params.attackType !== 'ENERGY' || (params.role === 'attacker' && s.attacker !== p)) continue
+    return { ...cost, amount: Math.min(cost.amount, Number(params.costStages)) }
+  }
+  return cost
+}
 
 /** Drill "stop the first physical attack made on you in a combat": the drill that stops this one. */
 export function autoStop(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY'): string | null {
@@ -210,14 +259,20 @@ export function powerDefense(s: GameState, db: CardDB, defender: PlayerId): Defe
   const attack = attackTypeOf(c?.strike?.strike.combatRole)
   if (!c || !attack) return null
   const mp = mpDef(s, db, defender)
-  const power = mp.personality!.power
-  if (!power || c.usedPowers.includes(`${defender}:${mp.id}`)) return null
-  const strike = power.strike
+  if (c.usedPowers.includes(`${defender}:${mp.id}`)) return null
+  for (const power of powerOptions(s, db, defender)) {
+    const opt = powerAsDefense(s, defender, mp.personality!.character, power.strike, attack)
+    if (opt) return opt
+  }
+  return null
+}
+
+function powerAsDefense(s: GameState, defender: PlayerId, character: string, strike: StrikeDef, attack: 'PHYSICAL' | 'ENERGY'): DefenseOption | null {
   const pd = findCustom(strike.effects.onPlaySecondary, 'powerDefense')[0]
   if (pd) {
     if (!typeMatches(pd.attackType, attack)) return null
     const protects = pd.protects as string[] | undefined
-    if (protects && !protects.includes(mp.personality!.character)) return null
+    if (protects && !protects.includes(character)) return null
     return { strike, defense: DefenseSchema.parse({ mode: pd.mode, stages: pd.stages, lifeCards: pd.lifeCards, maxStages: pd.maxStages, maxLifeCards: pd.maxLifeCards }) }
   }
   if (isDefenseRole(strike.combatRole)) return roleFits(strike.combatRole, attack) ? { strike, defense: STOP } : null
