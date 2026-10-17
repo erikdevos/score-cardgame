@@ -441,3 +441,20 @@ describe('rare effects (simple versions)', () => {
   })
 })
 
+
+describe('play conditions', () => {
+  it('SS-214 only stops combat when Gohan is Goku\'s ally', () => {
+    let s = inCombat()
+    setMP(s, 1, 'SS-158')
+    const card = give(s, 1, 'SS-214')
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-PUNCH') })
+    expect(legal(s).some(a => a.type === 'DEFEND' && a.iid === card)).toBe(false)
+    let t = inCombat()
+    setMP(t, 1, 'SS-158')
+    ally(t, 1, 'SS-164')
+    const card2 = give(t, 1, 'SS-214')
+    t = act(t, { type: 'PLAY_CARD', player: 0, iid: give(t, 0, 'TEST-PUNCH') })
+    t = act(t, { type: 'DEFEND', player: 1, iid: card2 })
+    expect(t.step).not.toBe('COMBAT')
+  })
+})

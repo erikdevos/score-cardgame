@@ -2,6 +2,47 @@
 
 This document lists everything in `src/data/saiyan-saga/cards.json` that the atomic effect DSL in `src/engine/cards.ts` cannot express yet. Cards use `{ "action": "CUSTOM", "handler": "<name>", "params": {...} }` for those parts. All cards are still `verified: false`; the transcription comes from the card images and needs a human check in the review screen.
 
+## Implementation status
+
+Implemented in `src/engine/effects/handlers.ts`, `src/engine/abilities.ts` and `src/engine/effects/triggers.ts` (tests: `tests/handlers.test.ts`):
+
+- `powerDefense`, plus `dualUse` on cards and powers: offered in the defend window (`DEFEND` with an "or stops" card, `DEFEND_POWER` for the personality power). Modes STOP, REDUCE and CAP; `protects` is checked against the defending main personality. Defensive powers are no longer offered as attacks.
+- `preventAttack`, `skipPhase`: attack restrictions per combat (next attack phase of that player, or the rest of the combat) and "skip the combat step of your next turn".
+- `drawFromDiscard`, `recoverFromDiscard`: top, bottom or player's choice (`PICK` choice).
+- `ifUsedBy`, `ifOpponentAlignment`, `optional` (`CONFIRM` choice), `setAnger`, `setLevel`, `staysForExtraUse`.
+- `stealOrCaptureDragonBall`: capture by choice, search own deck, to the bottom of the foe's life deck, `requiresAlly`, and the "after a successful physical/energy attack" timing.
+- `damageModifier`: multiplier on a successful attack, CAP as part of a defense (SS-220), heroes take 1 life card less this combat (SS-250), and the once-per-combat drill reductions (SS-140, SS-141).
+- `triggeredEffect` on drills (combat start, attack phase, after receiving a successful attack, optional ones ask first) and SS-221's draw at the start of each combat.
+- `playTiming`: `afterOwnSuccessfulEnergyAttack` and `defendingAgainstEnergyAttack` gate the card or power; `combatStart`, `ownAttackStart` and `defenderDraw` powers resolve automatically when combat is declared. `usageLimit` once per game.
+
+- `shieldNextAttack` (SS-30, SS-31, SS-33): works while the card lies face up in the Non-Combat zone; it is not offered as a "use".
+- `autoStopAttack` (SS-134, SS-135): the drill stops the first attack of that type each combat before the defend window opens.
+- `searchDeck`, `removeFromGame`, `discardFromHand` (a requirement: the card is only playable with another card in hand), `useDiscardAsLifeDeck`.
+- `allyEffect`: requirements (an ally, a named ally, a named main personality), remove an ally as a requirement, damage per ally, stages from an ally to the main personality, an ally absorbs all damage this combat, and planting Saibaimen for the next turn.
+
+Resolution model: everything that resolves (effects, strike steps, triggers, timing windows) is a frame on `GameState.stack`, run by the driver in `src/engine/engine.ts`. Resolution pauses whenever a player has to decide (`pendingChoice`) and continues exactly where it stopped, also in the middle of a strike.
+
+Timing windows: `afterOpponentPaysAttackCost` opens a reaction window right after the attacker pays a power-stage cost (SS-39), `endOfTurn` opens a window for each player at the end of every turn (SS-238, SS-239), and `anyTime` cards on the table can be used as a free action whenever their owner has to act (SS-225), also in the defend window; the open decision comes back afterwards.
+
+Rulings (Erik, 2026-10-17):
+
+- SS-101 to SS-103 (Honor Duel): a modal choice when the card is used: the bottom 3 discards replace either the life card damage of the next combat (up to 3) or the defender's 3-card combat draw (draw mode only does something when the user is the defender in that combat). The damage mode absorbs up to 3 life cards, matching the printed "bottom 3 cards" (confirmed). Note: the printed 2000 card text has no "or"; the modal choice is a ruling.
+- SS-207 (Power Gifting): the player chooses any amount, up to the main personality's highest stage.
+- SS-156 (Ally's Sacrifice): the owner chooses the ally when the card is played.
+- SS-105: a main personality can never be removed from the game this way; as main personality the effect fails.
+- SS-213 (Plant Two Saibaimen): the highest level Saibaimen comes from the life deck, which is shuffled afterwards.
+- `extraAttack` (Multi-Form, SS-82, SS-163): the attacker makes the extra physical attack right away, before the phase passes.
+- `noStacking` (SS-250): a second copy cannot be used in the same combat.
+
+All remaining handlers now have a simple, working version (Erik: "good is good enough, finetuning later"); the real-card simulation no longer hits any unimplemented CUSTOM effect:
+
+- `temporaryStage` (SS-17), `endNextCombat` (SS-76), `takeDiscardedLifeCard` (SS-112, always taken), `sweepCards` (SS-126), `copyDefendedAttack` (SS-133, a `COPY_ATTACK` action once per combat), `retaliationDrain` (SS-138, SS-139, per hit, remainders not carried over), `attackCostModifier` (SS-146), `optionalShuffle` (SS-149), `useOtherLevelPower` (SS-172, SS-P2: the first usable option is used as an attack, a defensive option in the defend window), `modifyAngerFiltered` (SS-191), `replaceDrawSource` (SS-195, SS-196: the defender's combat draw), `removeNamedCardFromDecks` (SS-198, names any Non-Combat card), `endTurn` (SS-203, keep the hand this turn), `modifyStagesByRole` (SS-204), `angerLock` (SS-208), `revealHand` (SS-211, SS-224, shown in the UI), `damageAbsorber` (SS-226) and `recurringDamage` (SS-227) while they lie on the table, `allowMixedDrills` (SS-231, nothing to lift), `protectDrills` (SS-234), `preventDragonBallCapture` (SS-237), `resetBattle` (SS-242, also stops the attack in progress), `requiresCondition` (SS-214, SS-246: a play condition).
+
+Known approximations:
+
+- `anyTime` cards are only usable when their owner has to act; there is no priority window in every step for the other player.
+- `useDiscardAsLifeDeck` damage mode: absorbed cards count as life cards dealt for the Dragon Ball capture rule.
+
 ## CUSTOM handlers
 
 48 handlers, used by 141 cards. Sorted by number of cards. A card can use several handlers, and CUSTOM effects can be nested (for example `ifUsedBy.then`, `triggeredEffect.then`).

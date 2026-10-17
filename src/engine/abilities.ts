@@ -113,6 +113,12 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
     if (d.failIfInsufficient && pl.discard.length < s.rules.defenderCombatDraw) return false
   }
   for (const d of findCustom(effects, 'requiresCondition')) {
+    // SS-214: "If Gohan is Goku's ally"
+    if (d.condition === 'allyInPlay') {
+      if (!hasAlly(d.character)) return false
+      if (d.mainPersonality && mpDef(s, db, p).personality!.character !== d.mainPersonality) return false
+      continue
+    }
     if (d.condition !== 'moreThanOneInPlay') continue
     const count = s.players.reduce((n, x, i) =>
       n + (mpDef(s, db, i as PlayerId).personality!.character === d.character ? 1 : 0) + x.allies.filter(a => def(db, a.card).personality?.character === d.character).length, 0)
