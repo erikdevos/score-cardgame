@@ -26,7 +26,7 @@ Timing windows: `afterOpponentPaysAttackCost` opens a reaction window right afte
 
 Rulings (Erik, 2026-10-17):
 
-- SS-101 to SS-103 (Honor Duel): a modal choice when the card is used: the bottom 3 discards replace either the life card damage of the next combat (up to 3) or the defender's 3-card combat draw (draw mode only does something when the user is the defender in that combat). Note: the printed 2000 card text has no "or"; the ruling mentions "1 life card of damage", the engine uses the printed "bottom 3 cards".
+- SS-101 to SS-103 (Honor Duel): a modal choice when the card is used: the bottom 3 discards replace either the life card damage of the next combat (up to 3) or the defender's 3-card combat draw (draw mode only does something when the user is the defender in that combat). The damage mode absorbs up to 3 life cards, matching the printed "bottom 3 cards" (confirmed). Note: the printed 2000 card text has no "or"; the modal choice is a ruling.
 - SS-207 (Power Gifting): the player chooses any amount, up to the main personality's highest stage.
 - SS-156 (Ally's Sacrifice): the owner chooses the ally when the card is played.
 - SS-105: a main personality can never be removed from the game this way; as main personality the effect fails.
