@@ -7,7 +7,7 @@ const props = defineProps<{
   card?: CardDef
   faceDown?: boolean
   playable?: boolean
-  size?: 'xs' | 'sm' | 'table' | 'md' | 'mp' | 'hand' | 'lg' | 'strike'
+  size?: 'xs' | 'sm' | 'opp' | 'table' | 'md' | 'mp' | 'hand' | 'lg' | 'strike'
   label?: string
   count?: number
   /** small label in the top corner, e.g. an ally's stage */

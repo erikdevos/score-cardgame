@@ -21,6 +21,7 @@ const empty = computed(() => !pl.value.dragonBalls.length && !pl.value.nonCombat
 
 <template>
   <div class="table-row" :class="{ theirs }">
+    <span class="table-label">{{ theirs ? 'Opponent in play' : 'You in play' }}</span>
     <div v-if="pl.dragonBalls.length" class="zone db">
       <h4>Dragon Balls</h4>
       <div class="row"><CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
@@ -37,6 +38,6 @@ const empty = computed(() => !pl.value.dragonBalls.length && !pl.value.nonCombat
       <h4>Non-Combat</h4>
       <div class="row"><CardView v-for="c in pl.nonCombat" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></div>
     </div>
-    <p v-if="empty" class="empty-zone">{{ theirs ? 'Opponent has' : 'You have' }} no cards in play</p>
+    <p v-if="empty" class="empty-zone">Nothing yet</p>
   </div>
 </template>

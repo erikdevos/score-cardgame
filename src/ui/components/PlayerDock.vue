@@ -53,7 +53,7 @@ function fan(i: number) {
 <template>
   <section class="dock" :class="[mine ? 'mine' : 'theirs', per.alignment === 'Villain' ? 'villain' : 'hero', { acting, attacker: state.attacker === p }]">
     <div class="identity">
-      <CardView :card="mp" :size="mine ? 'mp' : 'table'" />
+      <CardView :card="mp" :size="mine ? 'mp' : 'opp'" />
       <div class="id-info">
         <div class="id-name">
           <span class="badge">P{{ p + 1 }}</span>
@@ -79,7 +79,7 @@ function fan(i: number) {
         <span>Hand <b>{{ pl.hand.length }}</b></span>
         <span class="muted">keep {{ handLimit(state, db, p) }} at end of turn</span>
       </div>
-      <div class="hand" :class="{ crowded: pl.hand.length > 6 }">
+      <div class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p }">
         <!-- the slot is the click target and stays put; only the card inside lifts on hover -->
         <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="fan(i)" @click="click(c.iid)">
           <CardView :card="def(db, c)" size="hand" :playable="!!actionFor(c.iid)" />
@@ -93,7 +93,7 @@ function fan(i: number) {
           <CardView v-for="c in pl.hand" :key="c.iid" :card="def(db, c)" size="sm" />
         </template>
         <template v-else>
-          <CardView v-for="c in pl.hand" :key="c.iid" face-down size="table" label="" />
+          <CardView v-for="c in pl.hand" :key="c.iid" face-down size="opp" label="" />
         </template>
       </div>
       <span class="muted">{{ pl.hand.length }} in hand{{ revealed ? ' (revealed)' : '' }}</span>
