@@ -1,6 +1,6 @@
 import type { CardDB, Effect } from '../cards'
-import { changeAnger, changeStages, drawCards, log, millCards, over, recoverCards } from '../state'
-import { other, type CardInstance, type GameState, type PlayerId } from '../types'
+import { changeAnger, changeStages, drawCards, log, millCards, recoverCards, schedule } from '../state'
+import { other, type CardInstance, type Frame, type GameState, type PlayerId } from '../types'
 import { handlers } from './handlers'
 
 export interface EffectContext {
@@ -20,11 +20,21 @@ export type CustomHandler = (ctx: EffectContext, params: Record<string, unknown>
 /** Card-specific behaviour that the atomic DSL cannot express, keyed by handler name. */
 export const customHandlers: Record<string, CustomHandler> = handlers
 
+/**
+ * Schedule effects on the stack. They resolve in order, before anything scheduled earlier,
+ * and resolution pauses whenever one of them needs a player's decision.
+ */
 export function resolveEffects(ctx: EffectContext, effects: Effect[]) {
-  for (const e of effects) {
-    if (over(ctx.s)) return
-    resolveEffect(ctx, e)
-  }
+  if (!effects.length) return
+  schedule(ctx.s, { k: 'effects', user: ctx.user, source: ctx.source, card: ctx.card, triggered: ctx.triggered, effects: [...effects] })
+}
+
+/** Stack driver: resolve the next effect of the effects frame on top of the stack. */
+export function runEffectsFrame(s: GameState, db: CardDB, f: Frame & { k: 'effects' }) {
+  const e = f.effects.shift()
+  if (!f.effects.length) s.stack.pop()
+  if (!e) return
+  resolveEffect({ s, db, user: f.user, source: f.source, card: f.card, triggered: f.triggered }, e)
 }
 
 function resolveEffect(ctx: EffectContext, e: Effect) {

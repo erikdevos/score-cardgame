@@ -1,10 +1,10 @@
-import { endAttackPhase, findCustom, newCombat } from './abilities'
+import { endAttackPhase, findCustom, newCombat, requirementsMet, timingAllows } from './abilities'
 import type { CardDB } from './cards'
-import { resolveEffects } from './effects'
-import { autoPowers, fireTrigger } from './effects/triggers'
-import { beginStrike, retireUsed, strikeOf } from './sequencer'
-import { changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, takeCard } from './state'
-import { other, type GameState, type PlayerId } from './types'
+import { autoPowerFrames, triggerFrames } from './effects/triggers'
+import { shuffleInPlace } from './rng'
+import { beginStrike, react, strikeOf } from './sequencer'
+import { canUseCard, changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard } from './state'
+import { other, type Frame, type GameState, type PlayerId } from './types'
 
 // Step 1
 export function startTurn(s: GameState, db: CardDB) {
@@ -21,18 +21,16 @@ function runDelayed(s: GameState, db: CardDB) {
   const due = s.delayed.filter(x => x.turn === s.turn && x.player === s.attacker)
   s.delayed = s.delayed.filter(x => !due.includes(x))
   for (const x of due) {
+    // ruling: the Saibaimen comes from the life deck, which is shuffled afterwards
     const pl = s.players[x.player]
-    const zones = [pl.hand, pl.lifeDeck, pl.discard]
-    const candidates = zones.flat().filter(c => def(db, c).personality?.character === x.character)
+    const candidates = pl.lifeDeck.filter(c => def(db, c).personality?.character === x.character)
     if (!candidates.length) {
-      log(s, 'NO_EFFECT', `${x.source}: no ${x.character} card found`, x.player)
+      log(s, 'NO_EFFECT', `${x.source}: no ${x.character} card in the life deck`, x.player)
       continue
     }
-    const best = candidates.sort((a, b) => def(db, b).personality!.level - def(db, a).personality!.level)[0]
-    for (const z of zones) {
-      const i = z.indexOf(best)
-      if (i >= 0) z.splice(i, 1)
-    }
+    const best = [...candidates].sort((a, b) => def(db, b).personality!.level - def(db, a).personality!.level)[0]
+    pl.lifeDeck.splice(pl.lifeDeck.indexOf(best), 1)
+    s.rngSeed = shuffleInPlace(pl.lifeDeck, s.rngSeed)
     pl.allies.push({ card: best, stage: s.rules.allyStartStage })
     log(s, 'PLANT', `${x.source}: ${def(db, best).name} enters play as an ally`, x.player)
   }
@@ -74,18 +72,27 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
       s.locationPlayedThisTurn = true
       break
   }
-  resolveEffects({ s, db, user: p, source: d.name, card }, d.effects.onEnterPlay)
-  if (d.type === 'Dragon Ball') checkDragonBallVictory(s, db)
+  schedule(s, { k: 'effects', user: p, source: d.name, card, effects: [...d.effects.onEnterPlay] }, ...(d.type === 'Dragon Ball' ? [step('dbCheck')] : []))
 }
 
-/** Use the power of an unused Non-Combat card on the table that is not an attack or block. */
-export function useNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string) {
+/**
+ * Use the power of an unused Non-Combat card on the table that is not an attack or block.
+ * `free`: an "at any time" or end-of-turn use, which does not count as the player's attack phase.
+ */
+export function useNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string, free = false) {
   const card = takeCard(s, p, iid)
+  s.resolving.push(card)
   const d = def(db, card)
   log(s, 'USE', `Player ${p + 1} uses ${d.name}`, p)
-  if (s.combat) s.combat.consecutivePasses = 0
-  resolveEffects({ s, db, user: p, source: d.name, card }, d.effects.onEnterPlay)
-  retireUsed(s, db, card)
+  if (s.combat) {
+    if (!free) s.combat.consecutivePasses = 0
+    s.combat.usedCardIds.push(d.id)
+  }
+  schedule(s, { k: 'effects', user: p, source: d.name, card, effects: [...d.effects.onEnterPlay] }, step('retire', { iid }))
+}
+
+export function checkDragonBalls(s: GameState, db: CardDB) {
+  checkDragonBallVictory(s, db)
 }
 
 /** PLAY_CARD dispatch: place or play from hand, or use a Non-Combat card already on the table. */
@@ -116,11 +123,25 @@ export function declareCombat(s: GameState, db: CardDB) {
   s.step = 'COMBAT'
   s.combat = newCombat(s.attacker)
   for (const x of s.discardAsLife) x.armed = true
-  drawCards(s, defender, s.rules.defenderCombatDraw)
+  defenderDraw(s, db, defender)
   if (over(s)) return
-  autoPowers(s, db)
-  if (over(s)) return
-  fireTrigger(s, db, { kind: 'combatStart' })
+  const frames: Frame[] = [...autoPowerFrames(s, db), ...triggerFrames(s, db, { kind: 'combatStart' })]
+  schedule(s, ...frames)
+}
+
+/** The defender's combat draw; Honor Duel (draw mode) takes it from the bottom of the discard pile. */
+function defenderDraw(s: GameState, db: CardDB, defender: PlayerId) {
+  let n = s.rules.defenderCombatDraw
+  const sub = s.discardAsLife.find(x => x.player === defender && x.armed && x.mode === 'DRAW' && x.remaining > 0)
+  if (sub) {
+    const pl = s.players[defender]
+    const k = Math.min(sub.remaining, n, pl.discard.length)
+    pl.hand.push(...pl.discard.splice(0, k))
+    sub.remaining -= k
+    n -= k
+    log(s, 'DRAW', `${sub.source}: player ${defender + 1} draws ${k} from the bottom of the discard pile`, defender)
+  }
+  if (n > 0) drawCards(s, defender, n)
 }
 
 /** "Skip the combat step of your next turn" applies to this turn's attacker. */
@@ -171,6 +192,14 @@ export function advanceCombat(s: GameState, db: CardDB) {
     s.discardAsLife = s.discardAsLife.filter(x => !x.armed)
     return beginDiscardStep(s, db)
   }
+  // Multi-Form: the same player makes the extra attack(s) before the phase passes
+  const bonus = c.bonusAttack
+  if (bonus && bonus.player === c.active && bonus.remaining > 0) {
+    bonus.remaining--
+    bonus.active = true
+    return log(s, 'EXTRA_ATTACK', `Player ${c.active + 1} attacks again`, c.active)
+  }
+  c.bonusAttack = null
   endAttackPhase(c, c.active)
   c.active = other(c.active)
 }
@@ -199,7 +228,7 @@ function nextDiscard(s: GameState, db: CardDB) {
     s.pendingChoice = { kind: 'REJUVENATE', player: s.attacker }
     return
   }
-  endTurn(s, db)
+  finishTurn(s)
 }
 
 export function discardFromHand(s: GameState, db: CardDB, p: PlayerId, iid: string) {
@@ -216,10 +245,37 @@ export function rejuvenate(s: GameState, db: CardDB, accept: boolean) {
     pl.lifeDeck.push(pl.discard.pop()!)
     log(s, 'REJUVENATE', `Player ${s.attacker + 1} rejuvenates 1 card`, s.attacker)
   }
-  endTurn(s, db)
+  finishTurn(s)
 }
 
-function endTurn(s: GameState, db: CardDB) {
+/** End of the turn: each player may use an "at the end of a turn" card, then the turn passes. */
+function finishTurn(s: GameState) {
+  schedule(s, step('endOfTurnWindow', { player: s.attacker }), step('endOfTurnWindow', { player: other(s.attacker) }), step('endTurn'))
+}
+
+export function endOfTurnCards(s: GameState, db: CardDB, p: PlayerId) {
+  return s.players[p].nonCombat.filter(c => {
+    const d = def(db, c)
+    return canUseCard(s, db, p, d) && timingAllows(s, p, d.effects.onEnterPlay, 'END_OF_TURN') && requirementsMet(s, db, p, d.effects.onEnterPlay, c)
+  })
+}
+
+/** Stack step: open the end-of-turn window for one player when they have something to use. */
+export function endOfTurnWindow(s: GameState, db: CardDB, p: PlayerId) {
+  const iids = endOfTurnCards(s, db, p).map(c => c.iid)
+  if (iids.length) s.pendingChoice = { kind: 'WINDOW', player: p, window: 'END_OF_TURN', iids }
+}
+
+/** Answer to a timing window: a card, or null to let it pass. */
+export function respond(s: GameState, db: CardDB, iid: string | null) {
+  const pc = s.pendingChoice as { kind: 'WINDOW'; player: PlayerId; window: 'REACT' | 'END_OF_TURN' }
+  s.pendingChoice = null
+  if (!iid) return
+  if (pc.window === 'REACT') react(s, db, pc.player, iid)
+  else useNonCombat(s, db, pc.player, iid, true)
+}
+
+export function endTurn(s: GameState, db: CardDB) {
   s.attacker = other(s.attacker)
   s.turn++
   startTurn(s, db)

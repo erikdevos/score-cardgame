@@ -69,7 +69,7 @@ export function applyDamage(s: GameState, target: PlayerId, d: Damage): number {
   let totalLife = d.lifeCards + overflow
   // "uses the bottom 3 cards of the discard pile instead of the life deck" for this combat
   let absorbed = 0
-  const sub = s.discardAsLife.find(x => x.player === target && x.armed && x.remaining > 0)
+  const sub = s.discardAsLife.find(x => x.player === target && x.mode === 'DAMAGE' && x.armed && x.remaining > 0)
   if (sub) {
     const pile = s.players[target].discard
     absorbed = Math.min(sub.remaining, totalLife, pile.length)

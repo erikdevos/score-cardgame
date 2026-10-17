@@ -54,6 +54,8 @@ export interface StrikeState {
   /** how the defense (card or power) affects this strike; null = no defense */
   defense: Defense | null
   lifeCardsDealt: number
+  /** power stages the initiator paid as the cost (opens the reaction window) */
+  paidStages: number
 }
 
 export type AttackType = 'PHYSICAL' | 'ENERGY' | 'ANY'
@@ -85,8 +87,12 @@ export interface CombatState {
   usedPowers: string[]
   ended: boolean
   restrictions: AttackRestriction[]
-  /** "all the damage you would take this combat destroys one of your allies instead" */
-  allyShield: PlayerId[]
+  /** "all the damage you would take this combat destroys one of your allies instead": the chosen ally */
+  allyShield: { player: PlayerId; allyIid: string }[]
+  /** Multi-Form: the same player attacks again before the phase passes */
+  bonusAttack: { player: PlayerId; attackType: AttackType; remaining: number; active: boolean } | null
+  /** card definitions used this combat (for "multiples cannot be used together") */
+  usedCardIds: string[]
   damageMods: CombatDamageMod[]
   /** cards that stay on the table for N more uses this combat, by iid */
   extraUses: Record<string, number>
@@ -109,11 +115,28 @@ export type PickDest =
   | 'PLAY'
   /** an ally gives its power stages to the main personality; the card stays */
   | 'ALLY_TO_MP_STAGES'
+  /** the chosen ally will absorb this combat's damage (Ally's Sacrifice); the card stays */
+  | 'MARK_ALLY_SHIELD'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages'; data: Record<string, string | number> }
+
+/** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
+export type Frame =
+  | { k: 'effects'; user: PlayerId; source: string; card?: CardInstance; triggered?: boolean; effects: Effect[] }
+  | { k: 'choice'; q: QueuedChoice }
+  | { k: 'step'; name: StepName; player?: PlayerId; iid?: string }
+  /** put back a decision that was interrupted by an "at any time" card */
+  | { k: 'resume'; pending: PendingChoice }
+
+export type StepName =
+  | 'strike.react' | 'strike.attackTrigger' | 'strike.afterSecondaries' | 'strike.resolveHit' | 'strike.afterOnHit' | 'strike.cleanup'
+  | 'retire' | 'dbCheck' | 'endOfTurnWindow' | 'endTurn'
+
+export type WindowKind = 'REACT' | 'END_OF_TURN'
 
 export type PendingChoice =
   | { kind: 'DEFEND'; player: PlayerId }
@@ -122,6 +145,9 @@ export type PendingChoice =
   | { kind: 'REJUVENATE'; player: PlayerId }
   | (QueuedChoice & { kind: 'PICK' })
   | (QueuedChoice & { kind: 'CONFIRM' })
+  | (QueuedChoice & { kind: 'OPTION' })
+  /** a timing window: respond with one of these cards, or let it pass */
+  | { kind: 'WINDOW'; player: PlayerId; window: WindowKind; iids: string[] }
 
 export type WinReason = 'SURVIVAL' | 'MPP' | 'DRAGON_BALLS'
 
@@ -145,13 +171,16 @@ export interface GameState {
   pendingChoice: PendingChoice | null
   /** discard step works through attacker, then defender */
   discardQueue: PlayerId[]
-  choiceQueue: QueuedChoice[]
+  /** pending work; see Frame */
+  stack: Frame[]
+  /** cards being used whose effects are still resolving */
+  resolving: CardInstance[]
   /** "skip the combat step of your next turn": player and the turn number it applies to */
   skipCombat: { player: PlayerId; turn: number; source: string }[]
   /** once-per-game uses (keys) */
   usedPerGame: string[]
   /** "uses the bottom N cards of the discard pile for the next combat instead of the life deck" */
-  discardAsLife: { player: PlayerId; remaining: number; armed: boolean; source: string }[]
+  discardAsLife: { player: PlayerId; mode: 'DAMAGE' | 'DRAW'; remaining: number; armed: boolean; source: string }[]
   /** effects that happen at the start of a later turn */
   delayed: { player: PlayerId; turn: number; kind: 'plantAlly'; character: string; source: string }[]
   winner: PlayerId | null
@@ -170,6 +199,10 @@ export type Action =
   | { type: 'DEFEND_POWER'; player: PlayerId }
   | { type: 'PICK'; player: PlayerId; iid: string }
   | { type: 'CONFIRM'; player: PlayerId; accept: boolean }
+  | { type: 'CHOOSE'; player: PlayerId; index: number }
+  | { type: 'RESPOND'; player: PlayerId; iid: string | null }
+  /** use an "at any time" card without spending your attack phase */
+  | { type: 'USE_FREE'; player: PlayerId; iid: string }
   | { type: 'STEAL_DB'; player: PlayerId; iid: string | null }
   | { type: 'DISCARD'; player: PlayerId; iid: string }
   | { type: 'REJUVENATE'; player: PlayerId; accept: boolean }

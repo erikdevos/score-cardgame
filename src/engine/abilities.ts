@@ -10,7 +10,7 @@ export type Params = Record<string, unknown>
 export function newCombat(active: PlayerId): CombatState {
   return {
     active, consecutivePasses: 0, strike: null, usedPowers: [], ended: false,
-    restrictions: [], allyShield: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+    restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
 
@@ -60,7 +60,9 @@ export function endAttackPhase(c: CombatState, p: PlayerId) {
 
 /** Timings that resolve automatically (personality powers) instead of being chosen. */
 export const AUTO_TIMINGS = new Set(['defenderDraw', 'combatStart', 'ownAttackStart'])
-export type Window = 'NON_COMBAT' | 'ATTACK' | 'DEFEND'
+export type Window = 'NON_COMBAT' | 'ATTACK' | 'DEFEND' | 'REACT' | 'END_OF_TURN' | 'FREE'
+/** Timings that are only usable in their own window, never as a normal play. */
+const WINDOW_TIMINGS: Record<string, Window> = { anyTime: 'FREE', endOfTurn: 'END_OF_TURN', afterOpponentPaysAttackCost: 'REACT' }
 export const isAutoOnly = (effects: Effect[]) => findCustom(effects, 'playTiming').some(t => AUTO_TIMINGS.has(t.when as string))
 
 function lastAttackWas(s: GameState, p: PlayerId, type: 'PHYSICAL' | 'ENERGY') {
@@ -73,12 +75,17 @@ export function timingAllows(s: GameState, p: PlayerId, effects: Effect[], windo
   for (const t of findCustom(effects, 'playTiming')) {
     const when = t.when as string
     if (AUTO_TIMINGS.has(when)) return false
+    if (WINDOW_TIMINGS[when] && WINDOW_TIMINGS[when] !== window) return false
+    if (!WINDOW_TIMINGS[when] && (window === 'FREE' || window === 'END_OF_TURN' || window === 'REACT')) return false
     if (when === 'afterOwnSuccessfulEnergyAttack' && !lastAttackWas(s, p, 'ENERGY')) return false
     if (when === 'defendingAgainstEnergyAttack' && (window !== 'DEFEND' || attackTypeOf(s.combat?.strike?.strike.combatRole) !== 'ENERGY')) return false
   }
   for (const d of findCustom(effects, 'stealOrCaptureDragonBall')) {
     if (d.trigger === 'afterSuccessfulPhysicalAttack' && !lastAttackWas(s, p, 'PHYSICAL')) return false
     if (d.trigger === 'afterSuccessfulEnergyAttack' && !lastAttackWas(s, p, 'ENERGY')) return false
+  }
+  if (window === 'FREE' || window === 'END_OF_TURN' || window === 'REACT') {
+    if (!findCustom(effects, 'playTiming').length) return false
   }
   return true
 }
@@ -101,6 +108,10 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
   }
   for (const d of findCustom(effects, 'discardFromHand')) {
     if (d.requirement && pl.hand.filter(c => c.iid !== card?.iid).length < Number(d.amount ?? 1)) return false
+  }
+  for (const d of findCustom(effects, 'setLevel')) {
+    const foe = s.players[p === 0 ? 1 : 0].mp
+    if (foe.levelIndex + 1 !== d.fromLevel) return false
   }
   for (const d of findCustom(effects, 'useDiscardAsLifeDeck')) {
     if (d.requireEnough && pl.discard.length < Number(d.cards ?? 3)) return false
@@ -150,17 +161,18 @@ export function useShield(s: GameState, db: CardDB, defender: PlayerId, attack: 
 /** "All the damage you would take this combat destroys one of your allies instead." */
 export function allyAbsorbs(s: GameState, db: CardDB, defender: PlayerId): boolean {
   const c = s.combat!
-  if (!c.allyShield.includes(defender)) return false
+  const shield = c.allyShield.find(x => x.player === defender)
+  if (!shield) return false
   const key = `allyShield:${defender}`
   if (c.onceKeys.includes(key)) return true
+  // the ally the owner chose when the card was played
   const pl = s.players[defender]
-  if (!pl.allies.length) return false
+  const ally = pl.allies.find(a => a.card.iid === shield.allyIid)
+  if (!ally) return false
   c.onceKeys.push(key)
-  // assumption: the weakest ally is the one that falls
-  const weakest = [...pl.allies].sort((a, b) => a.stage - b.stage)[0]
-  pl.allies = pl.allies.filter(a => a !== weakest)
-  pl.discard.push(weakest.card)
-  log(s, 'ALLY_DOWN', `${def(db, weakest.card).name} takes the damage and is destroyed`, defender)
+  pl.allies = pl.allies.filter(a => a !== ally)
+  pl.discard.push(ally.card)
+  log(s, 'ALLY_DOWN', `${def(db, ally.card).name} takes the damage and is destroyed`, defender)
   return true
 }
 

@@ -22,6 +22,11 @@ const buttons = computed(() =>
     if (a.type === 'DEFEND' && !a.iid) return [{ a, label: 'Take the hit', primary: false }]
     if (a.type === 'DEFEND_POWER') return [{ a, label: `Block with power: ${mpDef(props.state, db, a.player).personality!.power!.name}`, primary: true }]
     if (a.type === 'CONFIRM') return [{ a, label: a.accept ? 'Yes' : 'No', primary: a.accept }]
+    if (a.type === 'CHOOSE' && props.state.pendingChoice?.kind === 'OPTION') return [{ a, label: props.state.pendingChoice.options[a.index], primary: false }]
+    if (a.type === 'RESPOND' && !a.iid) {
+      const w = props.state.pendingChoice?.kind === 'WINDOW' ? props.state.pendingChoice.window : null
+      return [{ a, label: w === 'REACT' ? 'No reaction' : 'End the turn', primary: false }]
+    }
     if (a.type === 'STEAL_DB' && !a.iid) return [{ a, label: "Don't capture", primary: false }]
     if (a.type === 'REJUVENATE') return [{ a, label: a.accept ? 'Rejuvenate 1 card' : 'Skip rejuvenation', primary: a.accept }]
     return []
@@ -45,6 +50,9 @@ const prompt = computed(() => {
   if (pc?.kind === 'DISCARD_TO_LIMIT') return `${who}: discard down to ${pc.limit} card(s)`
   if (pc?.kind === 'PICK') return `${who}: ${pc.source}, choose ${pc.count} card(s)`
   if (pc?.kind === 'CONFIRM') return `${who}: ${pc.prompt}`
+  if (pc?.kind === 'OPTION') return `${who}: ${pc.prompt}`
+  if (pc?.kind === 'WINDOW' && pc.window === 'REACT') return `${who}: react to the energy cost with a highlighted card?`
+  if (pc?.kind === 'WINDOW') return `${who}: end of turn. Use a highlighted card?`
   if (pc?.kind === 'REJUVENATE') return `${who}: put the top card of your discard pile back under your life deck?`
   switch (s.step) {
     case 'NON_COMBAT': return `${who}: play drills, allies, Dragon Balls or non-combat cards (highlighted)`

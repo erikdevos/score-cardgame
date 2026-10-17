@@ -74,6 +74,16 @@ function score(s: GameState, db: CardDB, a: Action): number {
       if (pc?.kind === 'PICK' && pc.dest === 'ALLY_TO_MP_STAGES') return s.players[a.player].allies.find(x => x.card.iid === a.iid)?.stage ?? 0
       return own ? -v : v
     }
+    case 'CHOOSE': {
+      const pc = s.pendingChoice
+      // Honor Duel: soak damage (first option); stage transfer: as many as possible
+      if (pc?.kind === 'OPTION' && pc.purpose === 'honorDuel') return a.index === 0 ? 1 : 0
+      return a.index
+    }
+    case 'RESPOND':
+      return a.iid ? 3 : 0
+    case 'USE_FREE':
+      return 4
     case 'CONFIRM':
       // optional draws: decline when the life deck is nearly empty
       return a.accept === s.players[a.player].lifeDeck.length > 8 ? 1 : 0

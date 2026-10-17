@@ -1,5 +1,5 @@
 import type { CardDB, CardDef, Passive } from './cards'
-import { other, type CardInstance, type GameState, type PlayerId, type WinReason } from './types'
+import { other, type CardInstance, type Frame, type GameState, type PlayerId, type StepName, type WinReason } from './types'
 
 export function log(s: GameState, t: string, msg: string, player?: PlayerId) {
   s.log.push({ t, msg, player })
@@ -165,6 +165,7 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
     out.push(...pl.mp.stack, ...pl.lifeDeck, ...pl.hand, ...pl.discard, ...pl.removed, ...pl.drills, ...pl.dragonBalls, ...pl.nonCombat, ...pl.allies.map(a => a.card))
   }
   if (s.location) out.push(s.location)
+  out.push(...s.resolving)
   const st = s.combat?.strike
   if (st?.card) out.push(st.card)
   if (st?.defenseCard) out.push(st.defenseCard)
@@ -177,6 +178,12 @@ export function retire(s: GameState, c: CardInstance, mode: 'DISCARD' | 'REMOVE'
   if (mode === 'REMOVE') owner.removed.push(c)
   else owner.discard.push(c)
 }
+
+/** Schedule work; the frames run in the order given, before anything already scheduled. */
+export function schedule(s: GameState, ...frames: Frame[]) {
+  for (let i = frames.length - 1; i >= 0; i--) s.stack.push(frames[i])
+}
+export const step = (name: StepName, extra: { player?: PlayerId; iid?: string } = {}): Frame => ({ k: 'step', name, ...extra })
 
 /** Deep copy of plain game data (available in browsers and Node 17+). */
 export const clone: <T>(v: T) => T = (globalThis as { structuredClone?: <T>(v: T) => T }).structuredClone!

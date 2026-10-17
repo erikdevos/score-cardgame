@@ -1,9 +1,10 @@
 // Player choices raised by card effects ("2 cards of your choice", "if you wish").
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
-import { changeStages, checkDragonBallVictory, def, log } from '../state'
+import { changeStages, checkDragonBallVictory, def, log, schedule } from '../state'
 import type { CardDB } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
+export type { QueuedChoice }
 import { resolveEffects } from '.'
 
 type Pick = QueuedChoice & { kind: 'PICK' }
@@ -23,9 +24,17 @@ export function locatePick(s: GameState, q: Pick, iid: string): { card: CardInst
   return null
 }
 
-export function queueChoice(s: GameState, db: CardDB, q: QueuedChoice) {
+/** Schedule decisions; they are asked in the order given when resolution reaches them. */
+export function queueChoice(s: GameState, ...qs: QueuedChoice[]) {
+  schedule(s, ...qs.map(q => ({ k: 'choice' as const, q })))
+}
+
+/** Stack driver: ask the decision, or settle it when there is nothing to decide. */
+export function runChoiceFrame(s: GameState, db: CardDB, q: QueuedChoice) {
+  s.stack.pop()
   if (q.kind === 'PICK' && !needsAsking(s, q)) return pickAll(s, db, q)
-  s.choiceQueue.push(q)
+  if (q.kind === 'OPTION' && q.options.length === 1) return resolveOptionWith(s, db, q, 0)
+  s.pendingChoice = q
 }
 
 function needsAsking(s: GameState, q: Pick) {
@@ -35,15 +44,6 @@ function needsAsking(s: GameState, q: Pick) {
 
 function pickAll(s: GameState, db: CardDB, q: Pick) {
   for (const iid of [...q.eligible]) movePicked(s, db, q, iid)
-}
-
-/** Ask the next queued choice when nothing else is pending. */
-export function promoteChoice(s: GameState, db: CardDB) {
-  while (!s.pendingChoice && s.winner === null && s.choiceQueue.length) {
-    const q = s.choiceQueue.shift()!
-    if (q.kind === 'PICK' && !needsAsking(s, q)) pickAll(s, db, q)
-    else s.pendingChoice = q
-  }
 }
 
 export function resolvePick(s: GameState, db: CardDB, iid: string) {
@@ -59,6 +59,28 @@ export function resolveConfirm(s: GameState, db: CardDB, accept: boolean) {
   s.pendingChoice = null
   log(s, 'CHOICE', `Player ${q.player + 1} ${accept ? 'uses' : 'declines'}: ${q.prompt}`, q.player)
   if (accept) resolveEffects({ s, db, user: q.player, source: q.source }, q.effects)
+}
+
+export function resolveOption(s: GameState, db: CardDB, index: number) {
+  const q = s.pendingChoice as QueuedChoice & { kind: 'OPTION' }
+  s.pendingChoice = null
+  resolveOptionWith(s, db, q, index)
+}
+
+function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: 'OPTION' }, index: number) {
+  log(s, 'CHOICE', `Player ${q.player + 1} chooses: ${q.options[index]}`, q.player)
+  if (q.purpose === 'honorDuel') {
+    s.discardAsLife.push({ player: q.player, mode: index === 0 ? 'DAMAGE' : 'DRAW', remaining: Number(q.data.cards), armed: false, source: q.source })
+    return
+  }
+  // transferStages: the option index is the number of stages
+  const pl = s.players[q.player]
+  const ally = pl.allies.find(a => a.card.iid === q.data.allyIid)
+  if (!ally) return
+  const n = Math.min(index, ally.stage, s.rules.maxStage - pl.mp.stage)
+  ally.stage -= n
+  changeStages(s, q.player, n)
+  log(s, 'MOVE', `${q.source}: ${def(db, ally.card).name} gives ${n} power stage(s) to the main personality`, q.player)
 }
 
 function takeFrom(s: GameState, owner: PlayerId, zone: PickZone, iid: string): CardInstance {
@@ -83,16 +105,19 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
   const say = (what: string) => log(s, 'MOVE', `${q.source}: player ${q.player + 1} ${what}`, q.player)
 
   if (q.dest === 'ALLY_TO_MP_STAGES') {
-    // the ally stays; its stages move to the main personality as far as they fit
+    // the ally stays; the player picks any amount up to the main personality's highest stage
     const ally = picker.allies.find(a => a.card.iid === iid)!
-    const n = Math.min(ally.stage, s.rules.maxStage - picker.mp.stage)
-    ally.stage -= n
-    changeStages(s, q.player, n)
-    return say(`moves ${n} power stage(s) from ${d.name} to the main personality`)
+    const max = Math.min(ally.stage, s.rules.maxStage - picker.mp.stage)
+    const options = Array.from({ length: max + 1 }, (_, i) => `${i} stage${i === 1 ? '' : 's'}`)
+    return queueChoice(s, { kind: 'OPTION', player: q.player, source: q.source, prompt: `How many stages does ${d.name} give?`, options, purpose: 'transferStages', data: { allyIid: iid } })
+  }
+  if (q.dest === 'MARK_ALLY_SHIELD') {
+    s.combat?.allyShield.push({ player: q.player, allyIid: iid })
+    return say(`chooses ${d.name} to take this combat's damage`)
   }
 
   const card = takeFrom(s, q.owner, found.zone, iid)
-  const where: Record<Exclude<PickDest, 'ALLY_TO_MP_STAGES'>, string> = {
+  const where: Record<Exclude<PickDest, 'ALLY_TO_MP_STAGES' | 'MARK_ALLY_SHIELD'>, string> = {
     HAND: 'into their hand', LIFE_TOP: 'on top of the life deck', LIFE_BOTTOM: 'at the bottom of the life deck',
     OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',

@@ -28,7 +28,7 @@ function fromDiscard(ctx: EffectContext, p: Params, dest: 'HAND' | 'LIFE_TOP' | 
   const position = (p.position ?? p.from ?? 'choice') as string
   // discard pile: last element = top
   const cards = position === 'top' ? pile.slice(-n).reverse() : position === 'bottom' ? pile.slice(0, n) : [...pile]
-  queueChoice(ctx.s, ctx.db, pickRequest(who, who, 'discard', cards, n, dest, ctx.source))
+  queueChoice(ctx.s, pickRequest(who, who, 'discard', cards, n, dest, ctx.source))
 }
 
 /** Search filters used by searchDeck. */
@@ -59,6 +59,13 @@ export const handlers: Record<string, CustomHandler> = {
   dualUse: noop,
   powerDefense: noop,
   shieldNextAttack: noop,
+
+  /** Multi-Form: "two physical attacks, one after another" */
+  extraAttack(ctx, p) {
+    const c = ctx.s.combat
+    if (!c) return
+    c.bonusAttack = { player: ctx.user, attackType: (p.attackType ?? 'ANY') as AttackType, remaining: num(p.count, 1), active: false }
+  },
   autoStopAttack: noop,
 
   removeFromGame(ctx, p) {
@@ -66,19 +73,20 @@ export const handlers: Record<string, CustomHandler> = {
     if (p.target === 'SELF') {
       // Chiaotzu's Blast: Chiaotzu leaves the game. As an ally that is clear; a main personality stays.
       const ally = s.players[user].allies.find(a => def(db, a.card).personality?.character === p.card)
-      if (!ally) return log(s, 'NO_EFFECT', `${ctx.source}: ${p.card} is not an ally, the main personality stays in play`)
-      return queueChoice(s, db, pickRequest(user, user, 'allies', [ally.card], 1, 'REMOVED', ctx.source))
+      // a main personality can never be removed from the game this way: the effect fails
+      if (!ally) return log(s, 'NO_EFFECT', `${ctx.source}: ${p.card} is not an ally; a main personality cannot be removed, no effect`)
+      return queueChoice(s, pickRequest(user, user, 'allies', [ally.card], 1, 'REMOVED', ctx.source))
     }
     const foe = other(user)
     const zones = ((p.cardTypes ?? []) as string[]).map(t => ZONE_BY_TYPE[t]).filter(Boolean)
     const cards = zones.flatMap(z => zoneCards(s, foe, z))
     if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has nothing to remove`)
-    queueChoice(s, db, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'REMOVED', ctx.source))
+    queueChoice(s, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'REMOVED', ctx.source))
   },
 
   discardFromHand(ctx, p) {
     const who = targetOf(ctx, p.target)
-    queueChoice(ctx.s, ctx.db, pickRequest(who, who, 'hand', ctx.s.players[who].hand, num(p.amount, 1), 'DISCARD', ctx.source))
+    queueChoice(ctx.s, pickRequest(who, who, 'hand', ctx.s.players[who].hand, num(p.amount, 1), 'DISCARD', ctx.source))
   },
 
   searchDeck(ctx, p) {
@@ -89,18 +97,22 @@ export const handlers: Record<string, CustomHandler> = {
     if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: no ${p.filter} found`)
     if (p.which === 'first') {
       // the first one from the top, no choice (SS-240)
-      return queueChoice(s, db, pickRequest(user, owner, zones, [cards[0]], 1, p.to === 'bottomOfLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'HAND', ctx.source))
+      return queueChoice(s, pickRequest(user, owner, zones, [cards[0]], 1, p.to === 'bottomOfLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'HAND', ctx.source))
     }
     const allyStage = p.setPowerStage === 'MAX' ? s.rules.maxStage : undefined
-    queueChoice(s, db, pickRequest(user, owner, zones, cards, 1, p.to === 'play' ? 'PLAY' : 'HAND', ctx.source, { allyStage }))
+    queueChoice(s, pickRequest(user, owner, zones, cards, 1, p.to === 'play' ? 'PLAY' : 'HAND', ctx.source, { allyStage }))
   },
 
   useDiscardAsLifeDeck(ctx, p) {
     const who = targetOf(ctx, p.target)
     const n = num(p.cards, 3)
     if (p.requireEnough && ctx.s.players[who].discard.length < n) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: not enough cards in the discard pile`)
-    ctx.s.discardAsLife.push({ player: who, remaining: n, armed: false, source: ctx.source })
-    log(ctx.s, 'PROTECT', `${ctx.source}: player ${who + 1} takes the next combat's life card damage from the bottom ${n} discards`, who)
+    // ruling: a modal choice, either the damage or the defender's combat draw comes from the discard pile
+    queueChoice(ctx.s, {
+      kind: 'OPTION', player: who, source: ctx.source, purpose: 'honorDuel', data: { cards: n },
+      prompt: `${ctx.source}: use the bottom ${n} discards for the next combat as`,
+      options: [`life card damage (up to ${n})`, `the defender's ${n}-card draw`],
+    })
   },
 
   allyEffect(ctx, p) {
@@ -108,9 +120,9 @@ export const handlers: Record<string, CustomHandler> = {
     const allies = s.players[user].allies
     switch (p.action) {
       case 'removeFromGame':
-        return queueChoice(s, db, pickRequest(user, user, 'allies', allies.map(a => a.card), num(p.amount, 1), 'REMOVED', ctx.source))
+        return queueChoice(s, pickRequest(user, user, 'allies', allies.map(a => a.card), num(p.amount, 1), 'REMOVED', ctx.source))
       case 'transferStages':
-        return queueChoice(s, db, pickRequest(user, user, 'allies', allies.map(a => a.card), 1, 'ALLY_TO_MP_STAGES', ctx.source))
+        return queueChoice(s, pickRequest(user, user, 'allies', allies.map(a => a.card), 1, 'ALLY_TO_MP_STAGES', ctx.source))
       case 'damagePerAlly': {
         const n = allies.length * num(p.lifeCardsPerAlly, 1)
         const foe = targetOf(ctx, p.target)
@@ -118,9 +130,9 @@ export const handlers: Record<string, CustomHandler> = {
         return log(s, 'MILL', `${ctx.source}: player ${foe + 1} discards ${done} life card(s) (${allies.length} allies)`, foe)
       }
       case 'redirectDamage':
-        if (!s.combat) return
-        s.combat.allyShield.push(user)
-        return log(s, 'PROTECT', `${ctx.source}: the damage player ${user + 1} would take this combat destroys an ally instead`, user)
+        // the owner chooses which ally takes the damage
+        log(s, 'PROTECT', `${ctx.source}: the damage player ${user + 1} would take this combat destroys an ally instead`, user)
+        return queueChoice(s, pickRequest(user, user, 'allies', allies.map(a => a.card), 1, 'MARK_ALLY_SHIELD', ctx.source))
       case 'plantAlly': {
         if (s.step === 'NON_COMBAT' && s.attacker === user) s.skipCombat.push({ player: user, turn: s.turn, source: ctx.source })
         const turn = s.turn + (s.attacker === user ? 2 : 1)
@@ -171,7 +183,7 @@ export const handlers: Record<string, CustomHandler> = {
   optional(ctx, p) {
     const effects = then(p)
     const prompt = `${ctx.source}: ${effects.map(e => (e.action === 'DRAW' ? `draw ${e.amount}` : e.action.toLowerCase())).join(', ')}?`
-    queueChoice(ctx.s, ctx.db, { kind: 'CONFIRM', player: ctx.user, effects, source: ctx.source, prompt })
+    queueChoice(ctx.s, { kind: 'CONFIRM', player: ctx.user, effects, source: ctx.source, prompt })
   },
 
   setAnger(ctx, p) {
@@ -196,15 +208,16 @@ export const handlers: Record<string, CustomHandler> = {
   stealOrCaptureDragonBall(ctx, p) {
     const { s, db, user } = ctx
     const foe = other(user)
+    const picks = []
     if (p.searchOwnDeck) {
       const balls = s.players[user].lifeDeck.filter(c => def(db, c).type === 'Dragon Ball')
-      queueChoice(s, db, pickRequest(user, user, 'lifeDeck', balls, 1, 'PICKER_DRAGON_BALLS', ctx.source))
+      picks.push(pickRequest(user, user, 'lifeDeck', balls, 1, 'PICKER_DRAGON_BALLS', ctx.source))
     }
     const n = num(p.captureFromFoe ?? p.amount, p.searchOwnDeck ? 0 : 1)
-    if (n <= 0) return
     const dest = p.destination === 'bottomOfOpponentLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'PICKER_DRAGON_BALLS'
-    if (!s.players[foe].dragonBalls.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no Dragon Balls`)
-    queueChoice(s, db, pickRequest(user, foe, 'dragonBalls', s.players[foe].dragonBalls, n, dest, ctx.source))
+    if (n > 0 && !s.players[foe].dragonBalls.length) log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no Dragon Balls`)
+    else if (n > 0) picks.push(pickRequest(user, foe, 'dragonBalls', s.players[foe].dragonBalls, n, dest, ctx.source))
+    queueChoice(s, ...picks)
   },
 
   damageModifier(ctx, p) {

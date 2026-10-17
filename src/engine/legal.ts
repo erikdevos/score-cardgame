@@ -1,4 +1,4 @@
-import { attackRestriction, findCustom, isAutoOnly, requirementsMet, timingAllows, worksFromTable, type Window } from './abilities'
+import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { canPayCost, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
 import { canUseCard, def, mpDef } from './state'
@@ -10,6 +10,18 @@ const COMBAT_TYPES = new Set(['Physical Combat', 'Energy Combat', 'Combat'])
 
 export function legalActions(s: GameState, db: CardDB): Action[] {
   if (s.winner !== null) return []
+  return [...baseActions(s, db), ...freeActions(s, db)]
+}
+
+/** "At any time" cards on the table: usable whenever their owner has to act. */
+function freeActions(s: GameState, db: CardDB): Action[] {
+  const p = actingPlayer(s)
+  const pc = s.pendingChoice
+  if (p === null || s.stack.length || (pc && !['DEFEND', 'DISCARD_TO_LIMIT', 'WINDOW', 'REJUVENATE'].includes(pc.kind))) return []
+  return s.players[p].nonCombat.filter(c => usableNow(s, db, p, c, 'FREE')).map(c => ({ type: 'USE_FREE' as const, player: p, iid: c.iid }))
+}
+
+function baseActions(s: GameState, db: CardDB): Action[] {
   const pc = s.pendingChoice
   if (pc) {
     const p = pc.player
@@ -25,6 +37,10 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
         return pc.eligible.map(iid => ({ type: 'PICK' as const, player: p, iid }))
       case 'CONFIRM':
         return [{ type: 'CONFIRM', player: p, accept: true }, { type: 'CONFIRM', player: p, accept: false }]
+      case 'OPTION':
+        return pc.options.map((_, index) => ({ type: 'CHOOSE' as const, player: p, index }))
+      case 'WINDOW':
+        return [...pc.iids.map(iid => ({ type: 'RESPOND' as const, player: p, iid })), { type: 'RESPOND', player: p, iid: null }]
       case 'DB_STEAL':
         return [{ type: 'STEAL_DB', player: p, iid: null }, ...s.players[other(p)].dragonBalls.map(c => ({ type: 'STEAL_DB' as const, player: p, iid: c.iid }))]
       case 'DISCARD_TO_LIMIT':
@@ -64,6 +80,18 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
       const mp = mpDef(s, db, p)
       if (powerUsableInAttack(s, db, p, mp)) out.push({ type: 'USE_POWER', player: p })
       out.push({ type: 'PASS', player: p })
+      const bonus = s.combat!.bonusAttack
+      if (bonus?.active && bonus.player === p) {
+        // Multi-Form's extra attack: only an attack of that type, or pass
+        const fits = (role?: Parameters<typeof attackTypeOf>[0]) => {
+          const t = attackTypeOf(role)
+          return !!t && typeMatches(bonus.attackType, t)
+        }
+        return out.filter(a =>
+          a.type === 'PASS' ||
+          (a.type === 'USE_POWER' && fits(mp.personality!.power!.strike.combatRole)) ||
+          (a.type === 'PLAY_CARD' && fits(def(db, [...pl.hand, ...pl.nonCombat].find(c => c.iid === a.iid)!).combatRole)))
+      }
       return out
     }
     default:
@@ -75,6 +103,7 @@ export function legalActions(s: GameState, db: CardDB): Action[] {
 function usableNow(s: GameState, db: CardDB, p: PlayerId, c: CardInstance, window: Window) {
   const d = def(db, c)
   if (worksFromTable(d)) return false
+  if (d.noStacking && s.combat?.usedCardIds.includes(d.id)) return false
   const effects = [...d.effects.onPlaySecondary, ...d.effects.onEnterPlay]
   return canUseCard(s, db, p, d) && timingAllows(s, p, effects, window) && requirementsMet(s, db, p, effects, c)
 }

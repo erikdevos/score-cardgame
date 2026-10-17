@@ -20,18 +20,24 @@ Implemented in `src/engine/effects/handlers.ts`, `src/engine/abilities.ts` and `
 - `searchDeck`, `removeFromGame`, `discardFromHand` (a requirement: the card is only playable with another card in hand), `useDiscardAsLifeDeck`.
 - `allyEffect`: requirements (an ally, a named ally, a named main personality), remove an ally as a requirement, damage per ally, stages from an ally to the main personality, an ally absorbs all damage this combat, and planting Saibaimen for the next turn.
 
+Resolution model: everything that resolves (effects, strike steps, triggers, timing windows) is a frame on `GameState.stack`, run by the driver in `src/engine/engine.ts`. Resolution pauses whenever a player has to decide (`pendingChoice`) and continues exactly where it stopped, also in the middle of a strike.
+
+Timing windows: `afterOpponentPaysAttackCost` opens a reaction window right after the attacker pays a power-stage cost (SS-39), `endOfTurn` opens a window for each player at the end of every turn (SS-238, SS-239), and `anyTime` cards on the table can be used as a free action whenever their owner has to act (SS-225), also in the defend window; the open decision comes back afterwards.
+
+Rulings (Erik, 2026-10-17):
+
+- SS-101 to SS-103 (Honor Duel): a modal choice when the card is used: the bottom 3 discards replace either the life card damage of the next combat (up to 3) or the defender's 3-card combat draw (draw mode only does something when the user is the defender in that combat). Note: the printed 2000 card text has no "or"; the ruling mentions "1 life card of damage", the engine uses the printed "bottom 3 cards".
+- SS-207 (Power Gifting): the player chooses any amount, up to the main personality's highest stage.
+- SS-156 (Ally's Sacrifice): the owner chooses the ally when the card is played.
+- SS-105: a main personality can never be removed from the game this way; as main personality the effect fails.
+- SS-213 (Plant Two Saibaimen): the highest level Saibaimen comes from the life deck, which is shuffled afterwards.
+- `extraAttack` (Multi-Form, SS-82, SS-163): the attacker makes the extra physical attack right away, before the phase passes.
+- `noStacking` (SS-250): a second copy cannot be used in the same combat.
+
 Known approximations:
 
-- `useDiscardAsLifeDeck` only replaces life card damage, not the defender's 3-card combat draw (the text says "instead of the cards from his life deck"; the damage reading is an assumption).
-- SS-207 moves as many stages as fit below the main personality's highest stage; the text leaves the amount open.
-- SS-156: when the damage arrives, the engine destroys the ally with the lowest stage; the text does not say who chooses.
-- SS-105 (Chiaotzu removes himself): only applies when Chiaotzu is an ally; as a main personality he stays in play.
-- SS-213: a highest level Saibaimen is taken from hand, life deck or discard pile at the start of the next turn; the text does not say where it comes from.
-
-- Choices raised in the middle of a strike (for example "draw 2 cards of your choice" as a secondary effect) are asked after the action has resolved, not mid-strike.
-- `playTiming` `anyTime`, `endOfTurn` and `afterOpponentPaysAttackCost` are not enforced beyond the normal windows; `namedFoe` and the "Earth Dragon Ball" filter are ignored (two players, one Dragon Ball set).
-- `extraAttack` (Multi-Form's second attack) is not implemented yet; used as a defense, the power works.
-- `noStacking` is still not enforced.
+- `anyTime` cards are only usable when their owner has to act; there is no priority window in every step for the other player.
+- `useDiscardAsLifeDeck` damage mode: absorbed cards count as life cards dealt for the Dragon Ball capture rule.
 
 ## CUSTOM handlers
 

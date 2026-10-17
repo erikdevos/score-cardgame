@@ -1,11 +1,8 @@
 // Ongoing effects of drills and automatic personality powers that fire on game events.
 import { AUTO_TIMINGS, findCustom, typeMatches } from '../abilities'
 import type { CardDB, Effect } from '../cards'
-import { def, log, mpDef } from '../state'
-import { other, type GameState, type PlayerId } from '../types'
-import { resolveEffects } from '.'
-import { handlers } from './handlers'
-import { queueChoice } from './choices'
+import { def, log, mpDef, schedule } from '../state'
+import { other, type Frame, type GameState, type PlayerId } from '../types'
 
 export type Trigger =
   | { kind: 'combatStart' }
@@ -18,17 +15,19 @@ function roleOk(s: GameState, owner: PlayerId, role: unknown) {
   return true
 }
 
-export function fireTrigger(s: GameState, db: CardDB, t: Trigger) {
+/** The work a game event sets off: ongoing drill effects, in table order. */
+export function triggerFrames(s: GameState, db: CardDB, t: Trigger): Frame[] {
+  const out: Frame[] = []
   for (const pl of s.players) {
-    for (const drill of [...pl.drills]) {
+    for (const drill of pl.drills) {
       const d = def(db, drill)
-      const ctx = { s, db, user: pl.id, source: d.name, card: drill, triggered: true }
+      const frame = (effects: Effect[]): Frame => ({ k: 'effects', user: pl.id, source: d.name, card: drill, triggered: true, effects })
       for (const e of d.effects.onEnterPlay) {
-        if (e.action !== 'CUSTOM' || !e.params?.ongoing || s.winner !== null) continue
+        if (e.action !== 'CUSTOM' || !e.params?.ongoing) continue
         const p = e.params
         if (e.handler === 'drawFromDiscard' && p.timing === 'startOfEachCombat' && t.kind === 'combatStart') {
           log(s, 'TRIGGER', `${d.name} triggers`, pl.id)
-          handlers.drawFromDiscard(ctx, p)
+          out.push(frame([e]))
           continue
         }
         if (e.handler !== 'triggeredEffect' || p.trigger !== t.kind || !roleOk(s, pl.id, p.role)) continue
@@ -36,29 +35,37 @@ export function fireTrigger(s: GameState, db: CardDB, t: Trigger) {
         if (t.kind === 'afterReceivingSuccessfulAttack' && !typeMatches(p.attackType, t.attackType)) continue
         const effects = (p.then ?? []) as Effect[]
         if (p.optional) {
-          queueChoice(s, db, { kind: 'CONFIRM', player: pl.id, effects, source: d.name, prompt: `${d.name}: ${effects.map(x => (x.action === 'DRAW' ? `draw ${x.amount}` : x.action.toLowerCase())).join(', ')}?` })
+          const prompt = `${d.name}: ${effects.map(x => (x.action === 'DRAW' ? `draw ${x.amount}` : x.action.toLowerCase())).join(', ')}?`
+          out.push({ k: 'choice', q: { kind: 'CONFIRM', player: pl.id, effects, source: d.name, prompt } })
           continue
         }
         log(s, 'TRIGGER', `${d.name} triggers`, pl.id)
-        resolveEffects(ctx, effects)
+        out.push(frame(effects))
       }
     }
   }
+  return out
+}
+
+export function fireTrigger(s: GameState, db: CardDB, t: Trigger) {
+  schedule(s, ...triggerFrames(s, db, t))
 }
 
 /** Powers printed "when starting a battle / when defending, draw ..." resolve on their own. */
-export function autoPowers(s: GameState, db: CardDB) {
+export function autoPowerFrames(s: GameState, db: CardDB): Frame[] {
   const c = s.combat!
+  const out: Frame[] = []
   for (const p of [s.attacker, other(s.attacker)] as PlayerId[]) {
     const mp = mpDef(s, db, p)
     const power = mp.personality!.power
-    if (!power || s.winner !== null) continue
+    if (!power) continue
     const when = findCustom(power.strike.effects.onPlaySecondary, 'playTiming')[0]?.when as string | undefined
     if (!when || !AUTO_TIMINGS.has(when)) continue
     if (when === 'ownAttackStart' && p !== s.attacker) continue
     if (when === 'defenderDraw' && p === s.attacker) continue
     c.usedPowers.push(`${p}:${mp.id}`)
     log(s, 'POWER', `${mp.name}'s power: ${power.name}`, p)
-    resolveEffects({ s, db, user: p, source: power.name }, power.strike.effects.onPlaySecondary)
+    out.push({ k: 'effects', user: p, source: power.name, effects: [...power.strike.effects.onPlaySecondary] })
   }
+  return out
 }
