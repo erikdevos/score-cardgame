@@ -22,7 +22,7 @@
     },
     "rawText": "Physical Attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/1-Orange-Standing-Fist-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-2",
@@ -48,7 +48,7 @@
     },
     "rawText": "Physical Attack doing +1 stage of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/2-Orange-One-Knuckle-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-3",
@@ -74,7 +74,7 @@
     },
     "rawText": "Physical Attack doing +1 stage of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/3-Orange-Two-Knuckle-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-4",
@@ -99,7 +99,7 @@
     },
     "rawText": "Physical Attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/4-Orange-Leg-Sweep.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-5",
@@ -125,7 +125,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/5-Orange-Arm-Bar.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-6",
@@ -150,7 +150,7 @@
     },
     "rawText": "Physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/6-Red-Lunge-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-7",
@@ -176,7 +176,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/7-Red-Reverse-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-8",
@@ -202,7 +202,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/8-Red-Knife-Hand.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-9",
@@ -228,7 +228,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/9-Red-Palm-Heel-Strike.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-10",
@@ -253,7 +253,7 @@
     },
     "rawText": "Physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/10-Red-Elbow-Strike.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-11",
@@ -290,7 +290,7 @@
     },
     "rawText": "Physical Attack doing +4 stages of damage. If successful, this attack stops any energy attack from an opponent in his next phase. Lower foe's anger level 1.",
     "imageUrl": "/cards/11-Blue-Forward-Foot-Sweep.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-12",
@@ -325,7 +325,7 @@
     },
     "rawText": "Physical Attack doing +2 stages of damage if successful. Stops a foe's physical attack on their next round. Lower foe's anger level by 1.",
     "imageUrl": "/cards/12-Blue-Hip-Spring-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-13",
@@ -363,7 +363,7 @@
     },
     "rawText": "Physical Attack doing +5 stages of damage if successful or stops an energy attack. Lower foe's anger level by 1.",
     "imageUrl": "/cards/13-Blue-Round-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-14",
@@ -394,7 +394,7 @@
     },
     "rawText": "Physical Attack doing +1 stage of damage if successful. Raises your anger level by 1 and lowers foe's anger level by 1.",
     "imageUrl": "/cards/14-Blue-Shoulder-Wheel.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-15",
@@ -421,7 +421,7 @@
     "dragonBallNumber": 1,
     "rawText": "Instantly power up to full and draw a card.",
     "imageUrl": "/cards/15-Earth-Dragon-Ball-1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-16",
@@ -443,7 +443,7 @@
     "dragonBallNumber": 2,
     "rawText": "All foes have their power ratings changed to 2 stages higher than 0.",
     "imageUrl": "/cards/16-Earth-Dragon-Ball-2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-17",
@@ -472,7 +472,7 @@
     },
     "rawText": "Physical attack. Before physical damage is assessed, change the power stage to the personality's maximum. They've been hiding their true level for just this attack.",
     "imageUrl": "/cards/17-Hidden-Power-Level.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-18",
@@ -511,7 +511,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Physical attack, plus it stops a single named foe from making a physical attack on his next phase.",
     "imageUrl": "/cards/18-Saiyan-Arm-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-19",
@@ -550,7 +550,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Physical attack, plus it stops a single named foe from making an energy attack on his next phase.",
     "imageUrl": "/cards/19-Saiyan-Full-Spin-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-20",
@@ -576,7 +576,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Physical attack doing +3 stages of physical damage if successful.",
     "imageUrl": "/cards/20-Saiyan-Pressure-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-21",
@@ -619,7 +619,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Physical attack, plus it stops a single named foe from making a physical attack on his next phase. It costs 2 power stages to perform.",
     "imageUrl": "/cards/21-Saiyan-Neck-Hold.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-22",
@@ -644,7 +644,7 @@
     },
     "rawText": "Powers up 5 stages for a personality, going no higher than their maximum stage. Take the top discarded card and place at the bottom of your life deck.",
     "imageUrl": "/cards/22-Power-Up.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-23",
@@ -675,7 +675,7 @@
     },
     "rawText": "Increase your anger level by 2. Take the bottom 2 cards from your discard pile and place them at the bottom of your life deck. Discard this card from the game after use.",
     "imageUrl": "/cards/23-Burning-Rage.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-24",
@@ -692,7 +692,7 @@
     },
     "rawText": "Physical attack striking out for 5 stages of physical damage on a selected foe.",
     "imageUrl": "/cards/24-Gokus-Surprise-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-25",
@@ -738,7 +738,7 @@
     },
     "rawText": "Physical attack, plus draw the bottom card from the discard pile into your hand. If used by Goku, it stays on the table to be used one more time in this combat.",
     "imageUrl": "/cards/25-Gokus-Physical-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-26",
@@ -768,7 +768,7 @@
     },
     "rawText": "Physical attack. Gohan gains 1 anger level. Increases Gohan's power rating by 5 stages.",
     "imageUrl": "/cards/26-Gohans-Physical-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-27",
@@ -785,7 +785,7 @@
     },
     "rawText": "Physical attack doing 5 life card draws if successful.",
     "imageUrl": "/cards/27-Tiens-Physical-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-28",
@@ -815,7 +815,7 @@
     },
     "rawText": "No physical attacks will work against Vegeta this combat. Remove from game after use.",
     "imageUrl": "/cards/28-Vegetas-Physical-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-29",
@@ -835,7 +835,7 @@
     },
     "rawText": "Physical attack doing 2 draws from the life deck if not stopped. Remove from game after use.",
     "imageUrl": "/cards/29-Yajirobes-Physical-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-30",
@@ -862,7 +862,7 @@
     },
     "rawText": "The first successful physical attack on you is stopped. Discard this card from the game after use.",
     "imageUrl": "/cards/30-Fall-7-Times-Get-Up-8-Times..jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-31",
@@ -888,7 +888,7 @@
     },
     "rawText": "The first successful energy attack on you is stopped. Discard this card from the game after use.",
     "imageUrl": "/cards/31-Fortify-Your-Spirit.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-32",
@@ -916,7 +916,7 @@
     },
     "rawText": "Remove someone else's drill card or ally from the game. Discard this card from the game after use.",
     "imageUrl": "/cards/32-The-Untroubled-Mind-is-Focused.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-33",
@@ -942,7 +942,7 @@
     },
     "rawText": "Stop 1 successful energy or physical life card draw from happening. Discard this card from the game after use.",
     "imageUrl": "/cards/33-Its-the-Little-Things-That-Matter.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-34",
@@ -968,7 +968,7 @@
     },
     "rawText": "Physical attack forcing the defender to lose 1 life card and the attacker 3 stages of power. Limit 1 per deck.",
     "imageUrl": "/cards/34-Straining-Off-Balancing-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-35",
@@ -994,7 +994,7 @@
     },
     "rawText": "Physical attack forcing the defender to lose 3 life cards and the attacker 3 stages of power. Limit 1 per deck.",
     "imageUrl": "/cards/35-Straining-Penetrating-Attack-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-36",
@@ -1019,7 +1019,7 @@
     },
     "rawText": "Defensive move preventing up to 3 energy life cards from being discarded and draining the user 4 stages.",
     "imageUrl": "/cards/36-Straining-Fake-Left-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-37",
@@ -1045,7 +1045,7 @@
     },
     "rawText": "Physical attack forcing the defender to lose 2 life cards and the attacker 4 stages of power. Limit 1 per deck.",
     "imageUrl": "/cards/37-Straining-Tipping-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-38",
@@ -1074,7 +1074,7 @@
     },
     "rawText": "Physical attack forcing the defender to lose 1 life card and the attack is over for the attacker.",
     "imageUrl": "/cards/38-Straining-Arm-Drag-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-39",
@@ -1104,7 +1104,7 @@
     },
     "rawText": "Play this card right after the attacker plays a card and pays their energy costs. The defender does 4 stages of power drain on the attacker, no matter what he is doing to the defender.",
     "imageUrl": "/cards/39-Straining-Ankle-Smash-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-40",
@@ -1132,7 +1132,7 @@
     },
     "rawText": "Stops an energy attack, but you have to discard another card to use this one.",
     "imageUrl": "/cards/40-Straining-Energy-Defense-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-41",
@@ -1160,7 +1160,7 @@
     },
     "rawText": "Stops a physical attack, but you have to discard another card to use this one.",
     "imageUrl": "/cards/41-Straining-Head-Lock-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-42",
@@ -1188,7 +1188,7 @@
     },
     "rawText": "Stops an energy attack, but the user cannot make any attacks for the rest of this combat.",
     "imageUrl": "/cards/42-Straining-Rolling-Escape-Move.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-43",
@@ -1209,7 +1209,7 @@
     },
     "rawText": "This card is played and then is taken out of the game. It moves the power stage of the main personality to the highest rating.",
     "imageUrl": "/cards/43-Senzu-Bean.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-44",
@@ -1226,7 +1226,7 @@
     },
     "rawText": "Physical attack causing 1 life card in damage, no matter what Goku's power level is.",
     "imageUrl": "/cards/44-Goku-Body-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-45",
@@ -1263,7 +1263,7 @@
     },
     "rawText": "One villain opts to destroy a city instead of combat on his next turn and places the top 2 cards of the discard pile at the bottom of the life deck. Discard from the game after use.",
     "imageUrl": "/cards/45-Saiyan-City-Destruction.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-46",
@@ -1291,7 +1291,7 @@
     },
     "rawText": "This physical attack does double the normal damage if successful.",
     "imageUrl": "/cards/46-Goku-Anger-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-47",
@@ -1311,7 +1311,7 @@
     },
     "rawText": "Stops any physical attack, but costs 1 power stage to perform.",
     "imageUrl": "/cards/47-Raditz-Total-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-48",
@@ -1337,7 +1337,7 @@
     },
     "rawText": "After a successful physical attack, take a foe's Dragon Ball. Discard this card after use.",
     "imageUrl": "/cards/48-Gokus-Touch-Goku.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-49",
@@ -1362,7 +1362,7 @@
     },
     "rawText": "Stops the foes' physical attack played this round. Raise card user's anger level 1.",
     "imageUrl": "/cards/49-Orange-Wrist-Flex-Takedown.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-50",
@@ -1387,7 +1387,7 @@
     },
     "rawText": "Stops an opponent's physical attack this round. Raise card user's anger level 1.",
     "imageUrl": "/cards/50-Orange-Shoulder-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-51",
@@ -1413,7 +1413,7 @@
     },
     "rawText": "Physical Attack doing +2 stages of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/51-Orange-Hip-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-52",
@@ -1438,7 +1438,7 @@
     },
     "rawText": "Stops an opponent's energy attack. Foe's anger level decreases by 1.",
     "imageUrl": "/cards/52-Orange-Neck-Restraints.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-53",
@@ -1463,7 +1463,7 @@
     },
     "rawText": "Stops opponent's physical attack this round. Foe's anger level decreases by 1.",
     "imageUrl": "/cards/53-Orange-Holding-After-Takedown.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-54",
@@ -1488,7 +1488,7 @@
     },
     "rawText": "Stops the foe's physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/54-Red-Knee-Strike.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-55",
@@ -1514,7 +1514,7 @@
     },
     "rawText": "Physical Attack doing +1 stage of damage if successful. Raise card user's anger level 1.",
     "imageUrl": "/cards/55-Red-Front-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-56",
@@ -1530,7 +1530,7 @@
     },
     "rawText": "Stop foe's energy attack this round.",
     "imageUrl": "/cards/56-Red-Side-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-57",
@@ -1556,7 +1556,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Foe's Anger level decreases by 1.",
     "imageUrl": "/cards/57-Red-Round-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-58",
@@ -1591,7 +1591,7 @@
     },
     "rawText": "Physical Attack doing +3 stages of damage if successful. Stops all energy attacks for the rest of this combat. Foe's anger level decreases by 1.",
     "imageUrl": "/cards/58-Red-Back-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-59",
@@ -1616,7 +1616,7 @@
     },
     "rawText": "Stops a physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/59-Blue-Big-Outside-Drop.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-60",
@@ -1641,7 +1641,7 @@
     },
     "rawText": "Stops the foe's physical attack. Lower foe's anger level 1.",
     "imageUrl": "/cards/60-Blue-One-Arm-Shoulder-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-61",
@@ -1666,7 +1666,7 @@
     },
     "rawText": "Stops a physical attack. Lower foe's anger level by 1.",
     "imageUrl": "/cards/61-Blue-Body-Drop-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-62",
@@ -1691,7 +1691,7 @@
     },
     "rawText": "Stops a physical attack. Lower foe's anger level by 1.",
     "imageUrl": "/cards/62-Blue-Inner-Leg-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-63",
@@ -1716,7 +1716,7 @@
     },
     "rawText": "Stops an energy attack. Lower foe's anger level by 1.",
     "imageUrl": "/cards/63-Blue-Big-Whirl-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-64",
@@ -1741,7 +1741,7 @@
     },
     "rawText": "Stops a physical attack. Lowers foe's anger level by 1.",
     "imageUrl": "/cards/64-Blue-Ground-Holding.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-65",
@@ -1767,7 +1767,7 @@
     },
     "rawText": "Energy Attack doing 6 life card draws of damage and lowering foe's power 3 stages or to 0, which ever happens first.",
     "imageUrl": "/cards/65-Black-Fore-Fist-Punch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-66",
@@ -1796,7 +1796,7 @@
     },
     "rawText": "Energy Attack doing 4 life card draws of damage or stopping any energy attack.",
     "imageUrl": "/cards/66-Black-Knife-Hand-Strike.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-67",
@@ -1821,7 +1821,7 @@
     },
     "rawText": "Stops a foe's physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/67-Black-Elbow-Strike.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-68",
@@ -1851,7 +1851,7 @@
     },
     "rawText": "Energy Attack doing 5 life card draws in damage and costing 4 stages of power to perform. Raise card user's anger level 2.",
     "imageUrl": "/cards/68-Black-Front-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-69",
@@ -1876,7 +1876,7 @@
     },
     "rawText": "Stops a foe's physical attack. Raise card user's anger level 2.",
     "imageUrl": "/cards/69-Black-Side-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-70",
@@ -1914,7 +1914,7 @@
     },
     "rawText": "Energy Attack doing 5 life card draws of damage or stops a physical attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/70-Black-Turning-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-71",
@@ -1944,7 +1944,7 @@
     },
     "rawText": "Energy Attack doing 6 life card draws of damage and costing 5 power stages to perform. Raise card user's anger level 1.",
     "imageUrl": "/cards/71-Black-Back-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-72",
@@ -1969,7 +1969,7 @@
     },
     "rawText": "Stops a foe's energy attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/72-Black-Axe-Heel-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-73",
@@ -1994,7 +1994,7 @@
     },
     "rawText": "Stops a foe's energy attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/73-Black-Rear-Spin-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-74",
@@ -2016,7 +2016,7 @@
     },
     "rawText": "Energy Attack. Raise card user's anger level 1.",
     "imageUrl": "/cards/74-Black-Jump-Turn-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-75",
@@ -2051,7 +2051,7 @@
     "dragonBallNumber": 3,
     "rawText": "Draw three cards if you wish, and place the top discarded card at the bottom of your life deck.",
     "imageUrl": "/cards/75-Earth-Dragon-Ball-3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-76",
@@ -2081,7 +2081,7 @@
     "dragonBallNumber": 4,
     "rawText": "End the very next combat you are forced into before you sustain damage. Your anger level increases 2.",
     "imageUrl": "/cards/76-Earth-Dragon-Ball-4.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-77",
@@ -2126,7 +2126,7 @@
     "dragonBallNumber": 5,
     "rawText": "Power up to full. Your anger level shifts up 2. Draw 2 cards if you wish and place the top 2 discarded cards at the bottom of your life deck.",
     "imageUrl": "/cards/77-Earth-Dragon-Ball-5.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-78",
@@ -2152,7 +2152,7 @@
     },
     "rawText": "Heroes only. The top 3 discarded cards are placed at the bottom of your life deck.",
     "imageUrl": "/cards/78-Roshi-Training.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-79",
@@ -2183,7 +2183,7 @@
     },
     "rawText": "Heroes only. 2 cards of your choice are placed at the bottom of your life deck.",
     "imageUrl": "/cards/79-King-Kai-Training.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-80",
@@ -2217,7 +2217,7 @@
     },
     "rawText": "Not useable by heroes except for Goku. 2 discarded cards of the user's choice are placed at the bottom of the life deck.",
     "imageUrl": "/cards/80-Saiyan-Training.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-81",
@@ -2242,7 +2242,7 @@
     ],
     "rawText": "Armor prevents 1 life card discard from any successful energy attack that would have normally forced 1 or more discards. Limit one per deck.",
     "imageUrl": "/cards/81-Saiyan-Armor.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-82",
@@ -2308,7 +2308,7 @@
     },
     "rawText": "Multi-Form allows two physical attacks, one after another, or a defense against a physical attack preventing 4 stages of successful damage.",
     "imageUrl": "/cards/82-Tien-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-83",
@@ -2357,7 +2357,7 @@
     },
     "rawText": "Solar Flare Energy Attack. If it is not blocked, it stuns the foe, so he must skip his next opportunity to attack back.",
     "imageUrl": "/cards/83-Tien-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-84",
@@ -2398,7 +2398,7 @@
     },
     "rawText": "Spirit Ball Energy Attack does 2 life card draws of damage.",
     "imageUrl": "/cards/84-Yamcha-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-85",
@@ -2447,7 +2447,7 @@
     },
     "rawText": "Solar Flare Energy Attack. If it is not blocked, it stuns the foe, so he must skip his next opportunity to attack back.",
     "imageUrl": "/cards/85-Yamcha-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-86",
@@ -2500,7 +2500,7 @@
     },
     "rawText": "Mother's Defense. Once per combat, this can block a single physical attack directed at Gohan or Goku so they are not hurt.",
     "imageUrl": "/cards/86-Chi-Chi-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-87",
@@ -2550,7 +2550,7 @@
     },
     "rawText": "Scientific Defense. Reduces the damage done by an energy attack by 2 life card draws.",
     "imageUrl": "/cards/87-Bulma-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-88",
@@ -2575,7 +2575,7 @@
     ],
     "rawText": "The uniform prevents 1 life card discard from any successful physical attack that would have normally forced 1 or more discards. Limit one per deck.",
     "imageUrl": "/cards/88-King-Kai-Uniform.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-89",
@@ -2606,7 +2606,7 @@
     },
     "rawText": "Heroes only. 2 discards of the user's choice are placed at the bottom of your life deck. Discard from the game after use.",
     "imageUrl": "/cards/89-Dream-Chamber-Training.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-90",
@@ -2624,7 +2624,7 @@
     },
     "rawText": "This stops the damage caused by a physical or energy attack. After use, discard this card from the game.",
     "imageUrl": "/cards/90-Mothers-Touch.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-91",
@@ -2657,7 +2657,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Creates an energy attack doing 7 life card draws at a cost of 4 stages of power drain. Discard from the game after use.",
     "imageUrl": "/cards/91-Saiyan-Energy-Throw.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-92",
@@ -2682,7 +2682,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Stops an energy attack this round.",
     "imageUrl": "/cards/92-Saiyan-Energy-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-93",
@@ -2708,7 +2708,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Creates an energy attack inflicting 6 life card draws.",
     "imageUrl": "/cards/93-Saiyan-Mental-Energy-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-94",
@@ -2748,7 +2748,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Energy attack, plus it stops a single named foe from making a physical attack on his next phase at a cost of 3 stages of power drain.",
     "imageUrl": "/cards/94-Saiyan-Energy-Blast.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-95",
@@ -2786,7 +2786,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Stops an energy attack and stops energy attacks in the next phase.",
     "imageUrl": "/cards/95-Saiyan-Energy-Aura.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-96",
@@ -2824,7 +2824,7 @@
     },
     "rawText": "Villains, Goku, and Gohan only. Stops a physical attack and stops physical attacks in the next phase.",
     "imageUrl": "/cards/96-Saiyan-Sweeping-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-97",
@@ -2844,7 +2844,7 @@
     },
     "rawText": "Powers up 6 stages for a personality, going no higher than maximum stage.",
     "imageUrl": "/cards/97-Power-Up-More.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-98",
@@ -2874,7 +2874,7 @@
     },
     "rawText": "Powers up to the personality's highest stage. Select 2 discarded cards and place them at the bottom of your life deck.",
     "imageUrl": "/cards/98-Power-Up-the-Most.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-99",
@@ -2899,7 +2899,7 @@
     },
     "rawText": "Increase your anger level by 2. Take the top 2 cards from your discard pile and place them at the bottom of your life deck.",
     "imageUrl": "/cards/99-Blazing-Anger.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-100",
@@ -2918,7 +2918,7 @@
     },
     "rawText": "Stop one physical or energy attack from doing damage. Discard this card from the game after one use.",
     "imageUrl": "/cards/100-Vegetas-Surprise-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-101",
@@ -2946,7 +2946,7 @@
     },
     "rawText": "Goku uses the bottom 3 cards of the discard deck for the next combat instead of the cards from his life deck. If there are not enough cards, don't use this ability. Discard from the game after use.",
     "imageUrl": "/cards/101-Goku-Honor-Duel.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-102",
@@ -2974,7 +2974,7 @@
     },
     "rawText": "Raditz uses the bottom 3 cards of the discard deck for the next combat instead of the cards from his life deck. If there are not enough cards, don't use this ability. Discard from the game after use.",
     "imageUrl": "/cards/102-Raditz-Honor-Duel.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-103",
@@ -3002,7 +3002,7 @@
     },
     "rawText": "Piccolo uses the bottom 3 cards of the discard deck for the next combat instead of the cards from his life deck. If there are not enough cards, don't use this ability. Discard from the game after use.",
     "imageUrl": "/cards/103-Piccolo-Honor-Duel.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-104",
@@ -3043,7 +3043,7 @@
     },
     "rawText": "Power Blast Energy Attack costs 1 power stage to perform.",
     "imageUrl": "/cards/104-Chiaotzu-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-105",
@@ -3096,7 +3096,7 @@
     },
     "rawText": "Blast Energy Attack does 6 life cards of damage, and removes Chiaotzu from the game.",
     "imageUrl": "/cards/105-Chiaotzu-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-106",
@@ -3136,7 +3136,7 @@
     },
     "rawText": "Physical Attack",
     "imageUrl": "/cards/106-Yajirobe-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-107",
@@ -3177,7 +3177,7 @@
     },
     "rawText": "Energy attack needs 3 power stages to perform.",
     "imageUrl": "/cards/107-Yajirobe-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-108",
@@ -3216,7 +3216,7 @@
     },
     "rawText": "Prevents 3 life cards from being discarded from a successful energy attack. If used by Goku, it stays on the table to be used one more time in this combat.",
     "imageUrl": "/cards/108-Gokus-Energy-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-109",
@@ -3237,7 +3237,7 @@
     },
     "rawText": "Does 6 life card draws of damage and costs 5 stages of power drain to perform.",
     "imageUrl": "/cards/109-Piccolos-Energy-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-110",
@@ -3262,7 +3262,7 @@
     },
     "rawText": "Stops a successful physical attack from doing damage and raises Piccolo's power rating by 4, up to his maximum stage.",
     "imageUrl": "/cards/110-Piccolos-Physical-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-111",
@@ -3287,7 +3287,7 @@
     },
     "rawText": "Prevents an energy attack. Gains Gohan 1 anger level.",
     "imageUrl": "/cards/111-Gohans-Energy-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-112",
@@ -3334,7 +3334,7 @@
     },
     "rawText": "When Krillin is forced to discard from his life deck, he may take that first card into his hand. If used by Krillin, this card stays on the table to be used one more time in this combat.",
     "imageUrl": "/cards/112-Krillins-Physical-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-113",
@@ -3373,7 +3373,7 @@
     },
     "rawText": "Energy attack doing 2 draws from the life card deck if not stopped. If used by Krillin, this card stays on the table to be used one more time in this combat.",
     "imageUrl": "/cards/113-Krillins-Energy-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-114",
@@ -3389,7 +3389,7 @@
     },
     "rawText": "Prevents a foe's energy attack.",
     "imageUrl": "/cards/114-Tiens-Energy-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-115",
@@ -3410,7 +3410,7 @@
     },
     "rawText": "Energy attack doing 2 life card draws of damage, costs 3 power stages to perform.",
     "imageUrl": "/cards/115-Yamchas-Energy-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-116",
@@ -3427,7 +3427,7 @@
     },
     "rawText": "Prevents 3 life cards from being taken in a successful physical attack.",
     "imageUrl": "/cards/116-Yamchas-Physical-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-117",
@@ -3460,7 +3460,7 @@
     },
     "rawText": "Forces a Hero opponent in this combat to discard 1 life card from his deck. Discard this card from the game after use.",
     "imageUrl": "/cards/117-Raditz-Energy-Wall-Rad.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-118",
@@ -3493,7 +3493,7 @@
     },
     "rawText": "Forces a Hero opponent in this combat to take his anger level down 2. Discard this card from the game after use.",
     "imageUrl": "/cards/118-Raditz-Physical-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-119",
@@ -3526,7 +3526,7 @@
     },
     "rawText": "A Saiyan power-up allowing this Saiyan to power up to full at the beginning of this combat round. Discard this card from the game after use.",
     "imageUrl": "/cards/119-Vegetas-Energy-Blast.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-120",
@@ -3556,7 +3556,7 @@
     },
     "rawText": "No energy attacks will work against Nappa this combat. Remove from game after use.",
     "imageUrl": "/cards/120-Nappas-Energy-Aura.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-121",
@@ -3586,7 +3586,7 @@
     },
     "rawText": "No physical attacks will work against Nappa this combat. Remove from game after use.",
     "imageUrl": "/cards/121-Nappas-Physical-Resistance.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-122",
@@ -3606,7 +3606,7 @@
     },
     "rawText": "Energy attack forcing 1 draw from the life deck if not stopped. Remove from game after use.",
     "imageUrl": "/cards/122-Yajirobes-Energy-Attack.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-123",
@@ -3627,7 +3627,7 @@
     },
     "rawText": "Energy attack forcing 3 draws from the life deck. Remove from the game after use. Card limited to 1 per deck.",
     "imageUrl": "/cards/123-Chiaotzus-Energy-Manipulation.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-124",
@@ -3650,7 +3650,7 @@
     ],
     "rawText": "Stops 2 stages of power from being drained by any physical attack.",
     "imageUrl": "/cards/124-Red-Penetrating-Defense-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-125",
@@ -3673,7 +3673,7 @@
     ],
     "rawText": "Creates +1 stage damage for each successful physical attack made by this personality.",
     "imageUrl": "/cards/125-Blue-Off-Balancing-Opponent-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-126",
@@ -3701,7 +3701,7 @@
     },
     "rawText": "Sweeps everyone else's drills from the playing table, but not this personality's drills. Limit 1 per deck.",
     "imageUrl": "/cards/126-Orange-Lifting-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-127",
@@ -3734,7 +3734,7 @@
     },
     "rawText": "Allows the attacker to draw a card into his hand in every phase he makes an attack.",
     "imageUrl": "/cards/127-Black-Takedown-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-128",
@@ -3767,7 +3767,7 @@
     },
     "rawText": "Allows the attacker to draw an extra card at the beginning of a combat.",
     "imageUrl": "/cards/128-Red-Knee-Pick-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-129",
@@ -3800,7 +3800,7 @@
     },
     "rawText": "At the beginning of every combat where the personality is the defender, raise the power level of this card owner 3 stages, up to the maximum.",
     "imageUrl": "/cards/129-Blue-Deceiving-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-130",
@@ -3823,7 +3823,7 @@
     ],
     "rawText": "Prevents 1 life card from being taken away by any successful energy attack on this card's owner.",
     "imageUrl": "/cards/130-Orange-Tripping-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-131",
@@ -3846,7 +3846,7 @@
     ],
     "rawText": "Creates a +2 stage drain with each successful physical attack made by this card's attacker.",
     "imageUrl": "/cards/131-Black-Bear-Hug-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-132",
@@ -3869,7 +3869,7 @@
     ],
     "rawText": "Prevents 1 life card draw from a successful energy attack.",
     "imageUrl": "/cards/132-Red-Rolling-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-133",
@@ -3896,7 +3896,7 @@
     },
     "rawText": "Do the exact same physical attack you defended against during your defending round of combat, once per combat.",
     "imageUrl": "/cards/133-Blue-Reversal-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-134",
@@ -3923,7 +3923,7 @@
     },
     "rawText": "Stop the first physical attack made on you in a combat.",
     "imageUrl": "/cards/134-Orange-Off-Balancing-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-135",
@@ -3951,7 +3951,7 @@
     },
     "rawText": "Stops the first energy attack made on you in a combat. Can't be used with any other Orange drills in play anywhere on the table.",
     "imageUrl": "/cards/135-Black-Arm-Bar-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-136",
@@ -3988,7 +3988,7 @@
     },
     "rawText": "Draw a card from the bottom of your discard pile after receiving a successful energy attack. Cannot be used with any other Black Drill cards in play anywhere on the table.",
     "imageUrl": "/cards/136-Black-Free-Style-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-137",
@@ -4024,7 +4024,7 @@
     },
     "rawText": "Draw a card from the bottom of your discard pile after suffering a successful physical attack.",
     "imageUrl": "/cards/137-Orange-Spontaneous-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-138",
@@ -4052,7 +4052,7 @@
     },
     "rawText": "For every life card you lose in combat, your foe loses 1 power stage, down to (0).",
     "imageUrl": "/cards/138-Blue-Cradle-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-139",
@@ -4080,7 +4080,7 @@
     },
     "rawText": "For every 3 stages of power you lose, your foe loses 1 power stage, down to (0).",
     "imageUrl": "/cards/139-Red-Wrist-Control-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-140",
@@ -4108,7 +4108,7 @@
     },
     "rawText": "Foreknowledge allows the personality to take 1 less life card discard. once for the entire set of combat rounds.",
     "imageUrl": "/cards/140-Red-Reading-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-141",
@@ -4137,7 +4137,7 @@
     },
     "rawText": "Allows the personality to defend well against physical attacks and prevents 1 life card discard per combat, if the foe has an ally.",
     "imageUrl": "/cards/141-Blue-Enemies-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-142",
@@ -4161,7 +4161,7 @@
     ],
     "rawText": "Allows the defender to take 1 less life card discard from every energy attack. Cannot be used with other Orange Drills in play on the table.",
     "imageUrl": "/cards/142-Orange-Energy-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-143",
@@ -4185,7 +4185,7 @@
     ],
     "rawText": "Allows the defender to take 1 less life card discard from every physical attack. Can't be used with other Black drills in play on the table.",
     "imageUrl": "/cards/143-Black-Physical-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-144",
@@ -4219,7 +4219,7 @@
     },
     "rawText": "Allows the defender to draw an extra card at the beginning of any combat if he desires.",
     "imageUrl": "/cards/144-Red-Coordination-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-145",
@@ -4242,7 +4242,7 @@
     ],
     "rawText": "Allows the defender to take 2 less stages of power drain from any physical attack.",
     "imageUrl": "/cards/145-Blue-Breakfall-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-146",
@@ -4269,7 +4269,7 @@
     },
     "rawText": "Allows the attacker to pay 1 stage instead of 2 on any energy attack.",
     "imageUrl": "/cards/146-Orange-Body-Shifting-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-147",
@@ -4292,7 +4292,7 @@
     ],
     "rawText": "Allows the attacker to do 2 extra stages of power damage with every successful physical attack.",
     "imageUrl": "/cards/147-Black-Striking-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-148",
@@ -4316,7 +4316,7 @@
     ],
     "rawText": "Allows the attacker to do 1 extra life card of damage with every successful energy attack. Cannot be used with other Red Drills in play on the table.",
     "imageUrl": "/cards/148-Red-Pressure-Point-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-149",
@@ -4345,7 +4345,7 @@
     },
     "rawText": "Allows the player to shuffle their life deck or discards just before any announced combat.",
     "imageUrl": "/cards/149-Meditation-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-150",
@@ -4369,7 +4369,7 @@
     ],
     "rawText": "Allows the attacker to inflict +3 stages of damage from any successful physical attack. Cannot be used with any other Blue drills in play on the table.",
     "imageUrl": "/cards/150-Blue-Neck-Restraint-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-151",
@@ -4392,7 +4392,7 @@
     ],
     "rawText": "Allows the attacker to inflict +4 stages of damage from any successful physical attack.",
     "imageUrl": "/cards/151-Orange-Joint-Restraint-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-152",
@@ -4415,7 +4415,7 @@
     ],
     "rawText": "Allows the defender to take 1 less life card draw from damage on any successful energy attack.",
     "imageUrl": "/cards/152-Black-Defender-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-153",
@@ -4434,7 +4434,7 @@
     },
     "rawText": "Energy defense stopping a foe's physical attack. Discard from the game after use.",
     "imageUrl": "/cards/153-Goku-Energy-Blast.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-154",
@@ -4453,7 +4453,7 @@
     },
     "rawText": "Stop this energy attack. Discard from the game after use.",
     "imageUrl": "/cards/154-Piccolo-Sidestep.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-155",
@@ -4476,7 +4476,7 @@
     ],
     "rawText": "Prevents 1 life card from being discarded from a successful energy attack.",
     "imageUrl": "/cards/155-Piccolo-Defense-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-156",
@@ -4504,7 +4504,7 @@
     },
     "rawText": "All the damage you would have taken in this combat destroys one of your allies instead.",
     "imageUrl": "/cards/156-Allys-Sacrifice.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-157",
@@ -4531,7 +4531,7 @@
     },
     "rawText": "After a successful energy attack, this card owner can pick a Dragon Ball out of his deck and capture a Dragon Ball from the damaged foe. Limit 1 per deck.",
     "imageUrl": "/cards/157-Eyes-of-the-Dragon.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-158",
@@ -4576,7 +4576,7 @@
     },
     "rawText": "Kamehameha Energy Attack does three life card draws and only costs one power stage to perform.",
     "imageUrl": "/cards/158-Goku-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-159",
@@ -4617,7 +4617,7 @@
     },
     "rawText": "Kaio-Ken Power Level Booster. Physical attack draining 4 power stages, no matter what Goku's power is. Do not consult table.",
     "imageUrl": "/cards/159-Goku-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-160",
@@ -4667,7 +4667,7 @@
     },
     "rawText": "Prevent 2 life card draws from being discarded from a successful energy attack.",
     "imageUrl": "/cards/160-Goku-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-161",
@@ -4708,7 +4708,7 @@
     },
     "rawText": "Screw Blast Energy Attack inflicts 2 life card draws of damage.",
     "imageUrl": "/cards/161-Piccolo-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-162",
@@ -4753,7 +4753,7 @@
     },
     "rawText": "Special Energy Beam Cannon. This energy blast only takes 1 power stage to use and does 2 life card draws of damage.",
     "imageUrl": "/cards/162-Piccolo-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-163",
@@ -4819,7 +4819,7 @@
     },
     "rawText": "Multi-Form allows two physical attacks, one after another, or a defense against a physical attack preventing 4 stages of successful damage.",
     "imageUrl": "/cards/163-Piccolo-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-164",
@@ -4872,7 +4872,7 @@
     },
     "rawText": "When defending and facing an energy attack, he can raise his anger level once per combat with this power.",
     "imageUrl": "/cards/164-Gohan-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-165",
@@ -4926,7 +4926,7 @@
     },
     "rawText": "Once during the game, he can turn into Kong Gohan, inflicting 8 stages of physical damage in his first round of combat.",
     "imageUrl": "/cards/165-Gohan-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-166",
@@ -4971,7 +4971,7 @@
     },
     "rawText": "Kamehameha Energy Attack does 3 life card draws and only costs 1 power stage to perform.",
     "imageUrl": "/cards/166-Gohan-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-167",
@@ -5012,7 +5012,7 @@
     },
     "rawText": "Power Ball Energy Attack inflicts 2 life card draws of damage.",
     "imageUrl": "/cards/167-Krillin-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-168",
@@ -5053,7 +5053,7 @@
     },
     "rawText": "Destructo-Disk Energy Attack doing 3 life card draws of damage.",
     "imageUrl": "/cards/168-Krillin-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-169",
@@ -5104,7 +5104,7 @@
     },
     "rawText": "Take 1 card from the discard pile and place it at the bottom of your life deck.",
     "imageUrl": "/cards/169-Krillin-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-170",
@@ -5154,7 +5154,7 @@
     },
     "rawText": "Saiyan Energy Deflection forces only two discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/170-Raditz-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-171",
@@ -5199,7 +5199,7 @@
     },
     "rawText": "Saiyan Energy Blast does 3 life card draws of damage and costs only 1 power stage to perform.",
     "imageUrl": "/cards/171-Raditz-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-172",
@@ -5250,7 +5250,7 @@
     },
     "rawText": "Use the Saiyan Energy Blast (from Level 2 Character card) or Saiyan Energy Deflection (from Level 1 Character card)",
     "imageUrl": "/cards/172-Raditz-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-173",
@@ -5300,7 +5300,7 @@
     },
     "rawText": "Saiyan Energy Deflection forces only 2 discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/173-Vegeta-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-174",
@@ -5345,7 +5345,7 @@
     },
     "rawText": "Saiyan Energy Blast does 3 life card draws of damage and costs only 1 power stage to perform.",
     "imageUrl": "/cards/174-Vegeta-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-175",
@@ -5411,7 +5411,7 @@
     },
     "rawText": "Captures one Dragon Ball, once per game, after a successful energy attack. This ends the combat step.",
     "imageUrl": "/cards/175-Vegeta-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-176",
@@ -5461,7 +5461,7 @@
     },
     "rawText": "Saiyan Energy Deflection forces only 2 discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/176-Nappa-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-177",
@@ -5502,7 +5502,7 @@
     },
     "rawText": "Special Physical Attack inflicting 6 stages of power drain, no matter what the foe's power stage rating is.",
     "imageUrl": "/cards/177-Nappa-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-178",
@@ -5552,7 +5552,7 @@
     },
     "rawText": "Only takes 2 stages of power drain, no matter how strong the physical attack.",
     "imageUrl": "/cards/178-Nappa-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-179",
@@ -5593,7 +5593,7 @@
     },
     "rawText": "Physical Attack: Do not consult the chart and do 4 stages of damage to the foe.",
     "imageUrl": "/cards/179-Goku-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-180",
@@ -5649,7 +5649,7 @@
     },
     "rawText": "When defending in combat, take the bottom discard card as well in your three card draw.",
     "imageUrl": "/cards/180-Piccolo-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-181",
@@ -5694,7 +5694,7 @@
     },
     "rawText": "Energy Attack: Costs 1 stage and does 3 life card draws of damage.",
     "imageUrl": "/cards/181-Gohan-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-182",
@@ -5747,7 +5747,7 @@
     },
     "rawText": "Draw another card when starting an attack.",
     "imageUrl": "/cards/182-Krillin-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-183",
@@ -5793,7 +5793,7 @@
     },
     "rawText": "Raise Raditz's anger level 1",
     "imageUrl": "/cards/183-Raditz-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-184",
@@ -5842,7 +5842,7 @@
     },
     "rawText": "Ignore a successful energy attack.",
     "imageUrl": "/cards/184-Vegeta-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-185",
@@ -5895,7 +5895,7 @@
     },
     "rawText": "When starting a battle, power up 2 more stages.",
     "imageUrl": "/cards/185-Nappa-LV1-HT.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-186",
@@ -5925,7 +5925,7 @@
     "dragonBallNumber": 6,
     "rawText": "This card ends a combat and the user is powered up to full. Shift all opponents' anger levels down 2.",
     "imageUrl": "/cards/186-Earth-Dragon-Ball-6.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-187",
@@ -5960,7 +5960,7 @@
     "dragonBallNumber": 7,
     "rawText": "Play this card during combat to end the battle. Pick 3 cards out of your discard pile and place them at the top of your life deck. All opponents' anger levels shift down 2.",
     "imageUrl": "/cards/187-Earth-Dragon-Ball-7.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-188",
@@ -5985,7 +5985,7 @@
     },
     "rawText": "Capture an opponent's Dragon Ball.",
     "imageUrl": "/cards/188-Earth-Dragon-Ball-Capture.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-189",
@@ -6010,7 +6010,7 @@
     },
     "rawText": "Energy Attack. After you make a successful energy attack, capture an Earth Dragon Ball from your opponent.",
     "imageUrl": "/cards/189-Earth-Dragon-Ball-Combat.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-190",
@@ -6041,7 +6041,7 @@
     },
     "rawText": "Increase your anger level by 2. Select 2 cards from your discard pile and place them at the bottom of your life deck. Discard this card from the game after one use.",
     "imageUrl": "/cards/190-Enraged.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-191",
@@ -6069,7 +6069,7 @@
     },
     "rawText": "Increase the anger of a level 1 or 2 personality by 1 and discard this card from the game.",
     "imageUrl": "/cards/191-A-Beginners-Heart-Is-Dedicated.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-192",
@@ -6094,7 +6094,7 @@
     },
     "rawText": "Force another player to skip their combat step. Discard this from the game after use.",
     "imageUrl": "/cards/192-Teaching-the-Untouchable-Forces-Oberservation.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-193",
@@ -6120,7 +6120,7 @@
     },
     "rawText": "The spirit of the Earth heals you. Place 2 discarded cards at the bottom of your life deck. Discard from the game after use.",
     "imageUrl": "/cards/193-Respect-the-Spirit.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-194",
@@ -6148,7 +6148,7 @@
     },
     "rawText": "The efforts of your allies stop this combat. You must have an ally out on the table to use this card. Discard from the game after use.",
     "imageUrl": "/cards/194-Unselfish-Behavior-is-Best.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-195",
@@ -6180,7 +6180,7 @@
     },
     "rawText": "Allows a hero to draw his cards from the top of the discard deck in the next combat. If there are not enough cards, the drill does not work. Discard from the game after use.",
     "imageUrl": "/cards/195-Hero-Advantage.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-196",
@@ -6206,7 +6206,7 @@
     },
     "rawText": "In the next combat draw cards from the bottom of the discard pile instead of the Life Deck. Discard after one use.",
     "imageUrl": "/cards/196-Saiyan-Honor-Quest.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-197",
@@ -6236,7 +6236,7 @@
     },
     "rawText": "Remove a Non-Combat Card or ally from in front of another player from the game. Discard this card from the game after use.",
     "imageUrl": "/cards/197-Saiyan-Battle-Terms.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-198",
@@ -6263,7 +6263,7 @@
     },
     "rawText": "Name a Non-Combat card and foes with any in their decks must discard them from the game. Discard this card from the game after use.",
     "imageUrl": "/cards/198-Saiyan-Appraisal-Maneuver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-199",
@@ -6297,7 +6297,7 @@
     },
     "rawText": "This combat ends and the defender places the bottom discarded card back at the bottom of his life deck. Discard this card from the game after use.",
     "imageUrl": "/cards/199-Dream-Fighting.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-200",
@@ -6323,7 +6323,7 @@
     },
     "rawText": "Reduce the defending main personality's anger level to (0). Discard this card from the game after use.",
     "imageUrl": "/cards/200-Cutting-the-Tail.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-201",
@@ -6346,7 +6346,7 @@
     },
     "rawText": "Increase the personality's power stage to its maximum level. Discard this card from the game after use.",
     "imageUrl": "/cards/201-The-Tail-Grows-Back.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-202",
@@ -6372,7 +6372,7 @@
     },
     "rawText": "Draw an unused Dragon Ball from your life deck and place it down. Shuffle the life deck afterwards.",
     "imageUrl": "/cards/202-Gokus-Lucky-Break.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-203",
@@ -6405,7 +6405,7 @@
     },
     "rawText": "Stops this combat. The turn ends, and the player may hold all his extra cards until his next turn. Discard from the game after use.",
     "imageUrl": "/cards/203-Saiyan-Truce-Card.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-204",
@@ -6439,7 +6439,7 @@
     },
     "rawText": "The attacker draws 2 cards from his discard pile. The defender raises 5 stages if possible.",
     "imageUrl": "/cards/204-Battle-Pausing.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-205",
@@ -6462,7 +6462,7 @@
     },
     "rawText": "Reduce the foe's power level by 4 stages, or to (0), whichever happens first. Discard this card from the game after use.",
     "imageUrl": "/cards/205-Grabbing-the-Tail.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-206",
@@ -6487,7 +6487,7 @@
     },
     "rawText": "The attacker is temporarily blinded and this combat stops. Discard this card from the game after use.",
     "imageUrl": "/cards/206-Nappas-Blinding-Stare.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-207",
@@ -6513,7 +6513,7 @@
     },
     "rawText": "One ally gives your main personality power on a stage for stage basis, reducing their total and boosting your main personality's. Discard from the game after use.",
     "imageUrl": "/cards/207-Power-Gifting.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-208",
@@ -6547,7 +6547,7 @@
     },
     "rawText": "Place this on a foe's personality card. Reset the personality's anger to (0). It cannot go up until after he forces another player to discard a life card. Discard this from the game after use. Limit 1 per deck.",
     "imageUrl": "/cards/208-Terrible-Wounds.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-209",
@@ -6568,7 +6568,7 @@
     },
     "rawText": "Your power level was miscounted. Raise it to full power. Discard this from the game after use.",
     "imageUrl": "/cards/209-Broken-Scouter.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-210",
@@ -6596,7 +6596,7 @@
     },
     "rawText": "Physical attack doing triple the usual damage if successful.",
     "imageUrl": "/cards/210-Raditz-Flying-Kick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-211",
@@ -6625,7 +6625,7 @@
     },
     "rawText": "This card stays on the table. If Tien is in play, all villains must show their hands face up at all times.",
     "imageUrl": "/cards/211-Tien-Mind-Reading-Trick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-212",
@@ -6641,7 +6641,7 @@
     },
     "rawText": "Stops a successful physical or energy attack.",
     "imageUrl": "/cards/212-Piccolos-Flight.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-213",
@@ -6674,7 +6674,7 @@
     },
     "rawText": "A villain may plant this card instead of combat. On his next turn, he takes his highest level Saibaimen and puts it into play as an ally. Discard this card from the game after use.",
     "imageUrl": "/cards/213-Plant-Two-Saibaimen.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-214",
@@ -6707,7 +6707,7 @@
     },
     "rawText": "If Gohan is Goku's ally, he stops the foe's combat turn. Discard after use.",
     "imageUrl": "/cards/214-Gohans-Father-Save.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-215",
@@ -6731,7 +6731,7 @@
     ],
     "rawText": "Does an extra life card of damage with each successful attack. More than 1 of these drills can be out at the same time.",
     "imageUrl": "/cards/215-Krillins-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-216",
@@ -6748,7 +6748,7 @@
     "combatRole": "ATTACK_ENERGY",
     "rawText": "Energy attack doing 4 life cards of damage at a cost of 1 stage.",
     "imageUrl": "/cards/216-Krillins-Energy-Disk.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-217",
@@ -6777,7 +6777,7 @@
     },
     "rawText": "Discard an ally from the game to make an energy attack. The foe takes 5 life cards of damage.",
     "imageUrl": "/cards/217-Ribs-Broken.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-218",
@@ -6807,7 +6807,7 @@
     },
     "rawText": "Pull an ally card from the discards or the life deck, play it and set its power stages at full.",
     "imageUrl": "/cards/218-Unexpected-Allies.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-219",
@@ -6828,7 +6828,7 @@
     },
     "rawText": "Energy attack doing 2 draws from the life card deck if not stopped and costing no power stages to perform.",
     "imageUrl": "/cards/219-Raditz-Energy-Burst.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-220",
@@ -6858,7 +6858,7 @@
     },
     "rawText": "Prevents all but 1 life card draw from a successful energy attack. Discard from the game after use.",
     "imageUrl": "/cards/220-Vegetas-Stance.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-221",
@@ -6885,7 +6885,7 @@
     },
     "rawText": "At the beginning of each combat, draw 1 card from the bottom of the discard pile to use.",
     "imageUrl": "/cards/221-Vegetas-Quickness-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-222",
@@ -6910,7 +6910,7 @@
     },
     "rawText": "When the Bulma ally is in play, use this card to capture a Dragon Ball. Discard from the game after use.",
     "imageUrl": "/cards/222-Bulma-Finds-a-Dragon-Ball.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-223",
@@ -6939,7 +6939,7 @@
     },
     "rawText": "When the Bulma ally is in play, pick a drill from the life deck or the discards and put it into play.",
     "imageUrl": "/cards/223-Bulma-Finds-a-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-224",
@@ -6967,7 +6967,7 @@
     },
     "rawText": "Forces every Villain opponent to constantly show his hand of cards face up at all times.",
     "imageUrl": "/cards/224-Baba-Witch-Viewing-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-225",
@@ -6996,7 +6996,7 @@
     },
     "rawText": "Does 3 life card discards in damage at any time to a foe. Discard this card from the game after 1 use.",
     "imageUrl": "/cards/225-Babas-Energy-Blast.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-226",
@@ -7022,7 +7022,7 @@
     },
     "rawText": "The beast takes all damage from physical attacks for the card user, but the first energy attack kills it. Discard from the game after 1 use.",
     "imageUrl": "/cards/226-T-Rex-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-227",
@@ -7050,7 +7050,7 @@
     },
     "rawText": "In every battle where the card owner is attacking, it does 1 life card in damage per combat until an energy attack kills it.",
     "imageUrl": "/cards/227-T-Rex-Offense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-228",
@@ -7076,7 +7076,7 @@
     },
     "rawText": "Get a Dragon Ball card from the life deck and put it into play. Remove from game after one use.",
     "imageUrl": "/cards/228-Vegetas-Plans.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-229",
@@ -7103,7 +7103,7 @@
     },
     "rawText": "This card does 1 life card in damage to a foe for every ally the card user has. Discard from the game after use.",
     "imageUrl": "/cards/229-Ally-Wins.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-230",
@@ -7120,7 +7120,7 @@
     },
     "rawText": "Allows the user to duck and miss the first stage of damage in a physical attack.",
     "imageUrl": "/cards/230-Chiaotzus-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-231",
@@ -7144,7 +7144,7 @@
     },
     "rawText": "Allows multiple colors of drills to be used at the same time.",
     "imageUrl": "/cards/231-Gokus-Mixing-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-232",
@@ -7168,7 +7168,7 @@
     ],
     "rawText": "Drill does an extra life card of damage whenever successful damage is done.",
     "imageUrl": "/cards/232-Red-Life-Attack-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-233",
@@ -7192,7 +7192,7 @@
     ],
     "rawText": "Drill prevents 1 life card of damage from being taken whenever a successful attack happens on the card owner.",
     "imageUrl": "/cards/233-Blue-Life-Defense-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-234",
@@ -7218,7 +7218,7 @@
     },
     "rawText": "Prevents anything from happening to a personality's drills until he advances to his next level.",
     "imageUrl": "/cards/234-Orange-Focusing-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-235",
@@ -7242,7 +7242,7 @@
     ],
     "rawText": "Allows the card owner to take 2 less stages of power drain from a successful physical attack.",
     "imageUrl": "/cards/235-Black-Shadow-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-236",
@@ -7266,7 +7266,7 @@
     ],
     "rawText": "In all physical attacks the card owner does an extra 2 stages of power draining damage.",
     "imageUrl": "/cards/236-Saiyan-Power-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-237",
@@ -7291,7 +7291,7 @@
     },
     "rawText": "Prevents any Dragon Ball from being captured from this drill user.",
     "imageUrl": "/cards/237-Gokus-Capturing-Drill.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-238",
@@ -7324,7 +7324,7 @@
     },
     "rawText": "Played at the end of a turn, it forces a foe back from level 3 to level 2. Limit 1 per deck.",
     "imageUrl": "/cards/238-King-Kais-Calming.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-239",
@@ -7357,7 +7357,7 @@
     },
     "rawText": "Played at the end of a turn, it forces a foe back from level 2 to level 1. Limit 1 per deck.",
     "imageUrl": "/cards/239-Roshis-Calming.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-240",
@@ -7385,7 +7385,7 @@
     },
     "rawText": "Find the foe's first Dragon Ball in his life deck and place it at the bottom of his deck. Limit 1 per deck.",
     "imageUrl": "/cards/240-Vegetas-Trick.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-241",
@@ -7411,7 +7411,7 @@
     },
     "rawText": "Capture 2 of a foe's Dragon Balls and place them at the bottom of his life deck. Limit 1 per deck.",
     "imageUrl": "/cards/241-Vegetas-Dragon-Ball-Capture.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-242",
@@ -7445,7 +7445,7 @@
     },
     "rawText": "This battle never happened. Start all over with new cards and reset all damage to beginning levels. Limit 1 per deck.",
     "imageUrl": "/cards/242-Dream-Machine-Battle.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-243",
@@ -7495,7 +7495,7 @@
     },
     "rawText": "Saiyan Energy Deflection forces only 2 discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/243-Saibaimen-LV1.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-244",
@@ -7545,7 +7545,7 @@
     },
     "rawText": "Saiyan Energy Deflection forces only 2 discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/244-Saibaimen-LV2.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-245",
@@ -7595,7 +7595,7 @@
     },
     "rawText": "Saiyan Energy Deflection - forces only 2 discards from a successful energy attack, no matter how powerful.",
     "imageUrl": "/cards/245-Saibaimen-LV3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-246",
@@ -7648,7 +7648,7 @@
     },
     "rawText": "If there is more than one Saibaimen in play, this one can make a physical attack that inflicts 5 life cards damage.",
     "imageUrl": "/cards/246-Saibaimen-LV4.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-247",
@@ -7664,7 +7664,7 @@
     },
     "rawText": "Stops a successful energy or physical attack.",
     "imageUrl": "/cards/247-Gokus-Truce.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-248",
@@ -7685,7 +7685,7 @@
     },
     "rawText": "Energy attack doing 5 life cards of damage for no power cost.",
     "imageUrl": "/cards/248-Gokus-Plan.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-249",
@@ -7706,7 +7706,7 @@
     },
     "rawText": "Place the top 3 discard cards at the bottom of the life card deck. Limit 1 per deck.",
     "imageUrl": "/cards/249-Medic-Kit.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-250",
@@ -7739,7 +7739,7 @@
     },
     "rawText": "Stops all heroes from losing 1 life card for this entire combat. Multiples of this card cannot be used together. Remove from the game after use.",
     "imageUrl": "/cards/250-Chiaotzus-Physical-Defense.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P1",
@@ -7780,7 +7780,7 @@
     },
     "rawText": "Spirit bomb energy attack, costs 1 stage to do.",
     "imageUrl": "/cards/P1-Goku-Level-4-In-Power-Magazine-3.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P1-SILVER",
@@ -7821,7 +7821,7 @@
     },
     "rawText": "Spirit bomb energy attack, costs 1 stage to do.",
     "imageUrl": "/cards/P1-Goku-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P2",
@@ -7872,7 +7872,7 @@
     },
     "rawText": "Use Special Beam Cannon or Multi-Form in a combat round.",
     "imageUrl": "/cards/P2-Piccolo-Level-4.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P2-SILVER",
@@ -7923,7 +7923,7 @@
     },
     "rawText": "Use Special Beam Cannon or Multi-Form in a combat round.",
     "imageUrl": "/cards/P2-Piccolo-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P3",
@@ -7969,7 +7969,7 @@
     },
     "rawText": "Vegeta's laugh reduces a foe's power rating by 3 or to 0, which ever happens first.",
     "imageUrl": "/cards/P3-Vegeta-Level-4-Inquest-Magazine-August-2000.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P3-SILVER",
@@ -8015,7 +8015,7 @@
     },
     "rawText": "Vegeta's laugh reduces a foe's power rating by 3 or to 0, which ever happens first.",
     "imageUrl": "/cards/P3-Vegeta-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P4",
@@ -8056,7 +8056,7 @@
     },
     "rawText": "Saiyan Throat Strike does five stages of physical damage.",
     "imageUrl": "/cards/P4-Raditz-Level-4-Scrye-Magazine-September-2000.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P4-ERROR",
@@ -8097,7 +8097,7 @@
     },
     "rawText": "Spirit bomb energy attack costs 3 stages to do.",
     "imageUrl": "/cards/P4-Goku-Level-4-Error-Dupe.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P4-SILVER",
@@ -8138,7 +8138,7 @@
     },
     "rawText": "Saiyan Throat Strike does five stages of physical damage.",
     "imageUrl": "/cards/P4-Raditz-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P5",
@@ -8188,7 +8188,7 @@
     },
     "rawText": "Draws an extra card from the bottom of the discard pile for this combat",
     "imageUrl": "/cards/P5-Gohan-Level-4-Wizard-Magazine-October-2000.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P5-SILVER",
@@ -8238,7 +8238,7 @@
     },
     "rawText": "Draws an extra card from the bottom of the discard pile for this combat",
     "imageUrl": "/cards/P5-Gohan-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P6",
@@ -8288,7 +8288,7 @@
     },
     "rawText": "Draws the bottom two cards from the discard pile to use in this combat.",
     "imageUrl": "/cards/P6-Krillin-Level-4-Toyfare-Issue-37-September-2000.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P6-SILVER",
@@ -8338,7 +8338,7 @@
     },
     "rawText": "Draws the bottom two cards from the discard pile to use in this combat.",
     "imageUrl": "/cards/P6-Krillin-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P7",
@@ -8387,7 +8387,7 @@
     },
     "rawText": "Negate a foe's energy attack",
     "imageUrl": "/cards/P7-Nappa-Level-4-Scrye-Magazine-July-2000.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P7-SILVER",
@@ -8436,7 +8436,7 @@
     },
     "rawText": "Negate a foe's energy attack",
     "imageUrl": "/cards/P7-Nappa-Level-4-Silver.jpg",
-    "verified": false
+    "verified": true
   },
   {
     "id": "SS-P115-ERROR",
@@ -8485,6 +8485,6 @@
     },
     "rawText": "Negate a foe's energy attack",
     "imageUrl": "/cards/P115-Nappa-Level-4-Error-Dupe.jpg",
-    "verified": false
+    "verified": true
   }
 ]
