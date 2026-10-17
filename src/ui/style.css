@@ -306,7 +306,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .empty-zone { color: rgba(152, 162, 195, 0.6); font-size: 12px; align-self: center; text-align: center; font-style: italic; }
 
 /* battle centre */
-.battle { display: grid; gap: 8px; justify-items: center; align-content: center; padding: 6px 8px; text-align: center; min-width: 180px; }
+.battle { overflow-x: clip; display: grid; gap: 8px; justify-items: center; align-content: center; padding: 6px 8px; text-align: center; min-width: 180px; }
 .phase-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, min(3.2vw, 6vh), 54px); letter-spacing: 0.04em; line-height: 1;
   background: var(--ki); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1.5px #6b1600;
   filter: drop-shadow(0 3px 0 #3a0a00); animation: pop 0.35s ease-out; opacity: 0.9; }
