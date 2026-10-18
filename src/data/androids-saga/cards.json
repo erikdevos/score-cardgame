@@ -1,0 +1,5115 @@
+[
+  {
+    "id": "AS-1",
+    "name": "Android 17's Neck Hold",
+    "set": "Androids Saga",
+    "number": 1,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Android 17",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -3
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack. If successful, lower your opponent's anger 3 levels.",
+    "imageUrl": "/cards/androids-saga/001.jpg",
+    "verified": false,
+    "needsReview": "New character Android 17 (named)."
+  },
+  {
+    "id": "AS-2",
+    "name": "Android 18's Low Blow",
+    "set": "Androids Saga",
+    "number": 2,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Android 18",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifStopped",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -2
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Physical attack. If this attack is stopped, your opponent's Main Personality loses 2 power stages to a minimum of 0.",
+    "imageUrl": "/cards/androids-saga/002.jpg",
+    "verified": false,
+    "needsReview": "New handler ifStopped (resolves when the defender stops this attack). New character Android 18 (named). Reads 'your opponent's MP loses 2 stages' as a stage drain, no overflow into life cards."
+  },
+  {
+    "id": "AS-3",
+    "name": "Android 19's Body Slam",
+    "set": "Androids Saga",
+    "number": 3,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Android 19",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing +4 power stages of damage.",
+    "imageUrl": "/cards/androids-saga/003.jpg",
+    "verified": false,
+    "needsReview": "New character Android 19 (named)."
+  },
+  {
+    "id": "AS-4",
+    "name": "Android 19's Energy Burst",
+    "set": "Androids Saga",
+    "number": 4,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Android 19",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "table",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": 1
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Energy attack. Remove an opponent's Drill in play from the game.",
+    "imageUrl": "/cards/androids-saga/004.jpg",
+    "verified": false,
+    "needsReview": "Removal read as unconditional (not tied to success). Same removeFromGame shape as FS-80."
+  },
+  {
+    "id": "AS-5",
+    "name": "Android 20 Is Caught Off Guard",
+    "set": "Androids Saga",
+    "number": 5,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "named": "Android 20",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 4,
+            "from": "bottom",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Place the bottom 4 cards from your discard pile at the bottom of your Life Deck.",
+    "imageUrl": "/cards/androids-saga/005.jpg",
+    "verified": false,
+    "needsReview": "Title has no possessive: 'Android 20 Is Caught Off Guard'. Not marked remove-after-use, so DISCARD. Same encoding as SS-23."
+  },
+  {
+    "id": "AS-6",
+    "name": "Android 20's Energy Burst",
+    "set": "Androids Saga",
+    "number": 6,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Android 20",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 3,
+      "lifeCards": 4
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifOpponentAlignment",
+          "params": {
+            "alignment": "Hero",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "conditionalDamage",
+                "params": {
+                  "stages": 2,
+                  "lifeCards": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Energy attack doing +3 power stages of damage. If your opponent's Main Personality is a hero, this attack does +5 power stages of damage instead.",
+    "imageUrl": "/cards/androids-saga/006.jpg",
+    "verified": false,
+    "needsReview": "Energy attack doing +3 power stages: read as FLAT 4 life cards (energy default, rules.json) + 3 stages; the default life card damage is an assumption. Hero bonus is the delta (+2) via conditionalDamage in onHit (same pattern as TS-45)."
+  },
+  {
+    "id": "AS-7",
+    "name": "Blasted Land",
+    "set": "Androids Saga",
+    "number": 7,
+    "type": "Battleground",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "turnStart",
+            "role": "any",
+            "affects": "turnPlayer",
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "SELF",
+                "amount": 1
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "At the beginning of each player's turn, that player discards the top card from his Life Deck.",
+    "imageUrl": "/cards/androids-saga/007.jpg",
+    "verified": false,
+    "needsReview": "New card type Battleground (first in the data; already in CardType). triggeredEffect with new param affects=turnPlayer: SELF in 'then' means the player whose turn it is. Red Ribbon icon (R R) printed left of the character tag (Piccolo)."
+  },
+  {
+    "id": "AS-8",
+    "name": "Gravity Chamber",
+    "set": "Androids Saga",
+    "number": 8,
+    "type": "Location",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "attackCostModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "costStagesModifier": 2,
+            "role": "attacker",
+            "target": "ALL",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "All physical attacks cost +2 power stages to perform.",
+    "imageUrl": "/cards/androids-saga/008.jpg",
+    "verified": false,
+    "needsReview": "First Location in the data. attackCostModifier (as TS-142) with target ALL. Character tag Dr. Briefs."
+  },
+  {
+    "id": "AS-9",
+    "name": "Black Confusion Drill",
+    "set": "Androids Saga",
+    "number": 9,
+    "type": "Drill",
+    "rarity": "Common",
+    "style": "Black",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "ANY",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "shuffleOpponentHandCard",
+                "params": {
+                  "target": "OPPONENT",
+                  "amount": 1,
+                  "selection": "random"
+                }
+              },
+              {
+                "action": "DRAW",
+                "target": "OPPONENT",
+                "amount": 1
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Whenever you perform a successful attack, choose 1 card at random from your opponent's hand and shuffle it into his Life Deck, then your opponent draws 1 card.",
+    "imageUrl": "/cards/androids-saga/009.jpg",
+    "verified": false,
+    "needsReview": "Printed type bar Non-Combat; typed Drill from the title. shuffleOpponentHandCard reused (TS-P2) with selection random."
+  },
+  {
+    "id": "AS-10",
+    "name": "Black Draining Aura",
+    "set": "Androids Saga",
+    "number": 10,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 3,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "SELF",
+                "amount": 5
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing 3 power stages of damage. If you declared Tokui-Waza, raise your Main Personality 5 power stages.",
+    "imageUrl": "/cards/androids-saga/010.jpg",
+    "verified": false,
+    "needsReview": "New handler ifTokuiWaza (checks PlayerState.tokuiWaza). 'doing 3 power stages' (no plus) read as FLAT 3 stages like TS-47. Stage raise not tied to success."
+  },
+  {
+    "id": "AS-11",
+    "name": "Black Jump Kick",
+    "set": "Androids Saga",
+    "number": 11,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 1,
+      "lifeCards": 1
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "discard",
+                  "position": "bottom",
+                  "amount": 6
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing 1 life card of damage and 1 power stage of damage. If successful and you declared Tokui-Waza, remove the bottom 6 cards of your opponent's discard pile from the game.",
+    "imageUrl": "/cards/androids-saga/0111.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza handler. removeFromGame zone discard with position bottom (FS-14 uses top)."
+  },
+  {
+    "id": "AS-12",
+    "name": "Black Taunting Attack",
+    "set": "Androids Saga",
+    "number": 12,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Black",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardLifePerAnger",
+          "params": {
+            "target": "OPPONENT",
+            "perAngerLevel": 2,
+            "above": 0
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "shuffleHandIntoLifeDeck",
+                      "params": {
+                        "target": "OPPONENT",
+                        "thenDrawSameNumber": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Your opponent discards 2 cards from the top of his Life Deck for each anger level he is at above 0. If you declared Tokui-Waza, you may have your opponent shuffle his hand into his Life Deck, and then draw the same number of cards. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0121.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: played instead of an attack. New handlers discardLifePerAnger and shuffleHandIntoLifeDeck (optional wrapper, Tokui-Waza)."
+  },
+  {
+    "id": "AS-13",
+    "name": "Blue Defensive Flight",
+    "set": "Androids Saga",
+    "number": 13,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "loseStagesForAnger",
+          "params": {
+            "target": "SELF",
+            "amount": "choice",
+            "minStage": 0,
+            "stagesPerAngerLevel": 2,
+            "angerTarget": "OPPONENT"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Stops a physical attack. You may choose to have your Main Personality lose any number of power stages, to a minimum of 0. For every 2 power stages you lose in this way, lower your opponent's anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0131.jpg",
+    "verified": false,
+    "needsReview": "New handler loseStagesForAnger (player picks the number of stages; every 2 lowers opponent's anger 1; remainder of an odd number does nothing)."
+  },
+  {
+    "id": "AS-14",
+    "name": "Blue Foot Smash",
+    "set": "Androids Saga",
+    "number": 14,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "setAnger",
+                "params": {
+                  "target": "OPPONENT",
+                  "value": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing +2 power stages of damage. If you declared Tokui-Waza, lower your opponent's anger to 0.",
+    "imageUrl": "/cards/androids-saga/0141.jpg",
+    "verified": false,
+    "needsReview": "Anger reset not tied to success. ifTokuiWaza handler."
+  },
+  {
+    "id": "AS-15",
+    "name": "Blue Glare Attack",
+    "set": "Androids Saga",
+    "number": 15,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -3
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Energy attack. If you declared Tokui-Waza, lower your opponent's anger 3 levels.",
+    "imageUrl": "/cards/androids-saga/0151.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza handler."
+  },
+  {
+    "id": "AS-16",
+    "name": "Blue Idea",
+    "set": "Androids Saga",
+    "number": 16,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromPlay",
+          "params": {
+            "target": "OPPONENT",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": 1
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Discard 1 of your opponent's Drills in play.",
+    "imageUrl": "/cards/androids-saga/0161.jpg",
+    "verified": false,
+    "needsReview": "Same encoding as FS-93 (discardFromPlay, Drill)."
+  },
+  {
+    "id": "AS-17",
+    "name": "Blue Sidestep",
+    "set": "Androids Saga",
+    "number": 17,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -2
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Stops an energy attack. If you declared Tokui-Waza, lower your opponent's anger 2 levels.",
+    "imageUrl": "/cards/androids-saga/0171.jpg",
+    "verified": false,
+    "needsReview": "Type bar says Physical Combat but the text (and starburst) stops an ENERGY attack: encoded DEFENSE_ENERGY, text wins. ifTokuiWaza handler."
+  },
+  {
+    "id": "AS-18",
+    "name": "Gohan's Ready",
+    "set": "Androids Saga",
+    "number": 18,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Gohan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -3
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack. Raise your anger 1 level. Lower your opponent's anger 3 levels.",
+    "imageUrl": "/cards/androids-saga/0181.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-19",
+    "name": "Goku's Conquering Stance",
+    "set": "Androids Saga",
+    "number": 19,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Goku",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "ALL",
+            "value": 0
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack. If successful, lower all players' levels to 0.",
+    "imageUrl": "/cards/androids-saga/0191.jpg",
+    "verified": false,
+    "needsReview": "'levels' read as anger levels for all players (setAnger target ALL, as FS-P4). Could also mean personality levels; unclear."
+  },
+  {
+    "id": "AS-20",
+    "name": "Goku's Right Knee Smash",
+    "set": "Androids Saga",
+    "number": 20,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Goku",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 0,
+      "modifierLifeCards": 2
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing +2 life cards of damage.",
+    "imageUrl": "/cards/androids-saga/0201.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-21",
+    "name": "Namekian Blocking Stance",
+    "set": "Androids Saga",
+    "number": 21,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "limitPerDeck": 8,
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "disableDrillPower",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "choice": true,
+            "duration": "game"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Piccolo and Nail only. Choose 1 of your opponent's Drills in play. Your opponent cannot use the power of that Drill for the remainder of the game. You may have up to 8 copies of this card in your Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0211.jpg",
+    "verified": false,
+    "needsReview": "New handler disableDrillPower. 'up to 8 copies' as limitPerDeck 8 (as TS-8)."
+  },
+  {
+    "id": "AS-22",
+    "name": "Namekian Defensive Stance",
+    "set": "Androids Saga",
+    "number": 22,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "limitPerDeck": 8,
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Piccolo and Nail only. Stops an energy attack. You may have up to 8 copies of this card in your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0221.jpg",
+    "verified": false,
+    "needsReview": "Type bar Physical Combat, text stops an ENERGY attack: DEFENSE_ENERGY (text wins)."
+  },
+  {
+    "id": "AS-23",
+    "name": "Namekian Determination",
+    "set": "Androids Saga",
+    "number": 23,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "limitPerDeck": 8,
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "SELF",
+            "zone": "discard",
+            "filter": {
+              "style": "Namekian"
+            },
+            "amount": 1,
+            "choice": true
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Piccolo and Nail only. Choose 1 Namekian Style card in your discard pile and shuffle it into your Life Deck. You may have up to 8 copies of this card in your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0231.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: played instead of an attack. shuffleIntoLifeDeck (TS-120) with zone discard and new param filter.style."
+  },
+  {
+    "id": "AS-24",
+    "name": "Namekian Dodging Technique",
+    "set": "Androids Saga",
+    "number": 24,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "limitPerDeck": 8,
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "disablePersonalityPower",
+          "params": {
+            "target": "OPPONENT",
+            "until": "performsEnergyAttack"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Piccolo and Nail only. Your opponent's Main Personality cannot use its personality power until it performs an energy attack. You may have up to 8 copies of this card in your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0241.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: played instead of an attack. New handler disablePersonalityPower."
+  },
+  {
+    "id": "AS-25",
+    "name": "Namekian Energy Absorption",
+    "set": "Androids Saga",
+    "number": 25,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "CAP",
+      "maxLifeCards": 2
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "modifyStagesPerLifeCard",
+          "params": {
+            "target": "SELF",
+            "perBaseDamageLifeCard": 1
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Piccolo and Nail only. Prevent all but 2 life cards of damage from an energy attack. For every life card of Base Damage that attack would have dealt, your Main Personality gains 1 power stage.",
+    "imageUrl": "/cards/androids-saga/0251.jpg",
+    "verified": false,
+    "needsReview": "modifyStagesPerLifeCard (TS-137) with new param perBaseDamageLifeCard (life cards of the attack's base damage, before the cap). No '8 copies' line printed."
+  },
+  {
+    "id": "AS-26",
+    "name": "Namekian Wrist Grab",
+    "set": "Androids Saga",
+    "number": 26,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Namekian",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 2
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 6
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Piccolo and Nail only. Physical attack doing 6 life cards of damage. Costs 2 power stages to perform.",
+    "imageUrl": "/cards/androids-saga/0261.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-27",
+    "name": "Orange Fist Catch",
+    "set": "Androids Saga",
+    "number": 27,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Orange",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "staysForExtraUse",
+                "params": {
+                  "uses": 1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical attack. If you declared Tokui-Waza, this card remains in play to be used 1 more time this Combat. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0271.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza wrapping staysForExtraUse (as SS-25 pattern)."
+  },
+  {
+    "id": "AS-28",
+    "name": "Orange Palm Blast",
+    "set": "Androids Saga",
+    "number": 28,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Raise your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0281.jpg",
+    "verified": false,
+    "needsReview": "No cost printed: energy default cost applies (2 stages, rules.json)."
+  },
+  {
+    "id": "AS-29",
+    "name": "Piccolo's Stance",
+    "set": "Androids Saga",
+    "number": 29,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "named": "Piccolo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "lifeDeck",
+            "exclude": [
+              "Dragon Ball"
+            ],
+            "amount": 1,
+            "chosenBy": "SELF"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "SELF",
+            "zone": "lifeDeck",
+            "exclude": [
+              "Dragon Ball"
+            ],
+            "amount": 1,
+            "chosenBy": "OPPONENT"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Search your opponent's Life Deck and remove 1 non-Dragon Ball card from the game. Your opponent searches your Life Deck and removes 1 non-Dragon Ball card from the game.",
+    "imageUrl": "/cards/androids-saga/0291.jpg",
+    "verified": false,
+    "needsReview": "removeFromGame with new params zone lifeDeck, exclude and chosenBy (the other player searches your deck). Not marked remove-after-use. No style printed (red card frame, dragon kanji only)."
+  },
+  {
+    "id": "AS-30",
+    "name": "Red Burning Stance",
+    "set": "Androids Saga",
+    "number": 30,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Red",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterReceivingSuccessfulAttack",
+            "attackType": "PHYSICAL",
+            "duration": "thisCombat",
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Every successful physical attack performed against you for the remainder of Combat raises your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0301.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: played instead of an attack. triggeredEffect with a duration thisCombat (not a drill)."
+  },
+  {
+    "id": "AS-31",
+    "name": "Red Energy Charge",
+    "set": "Androids Saga",
+    "number": 31,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Red",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Energy attack doing 3 life cards of damage. Costs 1 power stage to perform. Raise your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0311.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-32",
+    "name": "Red Power Drain",
+    "set": "Androids Saga",
+    "number": 32,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Red",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "attackCostModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "costStagesModifier": 2,
+            "role": "attacker",
+            "target": "OPPONENT",
+            "duration": "thisCombat"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "All physical attacks performed against you for the remainder of Combat cost +2 power stages to perform.",
+    "imageUrl": "/cards/androids-saga/0321.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: played instead of an attack. attackCostModifier (TS-142) with duration thisCombat, target OPPONENT (the foe's attacks)."
+  },
+  {
+    "id": "AS-33",
+    "name": "Red Power Lift",
+    "set": "Androids Saga",
+    "number": 33,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "style": "Red",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "autoStopAttack",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "thisCombat",
+            "target": "SELF"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing +3 power stages of damage. Stops the next physical attack performed against you this Combat.",
+    "imageUrl": "/cards/androids-saga/0331.jpg",
+    "verified": false,
+    "needsReview": "autoStopAttack as FS-116 but per thisCombat."
+  },
+  {
+    "id": "AS-34",
+    "name": "Blue Battle Readiness",
+    "set": "Androids Saga",
+    "number": 34,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "style": "Blue",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Ally",
+            "to": "play",
+            "setPowerStage": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": "discard",
+                  "filter": "Ally",
+                  "to": "play",
+                  "setPowerStage": 3
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Search your Life Deck for 1 Ally and place it in play at 3 power stages above 0. If you declared Tokui-Waza, search your discard pile for 1 Ally and place it in play at 3 power stages above 0. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0341.jpg",
+    "verified": false,
+    "needsReview": "searchDeck (SS-218) with setPowerStage 3 (SS-218 uses MAX). Not stated whether the Tokui-Waza search is in addition to the first one: encoded as in addition."
+  },
+  {
+    "id": "AS-35",
+    "name": "Saiyan Glare",
+    "set": "Androids Saga",
+    "number": 35,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -2
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Energy attack. If you declared Tokui-Waza, lower your opponent's anger 2 levels.",
+    "imageUrl": "/cards/androids-saga/0351.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza handler."
+  },
+  {
+    "id": "AS-36",
+    "name": "Saiyan Inspection",
+    "set": "Androids Saga",
+    "number": 36,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "style": "Saiyan",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "disablePersonalityPower",
+          "params": {
+            "target": "OPPONENT",
+            "attached": true,
+            "until": "opponentPlaysDragonBall"
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Attach this card to your opponent's Main Personality. Your opponent may not use his Main Personality's personality power while this card is attached. Discard this card when your opponent places a Dragon Ball in play.",
+    "imageUrl": "/cards/androids-saga/0361.jpg",
+    "verified": false,
+    "needsReview": "New mechanic: a card attached to the opponent's MP. Encoded with disablePersonalityPower attached=true, until opponentPlaysDragonBall; card stays on the table until then."
+  },
+  {
+    "id": "AS-37",
+    "name": "Android 17's Back Bash",
+    "set": "Androids Saga",
+    "number": 37,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Android 17",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 5,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifUsedBy",
+          "params": {
+            "characters": [
+              "Android 17"
+            ],
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "skipPhase",
+                "params": {
+                  "target": "OPPONENT",
+                  "phase": "nextAttack"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing 5 power stages of damage. If this attack is performed by Android 17, your opponent must skip his next attack phase.",
+    "imageUrl": "/cards/androids-saga/0371.jpg",
+    "verified": false,
+    "needsReview": "'doing 5 power stages' read as FLAT 5. skipPhase reused from SS-83. Skip not tied to success."
+  },
+  {
+    "id": "AS-38",
+    "name": "Android 17's Haymaker",
+    "set": "Androids Saga",
+    "number": 38,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Android 17",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 5,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifUsedBy",
+          "params": {
+            "characters": [
+              "Android 17"
+            ],
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "conditionalDamage",
+                "params": {
+                  "stages": 2,
+                  "lifeCards": 0
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack doing 5 power stages of damage. If this attack is performed by Android 17, this attack does 7 power stages of damage instead. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0381.jpg",
+    "verified": false,
+    "needsReview": "'7 instead' as delta +2 through ifUsedBy + conditionalDamage in onHit."
+  },
+  {
+    "id": "AS-39",
+    "name": "Android 20's Energy Dive",
+    "set": "Androids Saga",
+    "number": 39,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Android 20",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 3,
+      "lifeCards": 4
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Energy attack doing +3 power stages of damage. Costs 1 power stage to perform.",
+    "imageUrl": "/cards/androids-saga/0391.jpg",
+    "verified": false,
+    "needsReview": "Energy attack doing +3 power stages: read as FLAT 4 life cards (energy default, rules.json) + 3 stages; the default life card damage is an assumption."
+  },
+  {
+    "id": "AS-40",
+    "name": "Android 20's Enraged",
+    "set": "Androids Saga",
+    "number": 40,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Android 20",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 7
+    },
+    "effects": {
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Villains only. Energy attack doing 7 life cards of damage. Costs 3 power stages to perform.",
+    "imageUrl": "/cards/androids-saga/0401.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-41",
+    "name": "Android 20's Search Pattern",
+    "set": "Androids Saga",
+    "number": 41,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Android 20",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 1,
+            "from": "choice",
+            "to": "top"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "removeNamedCardFromDecks",
+          "params": {
+            "target": "OPPONENT",
+            "exclude": [
+              "Dragon Ball"
+            ],
+            "nameChosen": true,
+            "zone": "lifeDeck",
+            "amount": 1
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Choose a card from your discard pile and place it on top of your Life Deck. Name a non-Dragon Ball card and search your opponent's Life Deck for 1 copy of that card and remove it from the game. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0411.jpg",
+    "verified": false,
+    "needsReview": "removeNamedCardFromDecks (SS-198) with exclude Dragon Ball and amount 1 (only one copy), zone lifeDeck."
+  },
+  {
+    "id": "AS-42",
+    "name": "Android Attack Drill",
+    "set": "Androids Saga",
+    "number": 42,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "ANY",
+            "scope": "OWNER",
+            "lifeCards": 1,
+            "bonusIfAttackerNameContains": {
+              "text": "Android",
+              "lifeCards": 2
+            },
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "All attacks you perform do +1 life card of damage. If that attack is performed by a personality with \"Android\" in the card title, then the attack does +2 life cards of damage instead.",
+    "imageUrl": "/cards/androids-saga/0421.jpg",
+    "verified": false,
+    "needsReview": "Printed type bar Non-Combat; typed Drill from the title. No style word and no character name ('Android' is generic): no style, not named. damageModifier with new param bonusIfAttackerNameContains (+2 instead of +1; lifeCards is the base, the object the replacement)."
+  },
+  {
+    "id": "AS-43",
+    "name": "Hyperbolic Time Chamber",
+    "set": "Androids Saga",
+    "number": 43,
+    "type": "Location",
+    "rarity": "Uncommon",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "PHYSICAL",
+        "stages": 1,
+        "lifeCards": 0,
+        "scope": "ALL"
+      },
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ENERGY",
+        "stages": 0,
+        "lifeCards": 1,
+        "scope": "ALL"
+      }
+    ],
+    "rawText": "All physical attacks do +1 power stage of damage. All energy attacks do +1 life card of damage.",
+    "imageUrl": "/cards/androids-saga/0431.jpg",
+    "verified": false,
+    "needsReview": "Location with passives scope ALL. Character tag Kami (not in the title, so not named)."
+  },
+  {
+    "id": "AS-44",
+    "name": "Master Roshi's Island",
+    "set": "Androids Saga",
+    "number": 44,
+    "type": "Location",
+    "rarity": "Uncommon",
+    "named": "Master Roshi",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playCostModifier",
+          "params": {
+            "cardFilter": "named",
+            "cost": {
+              "type": "LIFE_CARDS",
+              "amount": 2
+            },
+            "scope": "ALL",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "All named cards cost +2 life cards to play.",
+    "imageUrl": "/cards/androids-saga/0441.jpg",
+    "verified": false,
+    "needsReview": "New handler playCostModifier: every Named card (see rules notes) costs 2 extra life cards to play, for all players. Title contains 'Master Roshi' so named = Master Roshi (Location is not a combat card, the named flag only matters for deck limits)."
+  },
+  {
+    "id": "AS-45",
+    "name": "Black Anger Stance",
+    "set": "Androids Saga",
+    "number": 45,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damagePerAnger",
+          "params": {
+            "unit": "stages",
+            "scope": "ALL"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Physical attack doing X power stages of damage. X is equal to the total anger of all players.",
+    "imageUrl": "/cards/androids-saga/0451.jpg",
+    "verified": false,
+    "needsReview": "New handler damagePerAnger: X stages = sum of all players' anger levels."
+  },
+  {
+    "id": "AS-46",
+    "name": "Black Energy Assault",
+    "set": "Androids Saga",
+    "number": 46,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "optional",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromHand",
+                "params": {
+                  "target": "SELF",
+                  "amount": 1
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "chooseOne",
+                "params": {
+                  "chooser": "OPPONENT",
+                  "options": [
+                    [
+                      {
+                        "action": "CUSTOM",
+                        "handler": "discardFromOpponentHand",
+                        "params": {
+                          "target": "OPPONENT",
+                          "amount": 1,
+                          "selection": "random"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "action": "MODIFY_STAGES",
+                        "target": "OPPONENT",
+                        "amount": -4
+                      }
+                    ]
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. Costs 3 power stages to perform. If successful, you may discard a card from your hand. If you do, your opponent must choose to either discard a card at random from his hand or lose 4 power stages.",
+    "imageUrl": "/cards/androids-saga/0461.jpg",
+    "verified": false,
+    "needsReview": "Typed 'must choose to either'; read as printed. 'If you do' (opponent choice only after you discard) handled by optional containing both steps; chooseOne gets new param chooser: OPPONENT."
+  },
+  {
+    "id": "AS-47",
+    "name": "Black Gut Wrench",
+    "set": "Androids Saga",
+    "number": 47,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "shuffleOpponentHandCard",
+                "params": {
+                  "target": "OPPONENT",
+                  "amount": 1,
+                  "selection": "random",
+                  "thenDraw": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, choose a card at random from your opponent's hand. Your opponent shuffles that card into his Life Deck and draws a card.",
+    "imageUrl": "/cards/androids-saga/0471.jpg",
+    "verified": false,
+    "needsReview": "Tokui-Waza: new handler ifTokuiWaza; shuffleOpponentHandCard gets new param thenDraw. Not conditional on a hit (as printed)."
+  },
+  {
+    "id": "AS-48",
+    "name": "Black Off-Balancing Punch",
+    "set": "Androids Saga",
+    "number": 48,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ANY",
+            "duration": "nextAttackThisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful, stops the next attack your opponent performs against you this Combat.",
+    "imageUrl": "/cards/androids-saga/0481.jpg",
+    "verified": false,
+    "needsReview": "preventAttack with new duration nextAttackThisCombat and attackType ANY."
+  },
+  {
+    "id": "AS-49",
+    "name": "Gohan's Peaceful Stance",
+    "set": "Androids Saga",
+    "number": 49,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Gohan",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "OPPONENT",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "setStageMax",
+            "target": "ALL",
+            "allAllies": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 2,
+            "from": "choice",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Raise all personalities in play to their highest power stage. Choose 2 cards from your discard pile, and put them on the bottom of your Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0491.jpg",
+    "verified": false,
+    "needsReview": "'All personalities in play' encoded as both main personalities plus all allies (target ALL, allAllies)."
+  },
+  {
+    "id": "AS-50",
+    "name": "Black Power Up",
+    "set": "Androids Saga",
+    "number": 50,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "END_COMBAT"
+              }
+            ],
+            "optional": true
+          }
+        }
+      ]
+    },
+    "rawText": "Raise any personality to its highest power stage. If you declared Tokui-Waza, you may also end Combat.",
+    "imageUrl": "/cards/androids-saga/0501.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-51",
+    "name": "Black Searching Technique",
+    "set": "Androids Saga",
+    "number": 51,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "lifeDeck",
+                  "amount": 2,
+                  "exclude": [
+                    "Dragon Ball"
+                  ],
+                  "choice": true,
+                  "search": true
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "If you declared Tokui-Waza, search your opponent's Life Deck for 2 non-Dragon Ball cards and remove them from the game. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0512.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-52",
+    "name": "Black Side Thrust",
+    "set": "Androids Saga",
+    "number": 52,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardNamedCardFromDeck",
+                "params": {
+                  "target": "OPPONENT",
+                  "from": "lifeDeck",
+                  "exclude": [
+                    "Dragon Ball"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +3 power stages of damage. If you declared Tokui-Waza, name a non-Dragon Ball card. Search your opponent's Life Deck for 1 copy of that card and discard it.",
+    "imageUrl": "/cards/androids-saga/0522.jpg",
+    "verified": false,
+    "needsReview": "New handler discardNamedCardFromDeck (like removeNamedCardFromDecks, but discards 1 copy from the opponent's Life Deck)."
+  },
+  {
+    "id": "AS-53",
+    "name": "Black Studying Drill",
+    "set": "Androids Saga",
+    "number": 53,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "combatStart",
+            "then": [
+              {
+                "action": "DRAW",
+                "target": "SELF",
+                "amount": 1
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "moveHandCardToLifeDeck",
+                "params": {
+                  "amount": 1,
+                  "position": "top",
+                  "selection": "choice"
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "When entering Combat, draw a card. Then choose a card from your hand and place it on top of your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0532.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon top left)."
+  },
+  {
+    "id": "AS-54",
+    "name": "Blue Betrayal",
+    "set": "Androids Saga",
+    "number": 54,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "table",
+                  "cardTypes": [
+                    "Non-Combat",
+                    "Ally"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If you declared Tokui-Waza, remove an opponent's Non-Combat card or Ally in play from the game.",
+    "imageUrl": "/cards/androids-saga/0542.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-55",
+    "name": "Blue Holding Drill",
+    "set": "Androids Saga",
+    "number": 55,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playLimit",
+          "params": {
+            "target": "OPPONENT",
+            "cardType": "Non-Combat",
+            "perTurn": 1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Your opponents may only place 1 Non-Combat card in play during their turn.",
+    "imageUrl": "/cards/androids-saga/0552.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. New handler playLimit (generalises dragonBallPlayLimit)."
+  },
+  {
+    "id": "AS-56",
+    "name": "Blue Right Cross",
+    "set": "Androids Saga",
+    "number": 56,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 1
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [],
+            "optional": true,
+            "replaceDamage": {
+              "calculation": "FLAT",
+              "lifeCards": 6
+            }
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +1 power stage of damage. If you declared Tokui-Waza, you may do 6 life cards of damage instead. Lower your opponent's anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0562.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza with replaceDamage (FLAT 6 life cards)."
+  },
+  {
+    "id": "AS-57",
+    "name": "Blue Rush",
+    "set": "Androids Saga",
+    "number": 57,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endCombatAfterDamage",
+          "params": {
+            "always": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [],
+            "replaceDamage": {
+              "calculation": "FLAT",
+              "stages": 5
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. Combat ends after damage, if any, is dealt. If you declared Tokui-Waza, this attack does 5 power stages of damage instead.",
+    "imageUrl": "/cards/androids-saga/0572.jpg",
+    "verified": false,
+    "needsReview": "New handler endCombatAfterDamage (ends Combat after damage even if the attack is stopped); replaceDamage FLAT 5 stages."
+  },
+  {
+    "id": "AS-58",
+    "name": "Blue Smirk",
+    "set": "Androids Saga",
+    "number": 58,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, lower your opponent's anger 2 levels.",
+    "imageUrl": "/cards/androids-saga/0582.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-59",
+    "name": "Bulma's Looking Good",
+    "set": "Androids Saga",
+    "number": 59,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Bulma",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "combatStart"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromOpponentHand",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "selection": "random"
+          }
+        }
+      ]
+    },
+    "rawText": "Use when entering Combat. Your opponent discards a card at random from his hand.",
+    "imageUrl": "/cards/androids-saga/0592.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-60",
+    "name": "Goku's Training",
+    "set": "Androids Saga",
+    "number": 60,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Goku",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "drawFromDiscard",
+          "params": {
+            "amount": 1,
+            "position": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack doing +2 power stages of damage. If successful, draw the bottom card from your discard pile. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0602.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-61",
+    "name": "Namekian Elbow Smash",
+    "set": "Androids Saga",
+    "number": 61,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Namekian",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "SET_STAGE",
+                "target": "SELF",
+                "value": "MAX"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, raise your Main Personality to his highest power stage.",
+    "imageUrl": "/cards/androids-saga/0612.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-62",
+    "name": "Namekian Finishing Effort",
+    "set": "Androids Saga",
+    "number": 62,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "style": "Namekian",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "afterTakingDamage"
+          }
+        },
+        {
+          "action": "DISCARD_LIFE",
+          "target": "OPPONENT",
+          "amount": 3
+        }
+      ]
+    },
+    "rawText": "Play this card immediately after taking damage from an attack. Your opponent discards the top 3 cards from his Life Deck.",
+    "imageUrl": "/cards/androids-saga/0622.jpg",
+    "verified": false,
+    "needsReview": "New playTiming value afterTakingDamage (any attack, physical or energy)."
+  },
+  {
+    "id": "AS-63",
+    "name": "Namekian Focusing Effort",
+    "set": "Androids Saga",
+    "number": 63,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "style": "Namekian",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 3,
+            "upTo": true,
+            "from": "choice",
+            "to": "shuffle"
+          }
+        }
+      ]
+    },
+    "rawText": "Piccolo and Nail only. Raise your Main Personality to its highest power stage. Choose up to 3 cards in your discard pile and shuffle them into your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0632.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-64",
+    "name": "Namekian Forearm Smash",
+    "set": "Androids Saga",
+    "number": 64,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Namekian",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "RECOVER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing 6 life cards of damage. Costs 3 power stages to perform. If you declared Tokui-Waza, place the top card from your discard pile at the bottom of your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0642.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-65",
+    "name": "Orange Aura Drill",
+    "set": "Androids Saga",
+    "number": 65,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "conditionalPassive",
+                "params": {
+                  "passive": {
+                    "kind": "DAMAGE_MOD",
+                    "attackType": "ENERGY",
+                    "lifeCards": 1,
+                    "scope": "OWNER"
+                  },
+                  "additive": true,
+                  "ongoing": true
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ENERGY",
+        "lifeCards": 1,
+        "scope": "OWNER"
+      }
+    ],
+    "rawText": "All of your energy attacks do +1 life card of damage. If you declared Tokui-Waza, all of your energy attacks do +2 life cards of damage instead.",
+    "imageUrl": "/cards/androids-saga/0652.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. Tokui-Waza 'instead' (+2) encoded as a base +1 passive plus an extra +1 conditionalPassive when Tokui-Waza was declared."
+  },
+  {
+    "id": "AS-66",
+    "name": "Orange Energy Glare",
+    "set": "Androids Saga",
+    "number": 66,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "lifeCardsPerDragonBall": 1,
+                  "anywhere": true,
+                  "duration": "thisAttack"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If you declared Tokui-Waza, this attack does +X life cards of damage. X is equal to the number of Dragon Balls in play.",
+    "imageUrl": "/cards/androids-saga/0662.jpg",
+    "verified": false,
+    "needsReview": "damageModifier new param lifeCardsPerDragonBall (all Dragon Balls in play, any owner assumed)."
+  },
+  {
+    "id": "AS-67",
+    "name": "Orange Energy Phasing Drill",
+    "set": "Androids Saga",
+    "number": 67,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "ENERGY",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "lifeCards": -2,
+                        "duration": "thisAttack"
+                      }
+                    },
+                    {
+                      "action": "CUSTOM",
+                      "handler": "removeFromGame",
+                      "params": {
+                        "target": "OPPONENT",
+                        "zone": "table",
+                        "cardTypes": [
+                          "Non-Combat"
+                        ],
+                        "amount": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Whenever you perform a successful energy attack, you may do -2 life cards of damage to remove 1 of your opponent's Non-Combat cards in play from the game.",
+    "imageUrl": "/cards/androids-saga/0672.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. Damage reduction applied to the attack that triggered it."
+  },
+  {
+    "id": "AS-68",
+    "name": "Orange Power Ball",
+    "set": "Androids Saga",
+    "number": 68,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "lifeCardsPerPersonalityLevel": 1,
+                  "duration": "thisAttack"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If you declared Tokui-Waza, this attack does +X life cards of damage. X is equal to the current personality level of the personality that performed this attack.",
+    "imageUrl": "/cards/androids-saga/0682.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-69",
+    "name": "Orange Power Beam",
+    "set": "Androids Saga",
+    "number": 69,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "skipPhase",
+                "params": {
+                  "target": "OPPONENT",
+                  "phase": "attack",
+                  "duration": "nextAttackPhase"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack. If successful and you declared Tokui-Waza, your opponent must pass in his next attack phase. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0692.jpg",
+    "verified": false,
+    "needsReview": "skipPhase new phase value 'attack' (next attack phase only)."
+  },
+  {
+    "id": "AS-70",
+    "name": "Orange Stare Down",
+    "set": "Androids Saga",
+    "number": 70,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "table",
+                  "cardTypes": [
+                    "Non-Combat",
+                    "Ally"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If you declared Tokui-Waza, remove an opponent's Non-Combat card or Ally in play from the game.",
+    "imageUrl": "/cards/androids-saga/0702.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-71",
+    "name": "Orange Sword Slash",
+    "set": "Androids Saga",
+    "number": 71,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "sweepCards",
+                "params": {
+                  "cardType": "Drill",
+                  "scope": "OPPONENT",
+                  "amount": "all"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful and you declared Tokui-Waza, your opponent must discard all of his Drills in play.",
+    "imageUrl": "/cards/androids-saga/0712.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-72",
+    "name": "Orange Uppercut",
+    "set": "Androids Saga",
+    "number": 72,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "MODIFY_STAGES",
+                      "target": "SELF",
+                      "amount": -2
+                    },
+                    {
+                      "action": "CUSTOM",
+                      "handler": "searchDeck",
+                      "params": {
+                        "from": "lifeDeck",
+                        "filter": "Energy Combat card",
+                        "to": "hand",
+                        "reveal": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, you may pay 2 power stages to search your Life Deck for an Energy Combat card, show it to your opponent, and place it in your hand. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0722.jpg",
+    "verified": false,
+    "needsReview": "Printed 'may pay 2 power stages' encoded as a stage loss inside optional (not a printed cost)."
+  },
+  {
+    "id": "AS-73",
+    "name": "Red Dueling Drill",
+    "set": "Androids Saga",
+    "number": 73,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "cardType": "Ally"
+            },
+            "scope": "OPPONENT",
+            "duringCombat": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Your opponents may not use their Allies during Combat while this Drill is in play.",
+    "imageUrl": "/cards/androids-saga/0732.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. Forbids using allies during Combat (ally takeover, ally damage targets); not playing them."
+  },
+  {
+    "id": "AS-74",
+    "name": "Red Hunting Drill",
+    "set": "Androids Saga",
+    "number": 74,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "PHYSICAL",
+            "limit": {
+              "count": 1,
+              "per": "combat"
+            },
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "recoverFromDiscard",
+                      "params": {
+                        "target": "SELF",
+                        "amount": 1,
+                        "from": "choice",
+                        "to": "shuffle"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Once per Combat, after performing a successful physical attack, you may choose 1 card in your discard pile and shuffle it into your Life Deck.",
+    "imageUrl": "/cards/androids-saga/0742.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill."
+  },
+  {
+    "id": "AS-75",
+    "name": "Red Knee Bash",
+    "set": "Androids Saga",
+    "number": 75,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, raise your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0752.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-76",
+    "name": "Saiyan Flying Tackle",
+    "set": "Androids Saga",
+    "number": 76,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "SELF",
+                "amount": 1
+              }
+            ],
+            "optional": true,
+            "replaceDamage": {
+              "calculation": "PAT",
+              "modifierStages": 6
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +3 power stages of damage. If you declared Tokui-Waza, you may discard the top card from your Life Deck when this card is played to do +6 power stages of damage instead.",
+    "imageUrl": "/cards/androids-saga/0762.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-77",
+    "name": "Saiyan Focus",
+    "set": "Androids Saga",
+    "number": 77,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifBottomDiscardStyle",
+          "params": {
+            "style": "Saiyan",
+            "then": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -4
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Stops an energy attack. If the bottom card of your discard pile is a Saiyan Style card, your opponent's Main Personality loses 4 power stages, to a minimum of 0.",
+    "imageUrl": "/cards/androids-saga/0772.jpg",
+    "verified": false,
+    "needsReview": "New handler ifBottomDiscardStyle. 'To a minimum of 0' is the normal stage floor."
+  },
+  {
+    "id": "AS-78",
+    "name": "Saiyan Heads Up",
+    "set": "Androids Saga",
+    "number": 78,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "sweepCards",
+                "params": {
+                  "cardType": [
+                    "Non-Combat",
+                    "Ally"
+                  ],
+                  "scope": "OPPONENT",
+                  "amount": 2,
+                  "upTo": true,
+                  "choose": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful and you declared Tokui-Waza, discard up to 2 of your opponent's Non-Combat cards or Allies in play.",
+    "imageUrl": "/cards/androids-saga/0782.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-79",
+    "name": "Saiyan Left Kick",
+    "set": "Androids Saga",
+    "number": 79,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "lifeCards": 4,
+                  "duration": "thisAttack"
+                }
+              },
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful and you declared Tokui-Waza, this attack does +4 life cards of damage and raises your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0792.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-80",
+    "name": "Saiyan Wrist Block",
+    "set": "Androids Saga",
+    "number": 80,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. If you declared Tokui-Waza, your opponent's Main Personality loses 3 power stages.",
+    "imageUrl": "/cards/androids-saga/0802.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-81",
+    "name": "Saiyan Destiny",
+    "set": "Androids Saga",
+    "number": 81,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "stages": 3,
+                  "duration": "thisAttack"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "staysForExtraUse",
+                "params": {
+                  "uses": 1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack. If you declared Tokui-Waza, this attack does +3 power stages of damage and remains in play to be used 1 more time this Combat. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0812.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-82",
+    "name": "Senzu Effect",
+    "set": "Androids Saga",
+    "number": 82,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "anyTime"
+          }
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "setStageMax",
+            "target": "SELF",
+            "allAllies": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Raise your Main Personality and all of your Allies to their highest power stage. Use when needed. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0822.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-83",
+    "name": "Straining Energy Blast Move",
+    "set": "Androids Saga",
+    "number": 83,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "DRAW",
+          "target": "OPPONENT",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Your opponent draws a card.",
+    "imageUrl": "/cards/androids-saga/0832.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-84",
+    "name": "Straining Jump Kick Move",
+    "set": "Androids Saga",
+    "number": 84,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 2
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 7
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": 6
+        }
+      ]
+    },
+    "rawText": "Physical attack doing 7 life cards of damage. Costs 2 power stages to perform. If successful, raise your opponent's anger 6 levels.",
+    "imageUrl": "/cards/androids-saga/0842.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-85",
+    "name": "Red Lifting Kick",
+    "set": "Androids Saga",
+    "number": 85,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +6 power stages of damage. Lower your anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0852.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-86",
+    "name": "Tien's Mental Conditioning",
+    "set": "Androids Saga",
+    "number": 86,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Tien",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "combatStart"
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "drawFromDiscard",
+          "params": {
+            "amount": 1,
+            "position": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Use when entering Combat. Raise your anger 1 level. Raise your Main Personality to his highest power stage. Draw the bottom card from your discard pile. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0862.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-87",
+    "name": "Tien's Solar Flare",
+    "set": "Androids Saga",
+    "number": 87,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Tien",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "END_COMBAT"
+        }
+      ]
+    },
+    "rawText": "Energy attack. If successful, end Combat.",
+    "imageUrl": "/cards/androids-saga/0872.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-88",
+    "name": "Unexpected Company",
+    "set": "Androids Saga",
+    "number": 88,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Ally",
+            "amount": 2,
+            "to": "play",
+            "allyStages": 5
+          }
+        }
+      ]
+    },
+    "rawText": "Search your Life Deck for 2 Allies and place them in play at 5 power stages above 0.",
+    "imageUrl": "/cards/androids-saga/0882.jpg",
+    "verified": false,
+    "needsReview": "searchDeck new param allyStages (ally enters at 5 stages above 0); to: play for allies."
+  },
+  {
+    "id": "AS-89",
+    "name": "Android 17 Smirks",
+    "set": "Androids Saga",
+    "number": 89,
+    "type": "Combat",
+    "rarity": "Rare",
+    "named": "Android 17",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "table",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": "all",
+            "chooseOpponent": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. Choose 1 opponent and remove all of his Drills in play from the game. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0892.jpg",
+    "verified": false,
+    "needsReview": "Sword icon seen: usePhase ATTACK. Printed 'Android 17' with trademark symbol; Rare per index bucket."
+  },
+  {
+    "id": "AS-90",
+    "name": "Android 18's Stare Down",
+    "set": "Androids Saga",
+    "number": 90,
+    "type": "Combat",
+    "rarity": "Rare",
+    "named": "Android 18",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromOpponentHand",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "selection": "choice",
+            "viewHand": true
+          }
+        }
+      ]
+    },
+    "rawText": "Villains only. Look at your opponent's hand and choose a card. Your opponent discards that card.",
+    "imageUrl": "/cards/androids-saga/0902.jpg",
+    "verified": false,
+    "needsReview": "Sword icon seen: usePhase ATTACK."
+  },
+  {
+    "id": "AS-91",
+    "name": "Android 19's Distress",
+    "set": "Androids Saga",
+    "number": 91,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Android 19",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 4,
+            "from": "bottom",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. Raise your Main Personality to its highest power stage. Place the bottom 4 cards from your discard pile at the bottom of your Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0912.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-92",
+    "name": "City in Turmoil",
+    "set": "Androids Saga",
+    "number": 92,
+    "type": "Battleground",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "cardTypes": [
+                "Non-Combat"
+              ]
+            },
+            "scope": "ALL",
+            "duration": "whileInPlay",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Non-Combat cards may not be used.",
+    "imageUrl": "/cards/androids-saga/0922.jpg",
+    "verified": false,
+    "needsReview": "Battleground card (printed type; existing type in schema, no earlier Battleground data). Encoded as forbidCards with new duration whileInPlay. Unclear whether Drills/Dragon Balls count as Non-Combat (assumed yes, all Non-Combat types). Android 18 on the character box is a puzzle name only."
+  },
+  {
+    "id": "AS-93",
+    "name": "Winter Countryside",
+    "set": "Androids Saga",
+    "number": 93,
+    "type": "Location",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "angerRaiseLimit",
+          "params": {
+            "target": "ALL",
+            "maxPerCard": 1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Any cards or effects that raise a Main Personality's anger more than 1 anger level only raises his anger 1 level.",
+    "imageUrl": "/cards/androids-saga/0932.jpg",
+    "verified": false,
+    "needsReview": "Location card. New handler angerRaiseLimit (mirror of angerReductionLimit). Applies to all main personalities (assumed)."
+  },
+  {
+    "id": "AS-94",
+    "name": "Kami's Floating Island",
+    "set": "Androids Saga",
+    "number": 94,
+    "type": "Location",
+    "rarity": "Rare",
+    "named": "Kami",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "combatStart",
+            "scope": "ALL",
+            "then": [
+              {
+                "action": "DRAW",
+                "target": "SELF",
+                "amount": 1
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "When entering Combat, draw a card.",
+    "imageUrl": "/cards/androids-saga/0942.jpg",
+    "verified": false,
+    "needsReview": "Location card. 'When entering Combat' assumed to apply to every player entering combat (scope ALL: attacker and defender each draw); could also mean only the location's owner. Kami in the box is the character name, so the card is named Kami (title contains Kami)."
+  },
+  {
+    "id": "AS-95",
+    "name": "Defenseless Beach",
+    "set": "Androids Saga",
+    "number": 95,
+    "type": "Battleground",
+    "rarity": "Rare",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "PUR_MOD",
+        "amount": -1,
+        "scope": "ALL"
+      }
+    ],
+    "rawText": "Each player has his Main Personality's PUR reduced by 1.",
+    "imageUrl": "/cards/androids-saga/0952.jpg",
+    "verified": false,
+    "needsReview": "Battleground card; PUR_MOD -1 scope ALL (applies to both players)."
+  },
+  {
+    "id": "AS-96",
+    "name": "Dying Planet",
+    "set": "Androids Saga",
+    "number": 96,
+    "type": "Battleground",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeInsteadOfDiscard",
+          "params": {
+            "excludeTypes": [
+              "Dragon Ball"
+            ],
+            "scope": "ALL",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Whenever a non-Dragon Ball card goes to its owner's discard pile, it is removed from the game instead.",
+    "imageUrl": "/cards/androids-saga/0962.jpg",
+    "verified": false,
+    "needsReview": "Battleground card. New handler removeInsteadOfDiscard. Dragon Balls are exempt as printed. Printed text reads 'a non-Dragon Ball card' (copied)."
+  },
+  {
+    "id": "AS-97",
+    "name": "Black Mischievous Drill",
+    "set": "Androids Saga",
+    "number": 97,
+    "type": "Drill",
+    "rarity": "Rare",
+    "style": "Black",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "opponentPlaysNonCombat",
+            "condition": {
+              "declaredTokuiWaza": true
+            },
+            "optional": true,
+            "cost": {
+              "discardOwnLifeCards": 5
+            },
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "cardJustPlayed",
+                  "cardTypes": [
+                    "Non-Combat"
+                  ],
+                  "amount": 1,
+                  "cannotBeUsed": true
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "If you declared a Tokui-Waza, whenever your opponent places in play a Non-Combat card, you may discard the top 5 cards from your Life Deck to remove that Non-Combat card from the game. Your opponent may not use that Non-Combat card. Limit 1 per deck.",
+    "imageUrl": "/cards/androids-saga/0972.jpg",
+    "verified": false,
+    "needsReview": "Printed type bar says Non-Combat; typed Drill from the title. New trigger opponentPlaysNonCombat, condition declaredTokuiWaza, removeFromGame zone cardJustPlayed. The 5 discarded life cards are a 'you may' payment, encoded as triggeredEffect param cost."
+  },
+  {
+    "id": "AS-98",
+    "name": "Black Scout Maneuver",
+    "set": "Androids Saga",
+    "number": 98,
+    "type": "Combat",
+    "rarity": "Rare",
+    "style": "Black",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeNamedCardFromDecks",
+          "params": {
+            "target": "OPPONENT",
+            "cardType": [
+              "Combat",
+              "Physical Combat",
+              "Energy Combat"
+            ],
+            "nameChosen": true,
+            "zone": "lifeDeck"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Name any Combat, Physical Combat, or Energy Combat card. All of your opponents must search their Life Decks for all copies of that card and remove them from the game. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0982.jpg",
+    "verified": false,
+    "needsReview": "Sword icon next to POWER read as ATTACK. removeNamedCardFromDecks with cardType as a list (SS-198 has a single type). Only the life deck is searched (as printed). Black kanji present."
+  },
+  {
+    "id": "AS-99",
+    "name": "Blue Terror",
+    "set": "Androids Saga",
+    "number": 99,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "style": "Blue",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": "lifeDeck",
+                  "filter": "any",
+                  "to": "hand",
+                  "shuffle": true
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack doing 3 life cards of damage. If you declared Tokui-Waza, search your Life Deck for any 1 card and place it in your hand. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/0992.jpg",
+    "verified": false,
+    "needsReview": "New handler ifTokuiWaza. Tokui-Waza bonus read as unconditional on success (not tied to a hit). Shuffle after the search is not printed but assumed (standard)."
+  },
+  {
+    "id": "AS-100",
+    "name": "Goku's Heart Disease",
+    "set": "Androids Saga",
+    "number": 100,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Goku",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "angerLock",
+          "params": {
+            "target": "OPPONENT",
+            "until": "opponentPlacesAlly",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Place this card on your opponent's Main Personality. Your opponent lowers his anger to 0 and he may not raise his anger level until he places an Ally in play. Discard this card when your opponent places an Ally in play. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1002.jpg",
+    "verified": false,
+    "needsReview": "Encoded like SS-208 (setAnger + angerLock) with new until value opponentPlacesAlly. Card stays attached to the opponent's MP until an ally is placed (then discarded), but also says 'Remove from the game after use': postResolution REMOVE as printed, attachment lifetime handled by angerLock."
+  },
+  {
+    "id": "AS-101",
+    "name": "Knockout Drill",
+    "set": "Androids Saga",
+    "number": 101,
+    "type": "Drill",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "cardTypes": [
+                "Non-Combat"
+              ],
+              "excludeTypes": [
+                "Drill"
+              ]
+            },
+            "scope": "ALL",
+            "unlessPerformedAttackFromHandThisCombat": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Players may not use Non-Combat/non-Drill cards unless they have performed an attack from their hand this Combat.",
+    "imageUrl": "/cards/androids-saga/1012.jpg",
+    "verified": false,
+    "needsReview": "Printed type bar says Non-Combat; typed Drill from the title. Title has no style word: no style (blue frame, blank diamond). forbidCards with new keys excludeTypes and unlessPerformedAttackFromHandThisCombat. Dragon Balls assumed to count as Non-Combat/non-Drill."
+  },
+  {
+    "id": "AS-102",
+    "name": "Namekian Friendship",
+    "set": "Androids Saga",
+    "number": 102,
+    "type": "Combat",
+    "rarity": "Rare",
+    "style": "Namekian",
+    "limitPerDeck": 1,
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "requiresAlly": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromPlay",
+                "params": {
+                  "target": "OPPONENT",
+                  "cardTypes": [
+                    "Non-Combat",
+                    "Drill"
+                  ],
+                  "amount": "all"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "You must have an Ally in play to use this card. Discard all of your opponents' Non-Combat cards in play. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1022.jpg",
+    "verified": false,
+    "needsReview": "Style Namekian from the title (teal kanji). Sword icon read as ATTACK. Unlike TS-80 this does not exclude Dragon Balls (all Non-Combat cards, Drills included, assumed). Piccolo in the box is a puzzle name."
+  },
+  {
+    "id": "AS-103",
+    "name": "Namekian Teamwork",
+    "set": "Androids Saga",
+    "number": 103,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "style": "Namekian",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "setStages",
+            "target": "SELF",
+            "allAllies": true,
+            "value": "MAX"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "usePowersAtAnyStage",
+            "target": "SELF",
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "discardLifePerAlly",
+            "target": "SELF",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Raise all of your Allies to their highest power stage. You may use all of their personality powers this Combat even if your Main Personality is at 2 power stages above 0 or higher. Discard 1 card from the top of your Life Deck for each Ally you have.",
+    "imageUrl": "/cards/androids-saga/1032.jpg",
+    "verified": false,
+    "needsReview": "Style Namekian from the title. New allyEffect actions: usePowersAtAnyStage (ally powers usable without the 0-1 stage takeover), discardLifePerAlly; setStages with value MAX. Post-resolution not printed: default DISCARD. 'Discard' read as discarding from the life deck."
+  },
+  {
+    "id": "AS-104",
+    "name": "Orange Eye Beam",
+    "set": "Androids Saga",
+    "number": 104,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "style": "Orange",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "condition": {
+              "declaredTokuiWaza": true
+            },
+            "setLifeCards": 7
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Costs 3 power stages to perform. If you declared Tokui-Waza, this attack does 7 life cards of damage instead.",
+    "imageUrl": "/cards/androids-saga/1042.jpg",
+    "verified": false,
+    "needsReview": "damageModifier with condition.declaredTokuiWaza (pattern of FS-115 condition + setLifeCards). Dr. Gero (Android 20) pictured."
+  },
+  {
+    "id": "AS-105",
+    "name": "Orange Rage",
+    "set": "Androids Saga",
+    "number": 105,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "style": "Orange",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. If you declared Tokui-Waza, raise your anger 2 levels.",
+    "imageUrl": "/cards/androids-saga/1052.jpg",
+    "verified": false,
+    "needsReview": "Anger gain read as unconditional (not tied to a hit)."
+  },
+  {
+    "id": "AS-106",
+    "name": "Orange Searching Maneuver",
+    "set": "Androids Saga",
+    "number": 106,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "style": "Orange",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "colorless Drill",
+            "to": "play",
+            "timing": "endOfCombat",
+            "optional": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": "lifeDeck",
+                  "filter": "Orange Drill",
+                  "to": "play",
+                  "timing": "endOfCombat",
+                  "optional": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical Attack. You may search your Life Deck for any colorless Drill card and place it in play at the end of Combat. If you declared a Tokui-Waza, you may search your Life Deck for any Orange Drill card and place it in play at the end of Combat.",
+    "imageUrl": "/cards/androids-saga/1062.jpg",
+    "verified": false,
+    "needsReview": "searchDeck with new params timing endOfCombat and optional. Search read as unconditional (not tied to a hit). Unclear whether the Tokui-Waza search replaces or adds to the colorless one (read as an additional search). Printed 'Physical Attack' with no damage figure: plain PAT."
+  },
+  {
+    "id": "AS-107",
+    "name": "Rebellion",
+    "set": "Androids Saga",
+    "number": 107,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 8
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "firstCardInCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. Play this as your first card in Combat. Physical attack doing +8 power stages of damage. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1072.jpg",
+    "verified": false,
+    "needsReview": "playTiming with new when value firstCardInCombat (must be the first card the user plays in this Combat)."
+  },
+  {
+    "id": "AS-108",
+    "name": "Red Counterstrike",
+    "set": "Androids Saga",
+    "number": 108,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "style": "Red",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "DISCARD_LIFE",
+          "target": "OPPONENT",
+          "amount": 3
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical attack. Your opponent discards the top 3 cards from his Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1082.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-109",
+    "name": "Red Tactical Drill",
+    "set": "Androids Saga",
+    "number": 109,
+    "type": "Drill",
+    "rarity": "Rare",
+    "style": "Red",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "angerReductionLimit",
+          "params": {
+            "target": "SELF",
+            "maxPerCard": 0,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Your anger may not be lowered while this Drill is in play.",
+    "imageUrl": "/cards/androids-saga/1092.jpg",
+    "verified": false,
+    "needsReview": "Printed type bar says Non-Combat; typed Drill from the title. angerReductionLimit with maxPerCard 0 (cannot be lowered at all)."
+  },
+  {
+    "id": "AS-110",
+    "name": "Saiyan Face Stomp",
+    "set": "Androids Saga",
+    "number": 110,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "style": "Saiyan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "DISCARD_LIFE",
+                      "target": "SELF",
+                      "amount": 1
+                    },
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "attackType": "PHYSICAL",
+                        "bonusLifeCards": 3,
+                        "duration": "thisAttack"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared Tokui-Waza, you may discard the top card from your Life Deck to do an additional +3 life cards of damage.",
+    "imageUrl": "/cards/androids-saga/1102.jpg",
+    "verified": false,
+    "needsReview": "damageModifier with new param bonusLifeCards. No usableBy printed (Saiyan style restricted by Tokui-Waza rules, not by the card)."
+  },
+  {
+    "id": "AS-111",
+    "name": "Saiyan Lightning Dodge",
+    "set": "Androids Saga",
+    "number": 111,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "style": "Saiyan",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "OPPONENT",
+          "amount": -4
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. Your opponent loses 4 power stages, to a minimum of 0.",
+    "imageUrl": "/cards/androids-saga/1112.jpg",
+    "verified": false
+  },
+  {
+    "id": "AS-112",
+    "name": "Severe Bruises",
+    "set": "Androids Saga",
+    "number": 112,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "angerLock",
+          "params": {
+            "target": "OPPONENT",
+            "until": "opponentPlacesDrill",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Place this card on your opponent's Main Personality. Your opponent lowers his anger to 0 and he may not raise his anger level until he places a Drill in play. Discard this card when your opponent places a Drill into play. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1122.jpg",
+    "verified": false,
+    "needsReview": "Same as AS-100 with until value opponentPlacesDrill."
+  },
+  {
+    "id": "AS-113",
+    "name": "Tien's Flight",
+    "set": "Androids Saga",
+    "number": 113,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "named": "Tien",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 1
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "lifeCardsPerDiscardedCardWithTitle": "Tien",
+            "duration": "thisAttack"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack doing 1 life card of damage. This attack also does +1 life card of damage for every card in your discard pile with \"Tien\" in the title. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1132.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Tiens Flight' (apostrophe lost in the print); stored as \"Tien's Flight\". damageModifier with new param lifeCardsPerDiscardedCardWithTitle (own discard pile; counts titles containing Tien, this card not yet in the pile)."
+  },
+  {
+    "id": "AS-114",
+    "name": "Android 16 Lv1",
+    "set": "Androids Saga",
+    "number": 114,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Android 16",
+      "level": 1,
+      "powerRatings": [
+        0,
+        299000,
+        399000,
+        699000,
+        999000,
+        1199000,
+        1299000,
+        1399000,
+        1499000,
+        1599000,
+        1699000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "Every successful energy attack performed against Android 16 lowers your opponent's anger 1 level.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "triggeredEffect",
+                      "params": {
+                        "trigger": "afterReceivingSuccessfulAttack",
+                        "attackType": "ENERGY",
+                        "role": "defender",
+                        "then": [
+                          {
+                            "action": "MODIFY_ANGER",
+                            "target": "OPPONENT",
+                            "amount": -1
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Every successful energy attack performed against Android 16 lowers your opponent's anger 1 level.",
+    "imageUrl": "/cards/androids-saga/1142.jpg",
+    "verified": false,
+    "needsReview": "New character, alignment assumed from the anime (Villain). Android 16, printed title 'Android 16'. The 'your opponent' in the text is the attacker. 00,000 printed for the bottom box."
+  },
+  {
+    "id": "AS-115",
+    "name": "Android 17 Lv1",
+    "set": "Androids Saga",
+    "number": 115,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Android 17",
+      "level": 1,
+      "powerRatings": [
+        0,
+        299000,
+        399000,
+        699000,
+        899000,
+        1000000,
+        1200000,
+        1275000,
+        1350000,
+        1425000,
+        1500000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "Your anger level cannot be lowered.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "angerReductionLimit",
+                      "params": {
+                        "target": "SELF",
+                        "maxPerCard": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Your anger level cannot be lowered.",
+    "imageUrl": "/cards/androids-saga/1152.jpg",
+    "verified": false,
+    "needsReview": "New character, alignment assumed from the anime (Villain). Android 17."
+  },
+  {
+    "id": "AS-116",
+    "name": "Android 18 Lv1",
+    "set": "Androids Saga",
+    "number": 116,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Android 18",
+      "level": 1,
+      "powerRatings": [
+        0,
+        299000,
+        399000,
+        699000,
+        799000,
+        899000,
+        999000,
+        1199000,
+        1299000,
+        1399000,
+        1499000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Defense Shield: Stops the first unstopped attack performed against you this Combat.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "defenseShield",
+                      "params": {
+                        "attackType": "ANY",
+                        "count": 1,
+                        "per": "combat"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Defense Shield: Stops the first unstopped attack performed against you this Combat.",
+    "imageUrl": "/cards/androids-saga/1162.jpg",
+    "verified": false,
+    "needsReview": "New character, alignment assumed from the anime (Villain). Android 18. Printed label 'Power: Defense Shield:' (not 'Constant'); encoded as TS-171 (constantPower + defenseShield)."
+  },
+  {
+    "id": "AS-117",
+    "name": "Android 19 Lv1",
+    "set": "Androids Saga",
+    "number": 117,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Android 19",
+      "level": 1,
+      "powerRatings": [
+        0,
+        299000,
+        399000,
+        499000,
+        599000,
+        699000,
+        799000,
+        899000,
+        999000,
+        1199000,
+        1299000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Any 1 of your Allies loses any number of power stages you chose, to a minimum of 0. Raise Android 19's power stages by that same number.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "allyEffect",
+                "params": {
+                  "action": "transferStages",
+                  "from": "ally",
+                  "to": "mainPersonality",
+                  "amount": "choice"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Any 1 of your Allies loses any number of power stages you chose, to a minimum of 0. Raise Android 19's power stages by that same number.",
+    "imageUrl": "/cards/androids-saga/1172.jpg",
+    "verified": false,
+    "needsReview": "New character, alignment assumed from the anime (Villain). Android 19. Same transferStages shape as SS-207 but reversed in purpose (ally to Android 19). Printed 'you chose' (copied verbatim)."
+  },
+  {
+    "id": "AS-118",
+    "name": "Android 20 Lv1",
+    "set": "Androids Saga",
+    "number": 118,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Android 20",
+      "level": 1,
+      "powerRatings": [
+        0,
+        199000,
+        299000,
+        399000,
+        499000,
+        599000,
+        699000,
+        799000,
+        899000,
+        999000,
+        1099000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Lower your Main Personality 5 power stages to search your Life Deck or discard pile for any 1 personality with \"Android\" in the card title. Place the chosen personality card in play at 5 power stages above 0.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "SELF",
+                "amount": -5
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": [
+                    "lifeDeck",
+                    "discard"
+                  ],
+                  "filter": "Personality with Android in title",
+                  "to": "play",
+                  "stage": 5
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Lower your Main Personality 5 power stages to search your Life Deck or discard pile for any 1 personality with \"Android\" in the card title. Place the chosen personality card in play at 5 power stages above 0.",
+    "imageUrl": "/cards/androids-saga/1182.jpg",
+    "verified": false,
+    "needsReview": "New character, alignment assumed from the anime (Villain). Android 20 (Dr. Gero). Stage loss is a requirement of the search ('to search') but encoded as a plain effect (no 'cost' word). The personality enters play as an ally (encoding as TS-131)."
+  },
+  {
+    "id": "AS-119",
+    "name": "Piccolo Lv1",
+    "set": "Androids Saga",
+    "number": 119,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Piccolo",
+      "level": 1,
+      "powerRatings": [
+        0,
+        260000,
+        280000,
+        300000,
+        320000,
+        340000,
+        360000,
+        380000,
+        410000,
+        430000,
+        450000
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "Your opponent may not use any personality card powers.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "forbidCards",
+                      "params": {
+                        "filter": {
+                          "personalityPowers": true
+                        },
+                        "scope": "OPPONENT",
+                        "duration": "always"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Your opponent may not use any personality card powers.",
+    "imageUrl": "/cards/androids-saga/1192.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Piccolo, the Trained'. Ratings read: 260,000 280,000 300,000 320,000 340,000 360,000 380,000 410,000 430,000 450,000 (the image shows 260/280/300/320/340/360/380/410/430/450)."
+  },
+  {
+    "id": "AS-120",
+    "name": "Tien Lv4",
+    "set": "Androids Saga",
+    "number": 120,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Tien",
+      "level": 4,
+      "powerRatings": [
+        0,
+        50000,
+        100000,
+        150000,
+        200000,
+        250000,
+        300000,
+        350000,
+        400000,
+        450000,
+        500000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "When entering Combat, you may use 1 of your Non-Combat cards already in play.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "playTiming",
+                "params": {
+                  "when": "combatStart"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "useNonCombatInPlay",
+                      "params": {
+                        "amount": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "When entering Combat, you may use 1 of your Non-Combat cards already in play.",
+    "imageUrl": "/cards/androids-saga/1202.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Tien the Watcher'. New handler useNonCombatInPlay. Level 4 printed in the corner."
+  },
+  {
+    "id": "AS-121",
+    "name": "Vegeta Lv1",
+    "set": "Androids Saga",
+    "number": 121,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Vegeta",
+      "level": 1,
+      "powerRatings": [
+        0,
+        670000,
+        690000,
+        710000,
+        730000,
+        750000,
+        770000,
+        790000,
+        810000,
+        830000,
+        850000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "Physical attacks performed by Vegeta do +1 power stage of damage for every Ally your opponent has in play.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "attackType": "PHYSICAL",
+                        "scope": "OWNER",
+                        "stagesPerOpponentAlly": 1
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Physical attacks performed by Vegeta do +1 power stage of damage for every Ally your opponent has in play.",
+    "imageUrl": "/cards/androids-saga/1212.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Vegeta the Ready'. Alignment Villain follows the Saiyan/Frieza/Trunks data for Vegeta (in the Androids Saga anime Vegeta is arguably a hero; confirm). damageModifier with new param stagesPerOpponentAlly. Ratings read as 670,000 ... 850,000 in steps of 20,000."
+  },
+  {
+    "id": "AS-122",
+    "name": "Yajirobe Lv4",
+    "set": "Androids Saga",
+    "number": 122,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Yajirobe",
+      "level": 4,
+      "powerRatings": [
+        0,
+        10000,
+        20000,
+        30000,
+        40000,
+        50000,
+        60000,
+        70000,
+        80000,
+        90000,
+        100000
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack. Costs 0 power stages to perform.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "cost": {
+            "type": "NONE",
+            "amount": 0
+          }
+        }
+      }
+    },
+    "rawText": "Energy attack. Costs 0 power stages to perform.",
+    "imageUrl": "/cards/androids-saga/1222.jpg",
+    "verified": false,
+    "needsReview": "Level 4 printed in the corner. No damage figure printed, so no damage field (as FS-39). Cost NONE for 'costs 0 power stages' (as TS-175)."
+  },
+  {
+    "id": "AS-123",
+    "name": "Yamcha Lv4",
+    "set": "Androids Saga",
+    "number": 123,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Yamcha",
+      "level": 4,
+      "powerRatings": [
+        0,
+        50000,
+        100000,
+        150000,
+        200000,
+        250000,
+        300000,
+        350000,
+        400000,
+        450000,
+        500000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Physical attack. If successful, also capture an opponent's Dragon Ball.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "stealOrCaptureDragonBall",
+                "params": {
+                  "target": "OPPONENT",
+                  "which": "choice",
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Physical attack. If successful, also capture an opponent's Dragon Ball.",
+    "imageUrl": "/cards/androids-saga/1232.jpg",
+    "verified": false,
+    "needsReview": "Level 4 printed in the corner."
+  },
+  {
+    "id": "AS-124",
+    "name": "The Hero is Down",
+    "set": "Androids Saga",
+    "number": 124,
+    "type": "Non-Combat",
+    "rarity": "Ultra Rare",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "endOfCombat"
+          }
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "OPPONENT",
+          "value": 0
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "setStages",
+            "target": "OPPONENT",
+            "allAllies": true,
+            "value": 0
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. Use at the end of Combat. Reduce all of your opponent's personalities to 0 power stages. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/1242.jpg",
+    "verified": false,
+    "needsReview": "Ultra Rare. 'All of your opponent's personalities' = Main Personality plus allies. Stage 0 set via SET_STAGE value 0 (power stage 0 above 0 = the bottom of the scale), allies via setStages value 0. Vegeta (puzzle) in the box."
+  },
+  {
+    "id": "AS-125",
+    "name": "Trunks Guardian Drill",
+    "set": "Androids Saga",
+    "number": 125,
+    "type": "Drill",
+    "rarity": "Ultra Rare",
+    "named": "Trunks",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playNonCombatInsteadOfAttack",
+          "params": {
+            "limit": {
+              "count": 1,
+              "per": "combat"
+            },
+            "optional": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Heroes only. Once per Combat, in place of an attack, you may place in play a Non-Combat card from your hand.",
+    "imageUrl": "/cards/androids-saga/1252.jpg",
+    "verified": false,
+    "needsReview": "Ultra Rare. Printed type bar says Non-Combat; typed Drill from the title. New handler playNonCombatInsteadOfAttack. Green frame and blank diamond: no style. 'Trunks' title word treated as named. 'Heroes only' as usableBy Hero."
+  },
+  {
+    "id": "AS-P1",
+    "name": "The Eyes Have It",
+    "set": "Androids Saga",
+    "number": 1,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "moveDragonBallsToBottom",
+          "params": {
+            "target": "OPPONENT",
+            "chooseOpponent": true,
+            "all": true,
+            "shuffleRest": true,
+            "anyOrder": true
+          }
+        }
+      ]
+    },
+    "rawText": "Search any opponent's Life Deck for all copies of all Dragon Balls and set them aside. Shuffle that opponent's Life Deck and place those Dragon Balls at the bottom of his Life Deck in any order.",
+    "imageUrl": "/cards/androids-saga/P19.jpg",
+    "verified": false,
+    "needsReview": "Promo. New handler moveDragonBallsToBottom (does not capture, only repositions). Post-resolution not printed: default DISCARD. Android 17 in the box is the puzzle name."
+  },
+  {
+    "id": "AS-P2",
+    "name": "Foreboding Evidence",
+    "set": "Androids Saga",
+    "number": 2,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifOwnAlignment",
+          "params": {
+            "alignment": "Hero",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "recoverFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 3,
+                  "upTo": true,
+                  "filter": "Non-Combat",
+                  "from": "choice",
+                  "to": "top"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifOwnAlignment",
+          "params": {
+            "alignment": "Villain",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "recoverFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": "all",
+                  "filter": "Combat",
+                  "from": "choice",
+                  "to": "shuffle"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "If your Main Personality is a hero, choose up to 3 Non-Combat cards in your discard pile and place them on top of your Life Deck. If your Main Personality is a villain, shuffle all Combat cards in your discard pile into your Life Deck. Limit 1 per deck.",
+    "imageUrl": "/cards/androids-saga/P22.jpg",
+    "verified": false,
+    "needsReview": "Promo. New handler ifOwnAlignment (own main personality alignment, mirror of ifOpponentAlignment). recoverFromDiscard with new params upTo, filter. 'Combat cards' read as Combat, Physical Combat and Energy Combat types (as in TS-91). Post-resolution not printed: DISCARD."
+  },
+  {
+    "id": "AS-P3",
+    "name": "A Burst of Energy",
+    "set": "Androids Saga",
+    "number": 3,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "anyTime"
+          }
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "setStages",
+            "target": "SELF",
+            "allAllies": true,
+            "value": "MAX"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Use when needed. Raise all of your personalities to their highest power stage. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/P32.jpg",
+    "verified": false,
+    "needsReview": "Promo. 'All of your personalities' = Main Personality plus allies."
+  },
+  {
+    "id": "AS-P4",
+    "name": "Krillin's Search",
+    "set": "Androids Saga",
+    "number": 4,
+    "type": "Combat",
+    "rarity": "Promo",
+    "named": "Krillin",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "DRAW",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifDrawnCardStyle",
+          "params": {
+            "named": true,
+            "reveal": true,
+            "then": [
+              {
+                "action": "DRAW",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Draw a card. If that card is a named card, show it to your opponent and draw another card. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/P42.jpg",
+    "verified": false,
+    "needsReview": "Promo. Icon beside POWER is faint; read as a sword (ATTACK), confirm. ifDrawnCardStyle reused with new param named:true (instead of a style) and reveal. Whether the second drawn card is checked again: no (printed once)."
+  },
+  {
+    "id": "AS-P5",
+    "name": "Android 19 Is Stoic",
+    "set": "Androids Saga",
+    "number": 5,
+    "type": "Combat",
+    "rarity": "Promo",
+    "named": "Android 19",
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "optional",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromHand",
+                "params": {
+                  "amount": 1,
+                  "asCost": true
+                }
+              },
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -2
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical or energy attack. You may choose to discard a card from your hand. If you do, your opponent's Main Personality loses 2 power stages. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/P52.jpg",
+    "verified": false,
+    "needsReview": "Promo. Starburst icon: DEFENSE_ANY (physical or energy). discardFromHand reused as an optional payment (asCost), not a play requirement."
+  },
+  {
+    "id": "AS-P6",
+    "name": "Krillin Is Ready",
+    "set": "Androids Saga",
+    "number": 6,
+    "type": "Energy Combat",
+    "rarity": "Promo",
+    "named": "Krillin",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "DISCARD_LIFE",
+          "target": "OPPONENT",
+          "amount": 3
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "SELF",
+            "attackType": "ANY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops an energy attack. Your opponent discards the top 3 cards from his Life Deck. You may only defend for the remainder of Combat.",
+    "imageUrl": "/cards/androids-saga/P62.jpg",
+    "verified": false,
+    "needsReview": "Promo. 'Only defend' encoded as preventAttack ANY on yourself for this combat (no attacks of any kind, powers included). Post-resolution not printed (no 'Remove from the game'): DISCARD."
+  },
+  {
+    "id": "AS-P7",
+    "name": "Android 16 Smiles",
+    "set": "Androids Saga",
+    "number": 7,
+    "type": "Combat",
+    "rarity": "Promo",
+    "named": "Android 16",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "discard",
+            "filter": "card with Android in title",
+            "to": "hand",
+            "condition": {
+              "defendingPersonalityTitleContains": "Android"
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical attack. If the defending personality has \"Android\" in the card title, search your discard pile for 1 card with \"Android\" in the card title and place it in your hand. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/P72.jpg",
+    "verified": false,
+    "needsReview": "Promo. searchDeck with a new condition key defendingPersonalityTitleContains. 'Defending personality' = the one using this card (assumed, as it is a defense)."
+  },
+  {
+    "id": "AS-P8",
+    "name": "Yamcha's Right Cross",
+    "set": "Androids Saga",
+    "number": 8,
+    "type": "Physical Combat",
+    "rarity": "Promo",
+    "named": "Yamcha",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0,
+            "timing": "endOfCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack. Lower your opponent's anger to 0 at the end of this Combat. Remove from the game after use.",
+    "imageUrl": "/cards/androids-saga/P82.jpg",
+    "verified": false,
+    "needsReview": "Promo. Anger reset read as unconditional (not tied to a hit); setAnger with new param timing endOfCombat."
+  },
+  {
+    "id": "AS-P9",
+    "name": "Goku's Hesitation",
+    "set": "Androids Saga",
+    "number": 9,
+    "type": "Combat",
+    "rarity": "Promo",
+    "named": "Goku",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "skipPhase",
+          "params": {
+            "target": "SELF",
+            "phase": "nextAttack"
+          }
+        }
+      ]
+    },
+    "rawText": "Lower your opponent's anger to 0. You must pass in your next attack phase.",
+    "imageUrl": "/cards/androids-saga/P92.jpg",
+    "verified": false,
+    "needsReview": "Promo. Sword icon read as ATTACK. Post-resolution not printed: DISCARD."
+  },
+  {
+    "id": "AS-P10",
+    "name": "Planet Vegeta",
+    "set": "Androids Saga",
+    "number": 10,
+    "type": "Location",
+    "rarity": "Promo",
+    "named": "Vegeta",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "PUR_MOD",
+        "amount": 1,
+        "scope": "ALL"
+      }
+    ],
+    "rawText": "Each player has his Main Personality's PUR increased by 1.",
+    "imageUrl": "/cards/androids-saga/P102.jpg",
+    "verified": false,
+    "needsReview": "Promo. Location card. PUR_MOD +1 scope ALL. Vegeta in the title: named Vegeta."
+  },
+  {
+    "id": "AS-P11",
+    "name": "Goku's Dashing Punch",
+    "set": "Androids Saga",
+    "number": 11,
+    "type": "Physical Combat",
+    "rarity": "Promo",
+    "named": "Goku",
+    "limitPerDeck": 1,
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 8
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing 8 power stages of damage. Lower your opponent's anger to 0. Limit 1 per deck.",
+    "imageUrl": "/cards/androids-saga/P111.jpg",
+    "verified": false,
+    "needsReview": "Promo. Anger reset read as unconditional (as FS-P2)."
+  }
+]

@@ -1,5 +1,5 @@
 // Scrapes a set's image listing pages into src/data/<set>/index.json.
-// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga|trunks-saga]
+// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga|trunks-saga|androids-saga|cell-saga]
 // Only the listing HTML is fetched here; scripts/download-images.ts caches the images.
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -8,6 +8,8 @@ const SETS: Record<string, string[]> = {
   'saiyan-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos'],
   'frieza-saga': ['commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'wrapper-redemptions'],
   'trunks-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
+  'androids-saga': ['commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
+  'cell-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
 }
 const set = process.argv[2] ?? 'saiyan-saga'
 const folders = SETS[set]
@@ -46,6 +48,17 @@ for (const bucket of folders) {
 }
 // Trunks Saga: WordPress renamed duplicate uploads by appending a suffix ("051-1.jpg" became "0511"),
 // so the real number follows from the bucket ranges (commons 1-40, uncommons 41-111, rares 112-156)
+if (set === 'androids-saga') {
+  // commons 1-10 are clean, the rest carry an upload suffix ("0111.jpg" is card 11, "1242" is card 124)
+  for (const e of entries) {
+    if (e.bucket === 'promos') e.number = `P${e.number.slice(1, -1)}`
+    else if (+e.number > 10) e.number = String(Math.floor(+e.number / 10))
+  }
+}
+if (set === 'cell-saga') {
+  // same upload suffix problem: "0011.jpg" is card 1, "1262" is card 126
+  for (const e of entries) e.number = e.bucket === 'promos' ? `P${e.number.slice(1, -1)}` : String(Math.floor(+e.number / 10))
+}
 if (set === 'trunks-saga') {
   const commons: Record<string, number> = { 51: 5, 61: 6, 71: 7, 81: 8, 91: 9, 126: 1, 210: 2, 310: 3, 410: 4, 1010: 10 }
   for (const e of entries) {

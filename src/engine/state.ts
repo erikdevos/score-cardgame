@@ -230,6 +230,8 @@ export function changeStages(s: GameState, p: PlayerId, delta: number) {
 
 export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number, mirrored = false) {
   if (delta > 0 && s.angerLock.includes(p)) return log(s, 'ANGER', `Player ${p + 1}'s anger cannot rise yet`, p)
+  // AS-93: no card or effect raises anger by more than 1 level
+  if (delta > 1 && [s.location, ...s.players.flatMap(pl => pl.nonCombat)].some(c => c && def(db, c).effects.onEnterPlay.some(e => e.action === 'CUSTOM' && e.handler === 'angerRaiseLimit'))) delta = 1
   // TS-166 / TS-200: anger lowered by at most N levels per card
   if (delta < 0 && !mirrored) {
     const caps = constantParams(s, db, p, 'angerReductionLimit').map(x => Number(x.maxPerCard ?? 0))

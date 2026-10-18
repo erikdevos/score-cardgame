@@ -7,7 +7,7 @@ import { other, type AttackType, type GameState, type PickZone, type PlayerId } 
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
-import { nextRandom } from '../rng'
+import { nextRandom, shuffleInPlace } from '../rng'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
 export function targetOf(ctx: EffectContext, t: unknown): PlayerId {
@@ -97,6 +97,77 @@ export const handlers: Record<string, CustomHandler> = {
   convertDamageToStages: noop, // TS-13: energy damage as power stages instead
   shuffleInsteadOfBottom: noop, // TS-P3: shuffle instead of the bottom of the life deck
   grantAttack: noop, // TS-70: an extra energy attack option next attack phase (not offered yet)
+
+  // Androids Saga: read where they matter
+  ifStopped: noop, // sequencer damageIfStopped
+
+  ifTokuiWaza(ctx, p) {
+    // "If you declared Tokui-Waza ..." (assumed: the style bonus claimed at setup)
+    if (ctx.s.players[ctx.user].tokuiWaza) {
+      const st = ctx.s.combat?.strike
+      const r = p.replaceDamage as { stages?: number; lifeCards?: number } | undefined
+      if (r && st) st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: r.stages ?? 0, lifeCards: r.lifeCards ?? 0, modifierStages: 0, modifierLifeCards: 0 } }
+      resolveEffects(ctx, then(p))
+    } else log(ctx.s, 'NO_EFFECT', `${ctx.source}: Tokui-Waza was not declared`)
+  },
+
+  ifOwnAlignment(ctx, p) {
+    if (mpDef(ctx.s, ctx.db, ctx.user).personality!.alignment === p.alignment) resolveEffects(ctx, then(p))
+  },
+
+  ifBottomDiscardStyle(ctx, p) {
+    const bottom = ctx.s.players[ctx.user].discard[0]
+    if (bottom && def(ctx.db, bottom).style === p.style) resolveEffects(ctx, then(p))
+    else log(ctx.s, 'NO_EFFECT', `${ctx.source}: the bottom card of the discard pile is not a ${String(p.style)} card`)
+  },
+
+  discardLifePerAnger(ctx, p) {
+    // AS-12: N life cards per anger level above `above`
+    const who = targetOf(ctx, p.target)
+    const levels = Math.max(0, ctx.s.players[who].mp.anger - num(p.above, 0))
+    const n = millCards(ctx.s, who, levels * num(p.perAngerLevel, 1), ctx.db)
+    log(ctx.s, 'MILL', `${ctx.source}: player ${who + 1} discards ${n} life card(s)`, who)
+  },
+
+  shuffleHandIntoLifeDeck(ctx, p) {
+    // AS-12: the hand goes into the life deck, then the same number of cards is drawn
+    const { s } = ctx
+    const who = targetOf(ctx, p.target)
+    const pl = s.players[who]
+    const n = pl.hand.length
+    pl.lifeDeck.push(...pl.hand.splice(0))
+    s.rngSeed = shuffleInPlace(pl.lifeDeck, s.rngSeed)
+    if (p.thenDrawSameNumber) drawCards(s, who, n)
+    log(s, 'MOVE', `${ctx.source}: player ${who + 1} shuffles ${n} card(s) of their hand into their life deck`, who)
+  },
+
+  moveDragonBallsToBottom(ctx, p) {
+    // AS-P1: all Dragon Balls leave the life deck, the rest is shuffled, the Dragon Balls go to the bottom (any order: kept as found)
+    const { s, db } = ctx
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const pl = s.players[foe]
+    const balls = pl.lifeDeck.filter(c => def(db, c).type === 'Dragon Ball')
+    const rest = pl.lifeDeck.filter(c => def(db, c).type !== 'Dragon Ball')
+    s.rngSeed = shuffleInPlace(rest, s.rngSeed)
+    pl.lifeDeck = [...rest, ...balls]
+    log(s, 'MOVE', `${ctx.source}: ${balls.length} Dragon Ball(s) go to the bottom of player ${foe + 1}'s life deck`, foe)
+  },
+
+  damagePerAnger(ctx) {
+    // AS-45: X power stages, X = the anger of all players together
+    const st = ctx.s.combat?.strike
+    if (!st) return
+    const x = ctx.s.players.reduce((n, pl) => n + pl.mp.anger, 0)
+    st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: x, lifeCards: 0, modifierStages: 0, modifierLifeCards: 0 } }
+    log(ctx.s, 'DAMAGE_X', `${ctx.source}: the attack does ${x} power stage(s)`, st.initiator)
+  },
+
+  endCombatAfterDamage(ctx) {
+    // AS-57: the strike still resolves, then combat is over
+    if (ctx.s.combat) ctx.s.combat.ended = true
+  },
+
+  angerRaiseLimit: noop, // changeAnger (AS-93)
 
   drawUntilHandSize(ctx, p) {
     const who = targetOf(ctx, p.target)

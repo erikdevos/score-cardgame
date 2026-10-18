@@ -2,6 +2,7 @@
 import { allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
+import { resolveEffects } from './effects'
 import { triggerFrames } from './effects/triggers'
 import { canUseCard, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from './types'
@@ -232,6 +233,10 @@ function damageIfStopped(s: GameState, db: CardDB, strike: StrikeDef, defender: 
     if (!d.stages && !d.lifeCards) continue
     log(s, 'DAMAGE', `Player ${defender + 1} takes ${d.stages} stage(s) and ${d.lifeCards} life card(s) from the stopped ${label}`, defender)
     applyDamage(s, defender, d, db)
+  }
+  // AS-2: "if this attack is stopped, ..." runs for the attacker
+  for (const p of findCustom(strike.effects.onPlaySecondary, 'ifStopped')) {
+    resolveEffects({ s, db, user: other(defender), source: label }, (p.then ?? []) as Effect[])
   }
 }
 

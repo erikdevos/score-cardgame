@@ -1,5 +1,5 @@
 // Caches a set's card images from src/data/<set>/index.json into public/cards/ (gitignored).
-// Usage: npx tsx scripts/download-images.ts [saiyan-saga|frieza-saga|trunks-saga]
+// Usage: npx tsx scripts/download-images.ts [saiyan-saga|frieza-saga|trunks-saga|androids-saga|cell-saga]
 // Saiyan Saga images live directly in public/cards/ (existing paths); later sets get a subfolder.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 

@@ -210,3 +210,17 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 - TS-185 "must play 2 cards that stop physical attacks": a card defense needs a second stopping card from hand, which is discarded with it; no power defense.
 - TS-189 / TS-107 (use any personality's power stage for damage) and TS-124 (allies back to hand next turn) are not implemented yet.
 - Transcription questions are in each card's `needsReview` note (alignments of Trunks, Garlic Jr., Spice, Vinegar and King Cold are assumed).
+
+## Androids Saga
+
+136 cards (AS-1 to AS-125, AS-P1 to AS-P11), transcribed from the images in three parts, all `verified: false`; 104 carry `needsReview`. Images are in `public/cards/androids-saga/` (gitignored). The pool "Saiyan + Frieza + Trunks + Androids" runs on the Trunks Saga rules (no Androids Saga rulebook is available). Cell Saga images and index are cached too (`src/data/cell-saga/index.json`) but not transcribed yet.
+
+**Assumptions**
+- "If you declared Tokui-Waza" = the style bonus claimed at setup (`PlayerState.tokuiWaza`); `ifTokuiWaza {then, replaceDamage?}`. AS-65's "+2 instead of +1" is a base +1 plus an additive +1 `conditionalPassive` (the additive part is not applied by the engine yet).
+- Android 16, 17, 18, 19 and 20 are Villains ("alignment assumed"); Vegeta Lv1 follows the Saiyan Saga data.
+- AS-6 and AS-39 ("energy attack doing +3 power stages") = the default 4 life cards plus 3 stages. AS-19 "lower levels to 0" = anger. AS-17 and AS-22 are printed Physical Combat but stop an energy attack: encoded as `DEFENSE_ENERGY`. AS-P4's attack icon is faint, read as a sword.
+- Every card carries a red "R R" (Red Ribbon) badge: no printed rules effect.
+
+**Implemented**: `ifTokuiWaza`, `ifStopped` (runs from `damageIfStopped` in the sequencer), `ifOwnAlignment`, `ifBottomDiscardStyle`, `discardLifePerAnger`, `shuffleHandIntoLifeDeck`, `moveDragonBallsToBottom` (kept in found order, not chosen), `damagePerAnger`, `endCombatAfterDamage`, `angerRaiseLimit` (Location in `s.location` or table, read in `changeAnger`).
+
+**Not implemented yet** (the engine logs a WARN; the card then does nothing for that clause): `loseStagesForAnger` (AS-13), `disableDrillPower` (AS-21), `disablePersonalityPower` (AS-24, AS-36), `playCostModifier` (AS-44), `discardNamedCardFromDeck` (AS-52), `playLimit` (AS-55), `removeInsteadOfDiscard` (AS-96), `useNonCombatInPlay` (AS-120), `playNonCombatInsteadOfAttack` (AS-125). Several existing handlers also gained params the engine does not read yet (see `needsReview` on the cards), e.g. the Battleground start-of-turn discard (AS-7) and Namekian Teamwork (AS-103).

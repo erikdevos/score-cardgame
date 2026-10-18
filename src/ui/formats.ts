@@ -20,6 +20,10 @@ export const FORMATS = {
     label: 'Saiyan + Frieza + Trunks', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga'] as SetName[],
     rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
+  SAIYAN_FRIEZA_TRUNKS_ANDROIDS: {
+    label: 'Saiyan + Frieza + Trunks + Androids', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga'] as SetName[],
+    rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
+  },
 } as const
 export type FormatKey = keyof typeof FORMATS
 
