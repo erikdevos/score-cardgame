@@ -18,6 +18,9 @@ for (const path of paths) {
     }
     if (ids.has(id)) { errors++; console.error(`${id}: duplicate id`) }
     ids.add(id)
+    // images are local only (gitignored): a missing file means a wrong path, when the set's images are downloaded
+    const img = r.data.imageUrl
+    if (img && existsSync(`public${img.slice(0, img.lastIndexOf('/'))}`) && !existsSync(`public${img}`)) { errors++; console.error(`${id}: image ${img} not found`) }
     const p = r.data.personality
     if (p && p.powerRatings.some((v, i) => i > 0 && v < p.powerRatings[i - 1])) console.warn(`${id}: power ratings not ascending`)
   }

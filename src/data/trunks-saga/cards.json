@@ -2612,7 +2612,7 @@
     },
     "needsReview": "'any opponent's ally' read as one ally of the attacker's choice (amount 1). Printed title has a trademark symbol (dropped).",
     "rawText": "Physical attack doing 5 life cards of damage. If successful, also remove any opponent's ally in play from the game. Limit 1 per deck. Remove from the game after use.",
-    "imageUrl": "/cards/trunks-saga/831.jpg",
+    "imageUrl": "/cards/trunks-saga/0831.jpg",
     "verified": false
   },
   {
@@ -2651,7 +2651,7 @@
     },
     "needsReview": "counterCard reused with new params (cardTypes, effectsOnly): cancels the effects of one Combat-type card, does not remove it. Needs a response window; 'Use when needed' read as anyTime. Post-resolution (DISCARD) not printed.",
     "rawText": "Stops the effects of any Combat card. Use when needed.",
-    "imageUrl": "/cards/trunks-saga/841.jpg",
+    "imageUrl": "/cards/trunks-saga/0841.jpg",
     "verified": false
   },
   {
@@ -2678,7 +2678,7 @@
     },
     "needsReview": "Printed type bar says Non-Combat; typed Drill from the title. Green kanji (Saiyan colour) printed but title has no style word: stored without style (named card). New handler cardsCannotBeStopped. 'stopped or prevented' read as: defenses and preventAttack effects do not apply to the owner's Straining Move cards.",
     "rawText": "\"Straining Move\" cards cannot be stopped or prevented.",
-    "imageUrl": "/cards/trunks-saga/851.jpg",
+    "imageUrl": "/cards/trunks-saga/0851.jpg",
     "verified": false
   },
   {
@@ -2712,7 +2712,7 @@
     },
     "needsReview": "Printed type bar says Non-Combat; typed Drill from the title. Green kanji printed but title has no style word: stored without style.",
     "rawText": "When entering Combat as the defender, your Main Personality gains 2 power stages.",
-    "imageUrl": "/cards/trunks-saga/861.jpg",
+    "imageUrl": "/cards/trunks-saga/0861.jpg",
     "verified": false
   },
   {
@@ -2742,7 +2742,7 @@
       ]
     },
     "rawText": "Physical attack. Raise your anger 1 level. Lower your opponent's anger 1 level.",
-    "imageUrl": "/cards/trunks-saga/871.jpg",
+    "imageUrl": "/cards/trunks-saga/0871.jpg",
     "verified": false
   },
   {
@@ -2772,7 +2772,7 @@
       ]
     },
     "rawText": "Physical attack. If successful, also remove the top 2 cards in your opponent's discard pile from the game.",
-    "imageUrl": "/cards/trunks-saga/881.jpg",
+    "imageUrl": "/cards/trunks-saga/0881.jpg",
     "verified": false
   },
   {
@@ -2799,7 +2799,7 @@
       ]
     },
     "rawText": "Energy attack. If successful, also choose a card from your discard pile and place it on top of your Life Deck.",
-    "imageUrl": "/cards/trunks-saga/891.jpg",
+    "imageUrl": "/cards/trunks-saga/0891.jpg",
     "verified": false
   },
   {
@@ -2816,7 +2816,7 @@
       "modifierStages": 4
     },
     "rawText": "Physical attack doing +4 power stages of damage.",
-    "imageUrl": "/cards/trunks-saga/901.jpg",
+    "imageUrl": "/cards/trunks-saga/0901.jpg",
     "verified": false
   },
   {
@@ -2850,7 +2850,7 @@
     },
     "needsReview": "searchDeck filter 'Combat card' = Combat, Physical Combat or Energy Combat type; reveal param is new. Printed 'Use when entering Combat' read as playTiming combatStart (either role).",
     "rawText": "Use when entering Combat, Search your discard pile for any one Combat, Physical Combat, or Energy Combat card, show your opponent, and place it in your hand.",
-    "imageUrl": "/cards/trunks-saga/911.jpg",
+    "imageUrl": "/cards/trunks-saga/0911.jpg",
     "verified": false
   },
   {
@@ -2882,7 +2882,7 @@
       ]
     },
     "rawText": "Physical attack or stops a physical attack.",
-    "imageUrl": "/cards/trunks-saga/921.jpg",
+    "imageUrl": "/cards/trunks-saga/0921.jpg",
     "verified": false
   },
   {
@@ -2915,7 +2915,7 @@
     },
     "needsReview": "New handler disableConstantPowers. No attack/defend icon on this Non-Combat card; used during a combat (anyTime assumed). 'all' read as every player's Constant Combat Powers.",
     "rawText": "Stops all \"Constant Combat Powers\" from working for the remainder of this Combat. Remove from the game after use.",
-    "imageUrl": "/cards/trunks-saga/931.jpg",
+    "imageUrl": "/cards/trunks-saga/0931.jpg",
     "verified": false
   },
   {
@@ -2943,7 +2943,7 @@
     },
     "needsReview": "No style word, no named character in the title (puzzle: Trunks); stored without style/named. Dragon kanji = set mark, not a style.",
     "rawText": "Raise your Main Personality to his highest power stage. Raise your opponent's Main Personality to his highest power stages.",
-    "imageUrl": "/cards/trunks-saga/941.jpg",
+    "imageUrl": "/cards/trunks-saga/0941.jpg",
     "verified": false
   },
   {
@@ -2971,7 +2971,7 @@
       ]
     },
     "rawText": "Lower an opponent's anger 2 levels and reduce their power stages by 2.",
-    "imageUrl": "/cards/trunks-saga/951.jpg",
+    "imageUrl": "/cards/trunks-saga/0951.jpg",
     "verified": false
   },
   {
@@ -3000,7 +3000,7 @@
     },
     "needsReview": "Puzzle/quote shows Super Saiyan Goku (card 7 of 16) - ignored.",
     "rawText": "Lower an opponent's anger 2 levels and place the top 3 cards of your discard pile at the bottom of your Life Deck.",
-    "imageUrl": "/cards/trunks-saga/961.jpg",
+    "imageUrl": "/cards/trunks-saga/0961.jpg",
     "verified": false
   },
   {
@@ -3032,7 +3032,7 @@
     },
     "needsReview": "skipPhase with new values target ALL / phase discard (skip the end-of-turn Discard step).",
     "rawText": "This card ends Combat and both players skip the Discard step at the end of this turn. Remove from the game after use.",
-    "imageUrl": "/cards/trunks-saga/971.jpg",
+    "imageUrl": "/cards/trunks-saga/0971.jpg",
     "verified": false
   },
   {
@@ -3067,7 +3067,7 @@
     },
     "needsReview": "'or' = player chooses; encoded with dualUse whose alternative is a second attack (damage 3 life cards) instead of a defense. Both are FLAT, not PAT.",
     "rawText": "Physical attack doing 5 power stages of damage or 3 life cards of damage.",
-    "imageUrl": "/cards/trunks-saga/981.jpg",
+    "imageUrl": "/cards/trunks-saga/0981.jpg",
     "verified": false
   },
   {
@@ -3098,7 +3098,7 @@
     },
     "needsReview": "copyDefendedAttack reused with new params timing/stoppedByThisCard (SS-133 is per combat; here it copies the attack this card stopped, in the next attack phase).",
     "rawText": "Stops a physical attack. In your next attack phase, perform the exact same attack that this card stopped.",
-    "imageUrl": "/cards/trunks-saga/991.jpg",
+    "imageUrl": "/cards/trunks-saga/0991.jpg",
     "verified": false
   },
   {
