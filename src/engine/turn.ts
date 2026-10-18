@@ -226,6 +226,17 @@ export function finalPhysicalAttack(s: GameState, db: CardDB, p: PlayerId, iid: 
   beginStrike(s, db, p, null, FINAL_PHYSICAL_ATTACK, 'Final Physical Attack')
 }
 
+/** Trunks Saga: allies may fight for a main personality at 0 or 1 power stages, until this combat ends. */
+export function canTakeOver(s: GameState, p: PlayerId) {
+  return s.rules.trunks.allyRules && !!s.combat && s.players[p].mp.stage <= 1 && !s.combat.controllers.some(c => c.player === p)
+    && s.players[p].allies.some(a => a.stage > 0)
+}
+
+export function allyTakeover(s: GameState, db: CardDB, p: PlayerId, iid: string) {
+  s.combat!.controllers.push({ player: p, allyIid: iid })
+  log(s, 'TAKEOVER', `${mpDef(s, db, p).name} takes over the combat for player ${p + 1}`, p)
+}
+
 export function passCombat(s: GameState, db: CardDB, p: PlayerId) {
   log(s, 'PASS', `Player ${p + 1} passes`, p)
   s.combat!.consecutivePasses++

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { def, handLimit, handRevealed, isDefenseRole, mpDef, type Action, type GameState, type PlayerId } from '../../engine'
+import { def, handLimit, handRevealed, isDefenseRole, type Action, type GameState, type PlayerId } from '../../engine'
 import { db } from '../cardDb'
 import { showToast } from '../toast'
 import CardView from './CardView.vue'
@@ -11,7 +11,13 @@ const props = defineProps<{ state: GameState; p: PlayerId; legal: Action[]; mine
 const emit = defineEmits<{ act: [Action] }>()
 
 const pl = computed(() => props.state.players[props.p])
-const mp = computed(() => mpDef(props.state, db, props.p))
+// the dock always shows the real main personality, also while an ally fights for it
+const mp = computed(() => def(db, pl.value.mp.stack[pl.value.mp.levelIndex]))
+const fighter = computed(() => {
+  const c = props.state.combat?.controllers.find(x => x.player === props.p)
+  const ally = c && pl.value.allies.find(a => a.card.iid === c.allyIid)
+  return ally ? `${def(db, ally.card).name} fights (stage ${ally.stage})` : ''
+})
 const per = computed(() => mp.value.personality!)
 const revealed = computed(() => !props.mine && handRevealed(props.state, db, props.p))
 const topDiscard = computed(() => pl.value.discard.at(-1))
@@ -94,6 +100,7 @@ function fan(i: number) {
           <span class="chip">Lv {{ pl.mp.levelIndex + 1 }}/{{ pl.mp.stack.length }}</span>
           <span class="chip">PUR {{ per.pur }}</span>
           <span v-if="state.attacker === p" class="chip attack">Attacker</span>
+          <span v-if="fighter" class="chip attack">{{ fighter }}</span>
         </div>
         <ScouterMeter :ratings="per.powerRatings" :stage="pl.mp.stage" :compact="!mine" />
         <div class="anger" :aria-label="`Anger ${pl.mp.anger} of ${state.rules.maxAnger}`">

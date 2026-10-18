@@ -2,7 +2,7 @@ import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMe
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
 import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
-import { mustSkipCombat } from './turn'
+import { canTakeOver, mustSkipCombat } from './turn'
 import { other, type Action, type CardInstance, type GameState, type PlayerId } from './types'
 
 const NON_COMBAT_TYPES = new Set(['Non-Combat', 'Drill', 'Dragon Ball', 'Location', 'Battleground', 'Personality'])
@@ -31,6 +31,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         // a player who made a Final Physical Attack cannot defend for the rest of this combat
         if (s.combat?.finalAttack.includes(p)) return [{ type: 'DEFEND', player: p, iid: null }]
         return [
+          ...takeovers(s, p),
           { type: 'DEFEND', player: p, iid: null },
           ...legalDefenses(s, db, p).map(c => ({ type: 'DEFEND' as const, player: p, iid: c.iid })),
           ...(legalPowerDefense(s, db, p) ? [{ type: 'DEFEND_POWER' as const, player: p }] : []),
@@ -85,6 +86,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
+      out.push(...takeovers(s, p))
       if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL', false)) {
         out.push(...pl.hand.map(c => ({ type: 'FINAL_PHYSICAL_ATTACK' as const, player: p, iid: c.iid })))
       }
@@ -159,6 +161,12 @@ function dragonBallLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean 
   let played = 0
   for (let i = s.log.length - 1; i >= 0 && s.log[i].t !== 'TURN'; i--) if (s.log[i].t === 'PLAY' && balls.has(s.log[i].msg)) played++
   return played >= Math.min(...limits)
+}
+
+/** Trunks Saga: allies that can take over the combat for p right now. */
+function takeovers(s: GameState, p: PlayerId): Action[] {
+  if (!canTakeOver(s, p)) return []
+  return s.players[p].allies.filter(a => a.stage > 0).map(a => ({ type: 'ALLY_TAKEOVER' as const, player: p, iid: a.card.iid }))
 }
 
 /** The player who must act next. */

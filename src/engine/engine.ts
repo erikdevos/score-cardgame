@@ -3,13 +3,13 @@ import { runEffectsFrame } from './effects'
 import { resolveConfirm, resolveOption, resolvePick, runChoiceFrame } from './effects/choices'
 import { legalActions } from './legal'
 import {
-  cleanup, copyAttack, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
+  cleanup, copyAttack, dealDamage, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
 import { clone, schedule } from './state'
 import {
   advanceCombat, checkDragonBalls, declareCombat, discardFromHand, endNonCombat, endOfTurnWindow, endTurn,
-  finalPhysicalAttack, passCombat, playCard, rejuvenate, respond, skipCombat, useNonCombat, usePower,
+  allyTakeover, finalPhysicalAttack, passCombat, playCard, rejuvenate, respond, skipCombat, useNonCombat, usePower,
 } from './turn'
 import type { Action, Frame, GameEvent, GameState } from './types'
 
@@ -49,13 +49,14 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     }
     case 'COPY_ATTACK': copyAttack(s, db, action.player); break
     case 'FINAL_PHYSICAL_ATTACK': finalPhysicalAttack(s, db, action.player, action.iid); break
+    case 'ALLY_TAKEOVER': allyTakeover(s, db, action.player, action.iid); break
     case 'STEAL_DB': stealDragonBall(s, db, action.iid); break
     case 'DISCARD': discardFromHand(s, db, action.player, action.iid); break
     case 'REJUVENATE': rejuvenate(s, db, action.accept); break
   }
   run(s, db)
   // Only actions taken inside combat hand the attack phase over; declaring combat and free uses do not.
-  if ((wasInCombat || s.combat?.ended) && action.type !== 'USE_FREE' && s.step === 'COMBAT' && !s.stack.length) {
+  if ((wasInCombat || s.combat?.ended) && action.type !== 'USE_FREE' && action.type !== 'ALLY_TAKEOVER' && s.step === 'COMBAT' && !s.stack.length) {
     advanceCombat(s, db)
     run(s, db)
   }
@@ -87,6 +88,7 @@ function runFrame(s: GameState, db: CardDB, f: Exclude<Frame, { k: 'effects' } |
     case 'strike.attackTrigger': return strikeAttackTrigger(s, db)
     case 'strike.afterSecondaries': return strikeAfterSecondaries(s, db)
     case 'strike.resolveHit': return resolveHit(s, db)
+    case 'strike.applyDamage': return dealDamage(s, db)
     case 'strike.afterOnHit': return strikeAfterOnHit(s, db)
     case 'strike.cleanup': return cleanup(s, db)
     case 'retire': return retireResolved(s, db, f.iid!)

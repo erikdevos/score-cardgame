@@ -60,6 +60,10 @@ export interface StrikeState {
   paidStages: number
   /** "change the power stage to the maximum for this attack" (SS-17) */
   tempStage?: number
+  /** Trunks Saga: damage waiting for the defender to pick main personality or ally */
+  pendingDamage?: { stages: number; lifeCards: number }
+  /** the ally the defender chose to take the damage ('' = main personality) */
+  damageTo?: string
   /** "may take the first card discarded from the life deck into hand" (SS-112) */
   takeFirstMilled?: PlayerId
 }
@@ -94,6 +98,8 @@ export interface CombatState {
   strike: StrikeState | null
   /** players who made their Final Physical Attack this combat (Trunks Saga) */
   finalAttack: PlayerId[]
+  /** Trunks Saga: an ally fighting in place of a main personality at 0-1 power stages, for this combat */
+  controllers: { player: PlayerId; allyIid: string }[]
   /** FS-111: drills whose power a player borrows for this combat */
   borrowedDrills: { player: PlayerId; defId: string }[]
   usedPowers: string[]
@@ -138,7 +144,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -149,7 +155,7 @@ export type Frame =
   | { k: 'resume'; pending: PendingChoice }
 
 export type StepName =
-  | 'strike.react' | 'strike.attackTrigger' | 'strike.afterSecondaries' | 'strike.resolveHit' | 'strike.afterOnHit' | 'strike.cleanup'
+  | 'strike.react' | 'strike.attackTrigger' | 'strike.afterSecondaries' | 'strike.resolveHit' | 'strike.applyDamage' | 'strike.afterOnHit' | 'strike.cleanup'
   | 'retire' | 'dbCheck' | 'endOfTurnWindow' | 'endTurn'
 
 export type WindowKind = 'REACT' | 'END_OF_TURN'
@@ -233,6 +239,8 @@ export type Action =
   | { type: 'COPY_ATTACK'; player: PlayerId }
   /** Trunks Saga: discard a card from hand for a PAT physical attack; then pass for the rest of combat */
   | { type: 'FINAL_PHYSICAL_ATTACK'; player: PlayerId; iid: string }
+  /** Trunks Saga: an ally takes over the combat while the main personality is at 0-1 power stages */
+  | { type: 'ALLY_TAKEOVER'; player: PlayerId; iid: string }
   | { type: 'STEAL_DB'; player: PlayerId; iid: string | null }
   | { type: 'DISCARD'; player: PlayerId; iid: string }
   | { type: 'REJUVENATE'; player: PlayerId; accept: boolean }

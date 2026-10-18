@@ -80,6 +80,11 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     if (st) st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: 0, lifeCards: n, modifierStages: 0, modifierLifeCards: 0 } }
     return log(s, 'COST', `${q.source}: player ${q.player + 1} pays ${n} life card(s); the attack does ${n} life cards`, q.player)
   }
+  if (q.purpose === 'damageTarget') {
+    const st = s.combat?.strike
+    if (st) st.damageTo = index === 0 ? '' : String(q.data[String(index)])
+    return
+  }
   if (q.purpose === 'lifeForDrills') {
     const per = Number(q.data.per ?? 2)
     if (index === 0) return

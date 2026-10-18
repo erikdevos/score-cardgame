@@ -125,3 +125,31 @@ describe('Trunks Saga core rules', () => {
     expect(s.players[1].lifeDeck.length).toBe(before - 4) // 4 real discards, the Dragon Ball does not count
   })
 })
+
+describe('Trunks Saga allies in combat', () => {
+  it('the defender chooses an ally to take the power stage damage; the overflow hits the life deck', () => {
+    let s = combat()
+    s.players[1].allies.push({ card: { iid: 'ally', defId: 'SS-171', owner: 1 }, stage: 1 })
+    const [mpStage, life] = [s.players[1].mp.stage, s.players[1].lifeDeck.length]
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-PUNCH') })
+    if (s.pendingChoice?.kind === 'DEFEND') s = act(s, { type: 'DEFEND', player: 1, iid: null })
+    expect(s.pendingChoice?.kind).toBe('OPTION')
+    s = act(s, { type: 'CHOOSE', player: 1, index: 1 })
+    expect(s.players[1].mp.stage).toBe(mpStage)
+    expect(s.players[1].allies[0].stage).toBe(0)
+    expect(s.players[1].lifeDeck.length).toBeLessThanOrEqual(life)
+  })
+
+  it('an ally takes over at 0-1 stages and fights with its own power level and stages', () => {
+    let s = combat()
+    s.players[0].mp.stage = 1
+    s.players[0].allies.push({ card: { iid: 'ally', defId: 'SS-104', owner: 0 }, stage: 6 })
+    const take = legal(s).find(a => a.type === 'ALLY_TAKEOVER')
+    expect(take).toBeDefined()
+    s = act(s, take!)
+    const blast = give(s, 0, 'TEST-BLAST')
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: blast }) // energy: 2 stages from the ally
+    expect(s.players[0].allies[0].stage).toBe(4)
+    expect(s.players[0].mp.stage).toBe(1)
+  })
+})

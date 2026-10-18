@@ -80,6 +80,8 @@ function score(s: GameState, db: CardDB, a: Action): number {
       // Honor Duel: soak damage (first option); stage transfer: as many as possible
       if (pc?.kind === 'OPTION' && pc.purpose === 'honorDuel') return a.index === 0 ? 1 : 0
       // FS-24: a life card paid per life card dealt; 3 is a fair trade
+      // damage: an ally with stages to spare soaks it, else the main personality
+      if (pc?.kind === 'OPTION' && pc.purpose === 'damageTarget') return a.index === 0 ? 0 : 1 + Number(/stage (\d+)/.exec(pc.options[a.index])?.[1] ?? 0) / 10
       if (pc?.kind === 'OPTION' && pc.purpose === 'variableCost') return -Math.abs(a.index + 1 - 3)
       return a.index
     }
@@ -106,6 +108,9 @@ function score(s: GameState, db: CardDB, a: Action): number {
       return 0
     case 'USE_POWER':
       return strikeValue(s, db, a.player, attackPowerOption(s, db, a.player)!.strike)
+    case 'ALLY_TAKEOVER':
+      // a fresh ally beats fighting on at 0-1 stages
+      return (s.players[a.player].allies.find(x => x.card.iid === a.iid)?.stage ?? 0) >= 3 ? 12 : -1
     case 'FINAL_PHYSICAL_ATTACK':
       // worth it only when the table damage beats losing the card and the rest of this combat
       return strikeValue(s, db, a.player, FINAL_PHYSICAL_ATTACK) - keepValue(db, find(s, a.player, a.iid)!) - 1.5

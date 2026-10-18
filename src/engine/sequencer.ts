@@ -3,12 +3,12 @@ import { allyAbsorbs, applyDefense, constantPowerEffects, inPlayAnywhere, isCons
 import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { triggerFrames } from './effects/triggers'
-import { canUseCard, changeStages, checkDragonBallVictory, def, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
+import { canUseCard, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from './types'
 
 export function canPayCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef): boolean {
   const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole)
-  if (cost.type === 'POWER_STAGES') return s.players[p].mp.stage >= cost.amount
+  if (cost.type === 'POWER_STAGES') return fighterStage(s, p) >= cost.amount
   if (cost.type === 'LIFE_CARDS') return s.players[p].lifeDeck.length >= cost.amount
   return true
 }
@@ -71,7 +71,7 @@ export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
 function payCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef): number {
   const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole)
   if (cost.type === 'POWER_STAGES') {
-    s.players[p].mp.stage -= cost.amount
+    changeStages(s, p, -cost.amount)
     return cost.amount
   }
   if (cost.type === 'LIFE_CARDS') millCards(s, p, cost.amount, db)
@@ -192,6 +192,15 @@ export function defendWithPower(s: GameState, db: CardDB) {
   schedule(s, effectsFrame(defender, power.name, secondaries), step('strike.resolveHit'))
 }
 
+/** An ally takes the power stage damage; what it cannot take, and all life card damage, comes off the life deck. */
+function applyDamageToAlly(s: GameState, db: CardDB, p: PlayerId, ally: { card: CardInstance; stage: number }, d: { stages: number; lifeCards: number }): number {
+  const paid = Math.min(ally.stage, d.stages)
+  ally.stage -= paid
+  log(s, 'DAMAGE', `${def(db, ally.card).name} takes ${paid} stage(s) of damage`, p)
+  const life = d.lifeCards + d.stages - paid
+  return life > 0 ? millCards(s, p, life, db) : 0
+}
+
 /** FS-37, FS-96: "even if stopped, the defender takes ..." */
 function damageIfStopped(s: GameState, db: CardDB, strike: StrikeDef, defender: PlayerId, label: string) {
   for (const p of findCustom(strike.effects.onPlaySecondary, 'damageIfStopped')) {
@@ -235,10 +244,30 @@ export function resolveHit(s: GameState, db: CardDB) {
   }
   if ((dmg.stages > 0 || dmg.lifeCards > 0) && allyAbsorbs(s, db, defender)) dmg = { stages: 0, lifeCards: 0 }
   dmg = creatureOnTable(s, db, defender, type, dmg)
-  const stageBefore = s.players[defender].mp.stage
-  st.lifeCardsDealt = applyDamage(s, defender, dmg, db)
+  st.pendingDamage = dmg
+  // Trunks Saga: the defender chooses whether the main personality or an ally takes the power stage damage
+  const allies = s.players[defender].allies.filter(a => a.stage > 0)
+  if (s.rules.trunks.allyRules && dmg.stages > 0 && allies.length) {
+    const options = [`Main personality (stage ${s.players[defender].mp.stage})`, ...allies.map(a => `${def(db, a.card).name} (stage ${a.stage})`)]
+    const data = Object.fromEntries(allies.map((a, i) => [String(i + 1), a.card.iid]))
+    return schedule(s,
+      { k: 'choice', q: { kind: 'OPTION', player: defender, source: st.label, prompt: `${st.label} hits for ${dmg.stages} stage(s): who takes the damage?`, options, purpose: 'damageTarget', data } },
+      step('strike.applyDamage'))
+  }
+  dealDamage(s, db)
+}
+
+/** Steps 10-13 continued: deal the damage to the chosen personality, then the Dragon Ball capture. */
+export function dealDamage(s: GameState, db: CardDB) {
+  const st = s.combat!.strike!
+  const defender = other(st.initiator)
+  const type = attackTypeOf(st.strike.combatRole)!
+  const dmg = st.pendingDamage ?? { stages: 0, lifeCards: 0 }
+  const ally = st.damageTo ? s.players[defender].allies.find(a => a.card.iid === st.damageTo) : controllingAlly(s, defender)
+  const stageBefore = ally ? ally.stage : s.players[defender].mp.stage
+  st.lifeCardsDealt = ally ? applyDamageToAlly(s, db, defender, ally, dmg) : applyDamage(s, defender, dmg, db)
   if (over(s)) return
-  afterDamage(s, db, defender, stageBefore - s.players[defender].mp.stage, st.lifeCardsDealt)
+  afterDamage(s, db, defender, stageBefore - (ally ? ally.stage : s.players[defender].mp.stage), st.lifeCardsDealt)
   if (over(s)) return
 
   if (st.lifeCardsDealt >= s.rules.dragonBallCaptureLifeCards && s.players[defender].dragonBalls.length > 0 && !dragonBallsProtected(s, db, defender)) {

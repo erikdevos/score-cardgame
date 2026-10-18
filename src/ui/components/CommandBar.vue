@@ -24,6 +24,10 @@ const buttons = computed(() =>
   props.legal.flatMap(a => {
     if (a.type in LABELS) return [{ a, label: LABELS[a.type], primary: PRIMARY.has(a.type) }]
     if (a.type === 'DEFEND' && !a.iid) return [{ a, label: 'Take the hit', primary: false }]
+    if (a.type === 'ALLY_TAKEOVER') {
+      const ally = props.state.players[a.player].allies.find(x => x.card.iid === a.iid)
+      return ally ? [{ a, label: `Let ${def(db, ally.card).name} take over`, primary: false }] : []
+    }
     if (a.type === 'DEFEND_POWER') return [{ a, label: `Block with power: ${mpDef(props.state, db, a.player).personality!.power!.name}`, primary: true }]
     if (a.type === 'CONFIRM') return [{ a, label: a.accept ? 'Yes' : 'No', primary: a.accept }]
     if (a.type === 'CHOOSE' && props.state.pendingChoice?.kind === 'OPTION') return [{ a, label: props.state.pendingChoice.options[a.index], primary: false }]

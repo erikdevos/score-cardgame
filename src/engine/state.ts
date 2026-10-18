@@ -11,15 +11,29 @@ export function def(db: CardDB, c: CardInstance): CardDef {
   return d
 }
 
+/** Trunks Saga: the ally fighting this combat in place of the main personality, if any. */
+export function controllingAlly(s: GameState, p: PlayerId) {
+  const c = s.combat?.controllers.find(x => x.player === p)
+  return c ? s.players[p].allies.find(a => a.card.iid === c.allyIid) : undefined
+}
+
+/** The personality card fighting for p: the main personality, or an ally that took over the combat. */
 export function mpDef(s: GameState, db: CardDB, p: PlayerId): CardDef {
+  const ally = controllingAlly(s, p)
+  if (ally) return def(db, ally.card)
   const mp = s.players[p].mp
   return def(db, mp.stack[mp.levelIndex])
+}
+
+/** Power stage of the fighting personality. */
+export function fighterStage(s: GameState, p: PlayerId): number {
+  return controllingAlly(s, p)?.stage ?? s.players[p].mp.stage
 }
 
 export function powerRating(s: GameState, db: CardDB, p: PlayerId): number {
   const d = mpDef(s, db, p)
   const st = s.combat?.strike
-  const stage = st && st.initiator === p && st.tempStage !== undefined ? st.tempStage : s.players[p].mp.stage
+  const stage = st && st.initiator === p && st.tempStage !== undefined ? st.tempStage : fighterStage(s, p)
   return d.personality!.powerRatings[stage]
 }
 
@@ -158,6 +172,8 @@ export function recoverCards(s: GameState, p: PlayerId, n: number): number {
 }
 
 export function changeStages(s: GameState, p: PlayerId, delta: number) {
+  const ally = controllingAlly(s, p)
+  if (ally) return void (ally.stage = Math.max(0, Math.min(s.rules.maxStage, ally.stage + delta)))
   const mp = s.players[p].mp
   mp.stage = Math.max(0, Math.min(s.rules.maxStage, mp.stage + delta))
 }
@@ -190,7 +206,7 @@ function onMaxAnger(s: GameState, db: CardDB, p: PlayerId) {
     mp.levelIndex++
     // Trunks Saga: the new level starts at its highest power stage
     mp.stage = s.rules.trunks.levelStages ? s.rules.maxStage : s.rules.levelUpStage
-    log(s, 'LEVEL_UP', `Player ${p + 1}'s ${mpDef(s, db, p).name} enters play (level ${mp.levelIndex + 1}), drills discarded`, p)
+    log(s, 'LEVEL_UP', `Player ${p + 1}'s ${def(db, mp.stack[mp.levelIndex]).name} enters play (level ${mp.levelIndex + 1}), drills discarded`, p)
     if (s.rules.trunks.mostPowerfulByHighestLevel) checkMostPowerful(s, db, p)
   } else if (s.rules.trunks.mostPowerfulByHighestLevel) {
     // Trunks Saga: at the highest level, 5 anger powers up to full instead
