@@ -5,8 +5,10 @@ import { db } from '../cardDb'
 import CardView from './CardView.vue'
 
 // Always visible above your hand: the turn step, what to do now, and the buttons to do it.
-const props = defineProps<{ state: GameState; legal: Action[]; actor: PlayerId | null; myTurn: boolean; names: [string, string] }>()
-const emit = defineEmits<{ act: [Action] }>()
+const props = defineProps<{ state: GameState; legal: Action[]; actor: PlayerId | null; myTurn: boolean; names: [string, string]; finalMode: boolean }>()
+const emit = defineEmits<{ act: [Action]; final: [] }>()
+/** Trunks Saga: a Final Physical Attack is offered (pick the card to discard in your hand) */
+const canFinal = computed(() => props.legal.some(a => a.type === 'FINAL_PHYSICAL_ATTACK'))
 
 const LABELS: Record<string, string> = {
   END_NON_COMBAT: 'Power up & continue',
@@ -60,6 +62,8 @@ const prompt = computed(() => {
   if (pc?.kind === 'WINDOW' && pc.window === 'REACT') return `${pre}React to the energy cost with a glowing card?`
   if (pc?.kind === 'WINDOW') return `${pre}End of turn: use a glowing card, or end the turn.`
   if (pc?.kind === 'REJUVENATE') return `${pre}Put the top card of your discard pile back under your life deck?`
+  if (s.step === 'COMBAT' && props.actor !== null && s.combat?.finalAttack.includes(props.actor) && !pc) return `${pre}You made a Final Physical Attack: you pass for the rest of this combat.`
+  if (props.finalMode) return `${pre}Final Physical Attack: click the card in your hand you discard for it. Afterwards you pass for the rest of this combat.`
   switch (s.step) {
     case 'NON_COMBAT': return `${pre}Play glowing cards from your hand if you like (drills, allies, Dragon Balls, Non-Combat cards), then power up to continue.`
     case 'DECLARE': return `${pre}Attack this turn? Declare combat, or skip it to end your turn.`
@@ -98,6 +102,7 @@ const pickCards = computed<{ card: CardInstance; a: Action }[]>(() => {
       <CardView v-for="p in pickCards" :key="p.card.iid" :card="def(db, p.card)" size="table" playable @click="emit('act', p.a)" />
     </div>
     <div class="actions">
+      <button v-if="canFinal" class="btn final" :class="{ on: finalMode }" :disabled="!myTurn" title="Discard any card for a physical attack; then you pass for the rest of combat" @click="emit('final')">{{ finalMode ? 'Cancel final attack' : 'Final physical attack' }}</button>
       <button v-for="b in buttons" :key="JSON.stringify(b.a)" class="btn" :class="{ primary: b.primary }" :disabled="!myTurn" @click="emit('act', b.a)">{{ b.label }}</button>
     </div>
   </section>

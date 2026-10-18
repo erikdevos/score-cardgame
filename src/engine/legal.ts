@@ -1,7 +1,7 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
-import { canUseCard, def, mpDef } from './state'
+import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
 import { mustSkipCombat } from './turn'
 import { other, type Action, type CardInstance, type GameState, type PlayerId } from './types'
 
@@ -28,6 +28,8 @@ function baseActions(s: GameState, db: CardDB): Action[] {
     const pl = s.players[p]
     switch (pc.kind) {
       case 'DEFEND':
+        // a player who made a Final Physical Attack cannot defend for the rest of this combat
+        if (s.combat?.finalAttack.includes(p)) return [{ type: 'DEFEND', player: p, iid: null }]
         return [
           { type: 'DEFEND', player: p, iid: null },
           ...legalDefenses(s, db, p).map(c => ({ type: 'DEFEND' as const, player: p, iid: c.iid })),
@@ -64,6 +66,8 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       return [{ type: 'DECLARE_COMBAT', player: a }, { type: 'SKIP_COMBAT', player: a }]
     case 'COMBAT': {
       const p = s.combat!.active
+      // after a Final Physical Attack the player passes for the rest of this combat
+      if (s.combat!.finalAttack.includes(p)) return [{ type: 'PASS', player: p }]
       const usableAsAttack = (c: CardInstance) => {
         const d = def(db, c)
         if (!d.combatRole) return false
@@ -81,6 +85,9 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
+      if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL')) {
+        out.push(...pl.hand.map(c => ({ type: 'FINAL_PHYSICAL_ATTACK' as const, player: p, iid: c.iid })))
+      }
       out.push({ type: 'PASS', player: p })
       const bonus = s.combat!.bonusAttack
       if (bonus?.active && bonus.player === p) {
@@ -92,7 +99,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         return out.filter(a =>
           a.type === 'PASS' ||
           (a.type === 'USE_POWER' && fits(powerOpt?.strike.combatRole)) ||
-          (a.type === 'COPY_ATTACK' && fits('ATTACK_PHYSICAL')) ||
+          ((a.type === 'COPY_ATTACK' || a.type === 'FINAL_PHYSICAL_ATTACK') && fits('ATTACK_PHYSICAL')) ||
           (a.type === 'PLAY_CARD' && fits(def(db, [...pl.hand, ...pl.nonCombat].find(c => c.iid === a.iid)!).combatRole)))
       }
       return out
@@ -118,6 +125,15 @@ function canPlayNonCombat(s: GameState, db: CardDB, iid: string): boolean {
   if (!NON_COMBAT_TYPES.has(d.type)) return false
   if (!canUseCard(s, db, s.attacker, d)) return false
   if (d.type === 'Personality') {
+    if (s.rules.trunks.allyRules) {
+      const mpCards = pl.mp.stack.map(c => def(db, c))
+      if (!trunksAllyAllowed(mpCards, mpDef(s, db, other(s.attacker)).personality!.character, d)) return false
+      const p = d.personality!
+      // the same ally at the same level only once in the game; a higher level replaces your lower one
+      const sameLevel = s.players.some(x => x.allies.some(a => def(db, a.card).personality?.character === p.character && def(db, a.card).personality?.level === p.level))
+      const mineHigher = pl.allies.some(a => def(db, a.card).personality?.character === p.character && def(db, a.card).personality!.level > p.level)
+      return !sameLevel && !mineHigher
+    }
     // Allies: level 1 only, not the same character as your MP
     return d.personality?.level === 1 && d.personality.character !== mpDef(s, db, s.attacker).personality!.character
   }

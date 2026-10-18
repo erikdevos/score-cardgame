@@ -74,7 +74,7 @@ function payCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef): numb
     s.players[p].mp.stage -= cost.amount
     return cost.amount
   }
-  if (cost.type === 'LIFE_CARDS') millCards(s, p, cost.amount)
+  if (cost.type === 'LIFE_CARDS') millCards(s, p, cost.amount, db)
   return 0
 }
 
@@ -193,12 +193,12 @@ export function defendWithPower(s: GameState, db: CardDB) {
 }
 
 /** FS-37, FS-96: "even if stopped, the defender takes ..." */
-function damageIfStopped(s: GameState, strike: StrikeDef, defender: PlayerId, label: string) {
+function damageIfStopped(s: GameState, db: CardDB, strike: StrikeDef, defender: PlayerId, label: string) {
   for (const p of findCustom(strike.effects.onPlaySecondary, 'damageIfStopped')) {
     const d = { stages: Number(p.stages ?? 0), lifeCards: Number(p.lifeCards ?? 0) }
     if (!d.stages && !d.lifeCards) continue
     log(s, 'DAMAGE', `Player ${defender + 1} takes ${d.stages} stage(s) and ${d.lifeCards} life card(s) from the stopped ${label}`, defender)
-    applyDamage(s, defender, d)
+    applyDamage(s, defender, d, db)
   }
 }
 
@@ -210,7 +210,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (st.defense?.mode === 'STOP') {
     log(s, 'STOPPED', `${st.label} is stopped`)
     s.combat!.lastAttack[st.initiator] = { type, success: false }
-    damageIfStopped(s, st.strike, defender, st.label)
+    damageIfStopped(s, db, st.strike, defender, st.label)
     return cleanup(s, db)
   }
 
@@ -219,7 +219,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (shield) {
     log(s, 'STOPPED', `${shield} stops the successful ${st.label}`, defender)
     s.combat!.lastAttack[st.initiator] = { type, success: false }
-    damageIfStopped(s, st.strike, defender, st.label)
+    damageIfStopped(s, db, st.strike, defender, st.label)
     return cleanup(s, db)
   }
 
@@ -236,7 +236,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if ((dmg.stages > 0 || dmg.lifeCards > 0) && allyAbsorbs(s, db, defender)) dmg = { stages: 0, lifeCards: 0 }
   dmg = creatureOnTable(s, db, defender, type, dmg)
   const stageBefore = s.players[defender].mp.stage
-  st.lifeCardsDealt = applyDamage(s, defender, dmg)
+  st.lifeCardsDealt = applyDamage(s, defender, dmg, db)
   if (over(s)) return
   afterDamage(s, db, defender, stageBefore - s.players[defender].mp.stage, st.lifeCardsDealt)
   if (over(s)) return
@@ -315,7 +315,7 @@ export function stealDragonBall(s: GameState, db: CardDB, iid: string | null) {
     const [ball] = from.splice(i, 1)
     s.players[st.initiator].dragonBalls.push(ball)
     log(s, 'DB_STEAL', `Player ${st.initiator + 1} captures ${def(db, ball).name}`, st.initiator)
-    checkDragonBallVictory(s, db)
+    checkDragonBallVictory(s, db, 'capture')
     if (over(s)) return
   }
   finishSuccessful(s, db)

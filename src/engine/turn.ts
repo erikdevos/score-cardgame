@@ -1,5 +1,5 @@
 import { drillsProtected, endAttackPhase, findCustom, newCombat, requirementsMet, tableEffects, timingAllows } from './abilities'
-import type { CardDB } from './cards'
+import type { CardDB, StrikeDef } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
 import { shuffleInPlace } from './rng'
 import { attackPowerOption, beginStrike, react, strikeOf } from './sequencer'
@@ -11,7 +11,11 @@ export function startTurn(s: GameState, db: CardDB) {
   s.step = 'NON_COMBAT'
   s.locationPlayedThisTurn = false
   s.combat = null
+  s.combatSkipped = false
   log(s, 'TURN', `Turn ${s.turn}: player ${s.attacker + 1} attacks`, s.attacker)
+  // Trunks Saga: a set of 7 completed by capture wins now, if the player still has it
+  if (s.rules.trunks.dragonBalls) checkDragonBallVictory(s, db, 'turnStart')
+  if (over(s)) return
   drawCards(s, s.attacker, s.rules.drawPerTurn)
   runDelayed(s, db)
 }
@@ -48,9 +52,17 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
   }
   log(s, 'PLAY', `Player ${p + 1} plays ${d.name}`, p)
   switch (d.type) {
-    case 'Personality':
-      pl.allies.push({ card, stage: s.rules.allyStartStage })
+    case 'Personality': {
+      // Trunks Saga: a higher level of an ally you have goes on top of it at its highest power stage
+      const lower = s.rules.trunks.allyRules ? pl.allies.find(a => def(db, a.card).personality?.character === d.personality?.character) : undefined
+      if (lower) {
+        pl.discard.push(lower.card)
+        lower.card = card
+        lower.stage = s.rules.maxStage
+        log(s, 'ALLY_UP', `${d.name} replaces the lower level and powers up to full`, p)
+      } else pl.allies.push({ card, stage: s.rules.allyStartStage })
       break
+    }
     case 'Drill':
       // a new drill of a restricted style knocks out the restricted drills of that style
       for (const other of s.players) {
@@ -113,6 +125,7 @@ export function endNonCombat(s: GameState, db: CardDB) {
   log(s, 'POWER_UP', `Player ${p + 1} powers up ${gain} (stage ${s.players[p].mp.stage})`, p)
   if (s.locationPlayedThisTurn) {
     log(s, 'NO_COMBAT', 'A location was played this turn, combat cannot be declared')
+    s.combatSkipped = true
     return beginDiscardStep(s, db)
   }
   s.step = 'DECLARE'
@@ -135,7 +148,7 @@ export function declareCombat(s: GameState, db: CardDB) {
   if (over(s)) return
   // SS-227: a creature that hurts the foe in every combat its owner attacks in
   for (const { card, params } of tableEffects(s, db, s.attacker, 'recurringDamage')) {
-    const n = millCards(s, defender, Number(params.lifeCards ?? 1))
+    const n = millCards(s, defender, Number(params.lifeCards ?? 1), db)
     log(s, 'MILL', `${def(db, card).name}: player ${defender + 1} discards ${n} life card(s)`, defender)
     if (over(s)) return
   }
@@ -174,6 +187,7 @@ export function skipCombat(s: GameState, db: CardDB) {
   const forced = s.skipCombat.find(k => k.player === s.attacker && k.turn === s.turn)
   log(s, 'PASS_COMBAT', forced ? `Player ${s.attacker + 1} skips combat (${forced.source})` : `Player ${s.attacker + 1} does not declare combat`, s.attacker)
   s.skipCombat = s.skipCombat.filter(k => k.turn > s.turn)
+  s.combatSkipped = true
   beginDiscardStep(s, db)
 }
 
@@ -190,6 +204,22 @@ export function usePower(s: GameState, db: CardDB, p: PlayerId) {
   s.combat!.usedPowers.push(`${p}:${d.id}`)
   if (findCustom(power.strike.effects.onPlaySecondary, 'usageLimit').some(u => u.per === 'game')) s.usedPerGame.push(`${p}:${d.id}`)
   beginStrike(s, db, p, null, power.strike, `${d.name}'s power: ${power.name}`)
+}
+
+/** Trunks Saga Final Physical Attack: the discarded card pays for a plain PAT physical attack. */
+export const FINAL_PHYSICAL_ATTACK: StrikeDef = {
+  combatRole: 'ATTACK_PHYSICAL',
+  damage: { calculation: 'PAT', stages: 0, lifeCards: 0, modifierStages: 0, modifierLifeCards: 0 },
+  effects: { onPlaySecondary: [], onHit: [], onEnterPlay: [], postResolution: 'DISCARD' },
+}
+
+export function finalPhysicalAttack(s: GameState, db: CardDB, p: PlayerId, iid: string) {
+  const card = removeFromHand(s, p, iid)
+  s.players[p].discard.push(card)
+  s.combat!.finalAttack.push(p)
+  s.combat!.consecutivePasses = 0
+  log(s, 'DISCARD', `Player ${p + 1} discards ${def(db, card).name} for a Final Physical Attack`, p)
+  beginStrike(s, db, p, null, FINAL_PHYSICAL_ATTACK, 'Final Physical Attack')
 }
 
 export function passCombat(s: GameState, db: CardDB, p: PlayerId) {
@@ -245,6 +275,11 @@ function nextDiscard(s: GameState, db: CardDB) {
   }
   s.pendingChoice = null
   s.keepHand = s.keepHand.filter(k => k.turn > s.turn)
+  // Trunks Saga Step 6: not attacking puts the top discard back at the bottom of the life deck
+  if (s.rules.trunks.skipCombatRecovers && s.combatSkipped && s.players[s.attacker].discard.length) {
+    s.players[s.attacker].lifeDeck.push(s.players[s.attacker].discard.pop()!)
+    log(s, 'RECOVER', `Player ${s.attacker + 1} did not attack: the top discard goes to the bottom of the life deck`, s.attacker)
+  }
   // Step 7 (CRD only)
   if (s.rules.mode === 'CRD_3' && s.players[s.attacker].discard.length > 0) {
     s.step = 'REJUVENATE'

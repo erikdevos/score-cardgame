@@ -54,6 +54,19 @@ export function activePassives(s: GameState, db: CardDB, p: PlayerId): Passive[]
   return out
 }
 
+/**
+ * Trunks Saga ally rules: same alignment as the main personality (Vegeta and Piccolo may pick either side),
+ * at least 2 levels below the main personality's highest level, never either main personality's character.
+ */
+export function trunksAllyAllowed(mpCards: CardDef[], foeCharacter: string | undefined, ally: CardDef): boolean {
+  const mp = mpCards[0]?.personality
+  const a = ally.personality
+  if (!mp || !a) return false
+  if (a.character === mp.character || a.character === foeCharacter) return false
+  if (!['Vegeta', 'Piccolo'].includes(mp.character) && a.alignment !== mp.alignment) return false
+  return a.level <= mpCards.length - 2
+}
+
 /** Card restriction "X only": the player's MP must match an allowed alignment or character. */
 export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): boolean {
   const u = d.usableBy
@@ -97,7 +110,9 @@ export function drawCards(s: GameState, p: PlayerId, n: number) {
 }
 
 /** Life cards of damage / mill: top of life deck to discard. Returns cards actually discarded. */
-export function millCards(s: GameState, p: PlayerId, n: number): number {
+export const dragonBallKind = (name: string) => (/Namek/i.test(name) ? 'Namek' : 'Earth')
+
+export function millCards(s: GameState, p: PlayerId, n: number, db?: CardDB): number {
   const pl = s.players[p]
   let done = 0
   for (let i = 0; i < n; i++) {
@@ -105,6 +120,21 @@ export function millCards(s: GameState, p: PlayerId, n: number): number {
     if (!c) {
       win(s, other(p), 'SURVIVAL')
       return done
+    }
+    if (db && s.rules.trunks.dragonBalls && def(db, c).type === 'Dragon Ball') {
+      // Trunks Saga: a Dragon Ball is never discarded as damage. A copy already in play leaves the game,
+      // otherwise it goes to the bottom of the life deck; neither counts as a discard.
+      const d = def(db, c)
+      const inPlay = s.players.some(x => x.dragonBalls.some(b => def(db, b).name === d.name))
+      if (inPlay) pl.removed.push(c)
+      else pl.lifeDeck.push(c)
+      log(s, 'DB_SAVE', `${d.name} is not discarded: ${inPlay ? 'already in play, removed from the game' : 'put at the bottom of the life deck'}`, p)
+      if (pl.lifeDeck.length && pl.lifeDeck.every(x => def(db, x).type === 'Dragon Ball')) {
+        win(s, other(p), 'SURVIVAL')
+        return done
+      }
+      i--
+      continue
     }
     pl.discard.push(c)
     done++
@@ -154,17 +184,45 @@ function onMaxAnger(s: GameState, db: CardDB, p: PlayerId) {
     pl.discard.push(...pl.drills)
     pl.drills = []
     mp.levelIndex++
-    mp.stage = s.rules.levelUpStage
+    // Trunks Saga: the new level starts at its highest power stage
+    mp.stage = s.rules.trunks.levelStages ? s.rules.maxStage : s.rules.levelUpStage
     log(s, 'LEVEL_UP', `Player ${p + 1}'s ${mpDef(s, db, p).name} enters play (level ${mp.levelIndex + 1}), drills discarded`, p)
+    if (s.rules.trunks.mostPowerfulByHighestLevel) checkMostPowerful(s, db, p)
+  } else if (s.rules.trunks.mostPowerfulByHighestLevel) {
+    // Trunks Saga: at the highest level, 5 anger powers up to full instead
+    mp.anger = 0
+    mp.stage = s.rules.maxStage
+    log(s, 'POWER_UP', `Player ${p + 1} is at their highest level: full power, anger back to 0`, p)
   } else if (!mpDef(s, db, p).personality!.cannotWinMPP) {
     win(s, p, 'MPP')
   }
 }
 
-export function checkDragonBallVictory(s: GameState, db: CardDB) {
+/** Trunks Saga: you win the instant your main personality reaches the highest level any main personality in the game has. */
+export function checkMostPowerful(s: GameState, db: CardDB, p: PlayerId) {
+  const target = Math.max(...s.players.map(x => x.mp.stack.length))
+  if (s.players[p].mp.levelIndex + 1 >= target && !mpDef(s, db, p).personality!.cannotWinMPP) win(s, p, 'MPP')
+}
+
+/**
+ * Dragon Ball victory: all 7 of one kind. Trunks Saga: Earth and Namek Dragon Balls are separate sets, and
+ * completing a set by capture only wins at the start of your next turn (`captured`).
+ */
+export function checkDragonBallVictory(s: GameState, db: CardDB, how: 'play' | 'capture' | 'turnStart' = 'play') {
+  const trunks = s.rules.trunks.dragonBalls
   for (const pl of s.players) {
-    const nums = new Set(pl.dragonBalls.map(c => def(db, c).dragonBallNumber))
-    if ([1, 2, 3, 4, 5, 6, 7].every(n => nums.has(n))) win(s, pl.id, 'DRAGON_BALLS')
+    if (how === 'turnStart' && pl.id !== s.attacker) continue
+    const kinds = trunks ? ['Earth', 'Namek'] : ['']
+    const complete = kinds.some(kind => {
+      const nums = new Set(pl.dragonBalls.filter(c => !kind || dragonBallKind(def(db, c).name) === kind).map(c => def(db, c).dragonBallNumber))
+      return [1, 2, 3, 4, 5, 6, 7].every(n => nums.has(n))
+    })
+    if (!complete) continue
+    if (trunks && how === 'capture') {
+      log(s, 'DB_PENDING', `Player ${pl.id + 1} has all 7 Dragon Balls: they win at the start of their next turn if they still have them`, pl.id)
+      continue
+    }
+    win(s, pl.id, 'DRAGON_BALLS')
   }
 }
 

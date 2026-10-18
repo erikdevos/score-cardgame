@@ -29,6 +29,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <li><b>Anger</b> (flames): at 5 your personality levels up. At the top level, that wins the game.</li>
         <li><b>Dragon Balls</b>: collect all 7 to win. 5+ life cards of damage in one hit lets the attacker capture one.</li>
       </ul>
+      <h3>Saiyan + Frieza: Trunks Saga rules</h3>
+      <ul class="help-list">
+        <li><b>Hero first</b>, both personalities start at stage 5. A level up starts at full power.</li>
+        <li><b>Most Powerful Personality</b>: you win the moment you reach the highest level any main personality in the game has. At your top level, 5 anger powers you up to full instead.</li>
+        <li><b>Final Physical Attack</b>: in your attack phase, press <i>Final physical attack</i> and click any card to discard it for a physical attack. Once per combat; afterwards you pass and cannot block for the rest of that combat.</li>
+        <li><b>Not attacking</b> (skipping combat) puts the top card of your discard pile back at the bottom of your life deck.</li>
+        <li><b>Allies</b> must be on your side (hero or villain) and at least 2 levels below your top level. A higher level replaces your lower one at full power.</li>
+        <li><b>Dragon Balls</b> are never discarded as damage. Completing a set by capture wins at the start of your next turn.</li>
+      </ul>
       <button class="btn primary" @click="$emit('close')">Got it</button>
     </article>
   </div>

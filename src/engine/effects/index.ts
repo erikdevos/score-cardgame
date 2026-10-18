@@ -54,7 +54,7 @@ function resolveEffect(ctx: EffectContext, e: Effect) {
     case 'DRAW':
       return drawCards(s, target, e.amount)
     case 'DISCARD_LIFE': {
-      const n = millCards(s, target, e.amount)
+      const n = millCards(s, target, e.amount, ctx.db)
       if (n > 0 && target !== user) s.angerLock = s.angerLock.filter(x => x !== user)
       return log(s, 'MILL', `${ctx.source}: player ${target + 1} discards ${n} life card(s)`, target)
     }

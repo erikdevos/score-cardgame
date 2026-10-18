@@ -9,7 +9,7 @@ import {
 import { clone, schedule } from './state'
 import {
   advanceCombat, checkDragonBalls, declareCombat, discardFromHand, endNonCombat, endOfTurnWindow, endTurn,
-  passCombat, playCard, rejuvenate, respond, skipCombat, useNonCombat, usePower,
+  finalPhysicalAttack, passCombat, playCard, rejuvenate, respond, skipCombat, useNonCombat, usePower,
 } from './turn'
 import type { Action, Frame, GameEvent, GameState } from './types'
 
@@ -48,6 +48,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
       break
     }
     case 'COPY_ATTACK': copyAttack(s, db, action.player); break
+    case 'FINAL_PHYSICAL_ATTACK': finalPhysicalAttack(s, db, action.player, action.iid); break
     case 'STEAL_DB': stealDragonBall(s, db, action.iid); break
     case 'DISCARD': discardFromHand(s, db, action.player, action.iid); break
     case 'REJUVENATE': rejuvenate(s, db, action.accept); break

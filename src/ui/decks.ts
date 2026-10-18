@@ -1,7 +1,7 @@
-import { isAttackRole, isDefenseRole, nextRandomForTests as nextRandom, type CardDB, type DeckList } from '../engine'
+import { isAttackRole, isDefenseRole, nextRandomForTests as nextRandom, trunksAllyAllowed, type CardDB, type DeckList } from '../engine'
 import { heroMP, testDeck, villainMP } from '../data/test-cards'
-import { setOrder } from './cardDb'
-import { formatCards, type FormatKey } from './formats'
+import { db, setOrder } from './cardDb'
+import { FORMATS, formatCards, type FormatKey } from './formats'
 import type { CardDef } from '../engine'
 
 export interface DeckChoice {
@@ -29,9 +29,11 @@ function realCharacters(pool: CardDef[], maxLevel: number): { character: string;
 }
 
 /** A quick legal 60-card deck: 3 copies of random playable cards, weighted to combat cards. */
-function autoDeck(cards: CardDef[], mp: string[], character: string, seed: number): DeckList {
-  const pool = cards.filter(c => c.type !== 'Personality' || c.personality?.level === 1)
-    .filter(c => c.type !== 'Personality' || c.personality?.character !== character)
+function autoDeck(cards: CardDef[], mp: string[], character: string, seed: number, trunks: boolean): DeckList {
+  // Trunks Saga allies: same side, 2+ levels below the main personality's top level; Pure 2000: any level 1
+  const mpCards = mp.map(id => db[id])
+  const allyOk = (c: CardDef) => (trunks ? trunksAllyAllowed(mpCards, undefined, c) : c.personality?.level === 1 && c.personality.character !== character)
+  const pool = cards.filter(c => c.type !== 'Personality' || allyOk(c))
   const combat = pool.filter(c => isAttackRole(c.combatRole) || isDefenseRole(c.combatRole))
   const other = pool.filter(c => !combat.includes(c))
   const life: string[] = []
@@ -43,10 +45,13 @@ function autoDeck(cards: CardDef[], mp: string[], character: string, seed: numbe
       const [r, ns] = nextRandom(s); s = ns
       const [c] = copy.splice(Math.floor(r * copy.length), 1)
       // the copy limit counts cards by title, so reprints in a later set share it
-      const left = (c.type === 'Dragon Ball' ? 1 : (c.limitPerDeck ?? 3)) - (names.get(c.name) ?? 0)
+      const max = c.type === 'Dragon Ball' ? 1 : trunks && c.type === 'Personality' ? (c.personality?.character === 'Saibaimen' ? 3 : 1) : (c.limitPerDeck ?? 3)
+      // personalities count per character and level, so a Hi-Tech printing shares the limit
+      const key = trunks && c.personality ? `${c.personality.character} Lv${c.personality.level}` : c.name
+      const left = max - (names.get(key) ?? 0)
       const copies = Math.min(n, left)
       if (copies <= 0) continue
-      names.set(c.name, (names.get(c.name) ?? 0) + copies)
+      names.set(key, (names.get(key) ?? 0) + copies)
       for (let i = 0; i < copies; i++) life.push(c.id)
       n -= copies
     }
@@ -60,7 +65,7 @@ export function deckChoices(format: FormatKey = 'SAIYAN'): DeckChoice[] {
   const cards = formatCards(format)
   // the Saiyan Saga format keeps the original 3-level stacks
   const out: DeckChoice[] = realCharacters(cards, format === 'SAIYAN' ? 3 : 4).map(({ character, mp }) => (
-    { key: `auto-${character}`, label: character, mpId: mp[0], build: (seed: number) => autoDeck(cards, mp, character, seed) }))
+    { key: `auto-${character}`, label: character, mpId: mp[0], build: (seed: number) => autoDeck(cards, mp, character, seed, !!FORMATS[format].rules.trunks?.allyRules) }))
   out.push(
     { key: 'demo-hero', label: 'Test deck: Hero (fictional, no images)', mpId: heroMP[0], build: () => testDeck(heroMP) },
     { key: 'demo-villain', label: 'Test deck: Villain (fictional, no images)', mpId: villainMP[0], build: () => testDeck(villainMP) },

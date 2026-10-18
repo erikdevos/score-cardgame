@@ -7,7 +7,7 @@ import CardView from './CardView.vue'
 import ScouterMeter from './ScouterMeter.vue'
 
 // A player's own corner: main personality, power, anger, piles and hand.
-const props = defineProps<{ state: GameState; p: PlayerId; legal: Action[]; mine: boolean; acting: boolean }>()
+const props = defineProps<{ state: GameState; p: PlayerId; legal: Action[]; mine: boolean; acting: boolean; finalMode?: boolean }>()
 const emit = defineEmits<{ act: [Action] }>()
 
 const pl = computed(() => props.state.players[props.p])
@@ -17,7 +17,9 @@ const revealed = computed(() => !props.mine && handRevealed(props.state, db, pro
 const topDiscard = computed(() => pl.value.discard.at(-1))
 
 function actionFor(iid: string): Action | undefined {
-  return props.legal.find(a => 'iid' in a && a.iid === iid)
+  // in Final Physical Attack mode every card in hand can pay for it; otherwise those actions are not card plays
+  if (props.finalMode) return props.legal.find(a => a.type === 'FINAL_PHYSICAL_ATTACK' && a.iid === iid)
+  return props.legal.find(a => 'iid' in a && a.iid === iid && a.type !== 'FINAL_PHYSICAL_ATTACK')
 }
 function click(iid: string) {
   const a = actionFor(iid)
@@ -107,7 +109,7 @@ function fan(i: number) {
         <span>Hand <b>{{ pl.hand.length }}</b></span>
         <span class="muted">keep {{ handLimit(state, db, p) }} at end of turn</span>
       </div>
-      <TransitionGroup tag="div" name="deal" appear class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p }">
+      <TransitionGroup tag="div" name="deal" appear class="hand" :class="{ crowded: pl.hand.length > 6, discarding: state.pendingChoice?.kind === 'DISCARD_TO_LIMIT' && state.pendingChoice.player === p, final: finalMode }">
         <!-- the slot is the click target and stays put; only the card inside lifts on hover -->
         <div v-for="(c, i) in pl.hand" :key="c.iid" class="hand-slot" :class="{ ready: !!actionFor(c.iid) }" :style="{ ...fan(i), '--deal': dealOrder.get(c.iid) ?? 0 }" @click="click(c.iid)">
           <CardView :card="def(db, c)" size="hand" role :playable="!!actionFor(c.iid)" />

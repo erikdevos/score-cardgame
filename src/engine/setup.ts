@@ -1,7 +1,7 @@
 import type { CardDB } from './cards'
 import defaultRules from './config/rules.json'
 import { nextRandom, shuffleInPlace } from './rng'
-import { clone, log, powerRating } from './state'
+import { clone, log, mpDef, powerRating } from './state'
 import { startTurn } from './turn'
 import type { CardInstance, DeckList, GameState, PlayerId, PlayerState, Rules } from './types'
 
@@ -50,6 +50,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     endNextCombat: [],
     angerLock: [],
     keepHand: [],
+    combatSkipped: false,
     winner: null,
     winReason: null,
     log: [],
@@ -62,6 +63,19 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
 }
 
 function rollInitiative(s: GameState, db: CardDB): PlayerId {
+  if (s.rules.trunks.heroFirst) {
+    // Trunks Saga: the hero player goes first; with two heroes or two villains, a coin flip
+    const heroes = ([0, 1] as PlayerId[]).filter(p => mpDef(s, db, p).personality!.alignment === 'Hero')
+    let first: PlayerId
+    if (heroes.length === 1) first = heroes[0]
+    else {
+      const [r, n] = nextRandom(s.rngSeed)
+      s.rngSeed = n
+      first = r < 0.5 ? 0 : 1
+    }
+    log(s, 'SETUP', heroes.length === 1 ? `Player ${first + 1} plays the hero and goes first` : `Player ${first + 1} goes first (coin flip)`, first)
+    return first
+  }
   const [r0, r1] = [powerRating(s, db, 0), powerRating(s, db, 1)]
   const ini = s.rules.initiative
   let first: PlayerId

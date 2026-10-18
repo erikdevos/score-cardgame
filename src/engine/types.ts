@@ -88,6 +88,8 @@ export interface CombatState {
   active: PlayerId
   consecutivePasses: number
   strike: StrikeState | null
+  /** players who made their Final Physical Attack this combat (Trunks Saga) */
+  finalAttack: PlayerId[]
   usedPowers: string[]
   ended: boolean
   restrictions: AttackRestriction[]
@@ -195,6 +197,8 @@ export interface GameState {
   angerLock: PlayerId[]
   /** may keep extra cards in the discard step of this turn */
   keepHand: { player: PlayerId; turn: number }[]
+  /** this turn's attacker skipped the combat step (Trunks Saga Step 6) */
+  combatSkipped: boolean
   /** effects that happen at the start of a later turn */
   delayed: { player: PlayerId; turn: number; kind: 'plantAlly'; character: string; source: string }[]
   winner: PlayerId | null
@@ -219,6 +223,8 @@ export type Action =
   | { type: 'USE_FREE'; player: PlayerId; iid: string }
   /** repeat the physical attack you defended against (SS-133) */
   | { type: 'COPY_ATTACK'; player: PlayerId }
+  /** Trunks Saga: discard a card from hand for a PAT physical attack; then pass for the rest of combat */
+  | { type: 'FINAL_PHYSICAL_ATTACK'; player: PlayerId; iid: string }
   | { type: 'STEAL_DB'; player: PlayerId; iid: string | null }
   | { type: 'DISCARD'; player: PlayerId; iid: string }
   | { type: 'REJUVENATE'; player: PlayerId; accept: boolean }

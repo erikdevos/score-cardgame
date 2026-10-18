@@ -61,7 +61,7 @@ function defaultDamage(strike: StrikeDef, rules: Rules) {
  * Stages first; stages that cannot be paid because the MP would drop below 0
  * overflow 1:1 into life cards. Returns life cards actually discarded.
  */
-export function applyDamage(s: GameState, target: PlayerId, d: Damage): number {
+export function applyDamage(s: GameState, target: PlayerId, d: Damage, db?: CardDB): number {
   const mp = s.players[target].mp
   const paid = Math.min(mp.stage, d.stages)
   mp.stage -= paid
@@ -78,7 +78,7 @@ export function applyDamage(s: GameState, target: PlayerId, d: Damage): number {
     totalLife -= absorbed
     if (absorbed) log(s, 'PROTECT', `${sub.source}: ${absorbed} life card(s) of damage taken from the discard pile`, target)
   }
-  const milled = absorbed + (totalLife > 0 ? millCards(s, target, totalLife) : 0)
+  const milled = absorbed + (totalLife > 0 ? millCards(s, target, totalLife, db) : 0)
   log(s, 'DAMAGE', `Player ${target + 1} takes ${paid} stage(s)${overflow ? ` (+${overflow} overflow)` : ''} and ${milled} life card(s)`, target)
   return milled
 }

@@ -4,6 +4,7 @@ import { computeDamage } from '../damage'
 import { legalActions } from '../legal'
 import { attackPowerOption, copyableAttack, legalPowerDefense, strikeOf } from '../sequencer'
 import { def, mpDef } from '../state'
+import { FINAL_PHYSICAL_ATTACK } from '../turn'
 import type { Action, CardInstance, GameState, PlayerId } from '../types'
 
 export function chooseAction(s: GameState, db: CardDB): Action | null {
@@ -103,6 +104,9 @@ function score(s: GameState, db: CardDB, a: Action): number {
       return 0
     case 'USE_POWER':
       return strikeValue(s, db, a.player, attackPowerOption(s, db, a.player)!.strike)
+    case 'FINAL_PHYSICAL_ATTACK':
+      // worth it only when the table damage beats losing the card and the rest of this combat
+      return strikeValue(s, db, a.player, FINAL_PHYSICAL_ATTACK) - keepValue(db, find(s, a.player, a.iid)!) - 1.5
     case 'COPY_ATTACK':
       return strikeValue(s, db, a.player, copyableAttack(s, db, a.player)!.strike)
     case 'PLAY_CARD': {

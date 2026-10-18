@@ -8,7 +8,11 @@ export const FORMATS = {
   // Frieza Saga power levels go far past the Saiyan Saga table: use the Trunks Saga rulebook's table (no Frieza Saga rulebook available)
   SAIYAN_FRIEZA: {
     label: 'Saiyan + Frieza', sets: ['Saiyan Saga', 'Frieza Saga'] as SetName[],
-    rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix } } as Partial<Rules>,
+    // Trunks Saga core rules (rulebook 2001) on top of the table; see docs/dsl-gaps.md "Frieza Saga"
+    rules: {
+      pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix },
+      trunks: { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, allyRules: true, dragonBalls: true },
+    } as Partial<Rules>,
   },
 } as const
 export type FormatKey = keyof typeof FORMATS

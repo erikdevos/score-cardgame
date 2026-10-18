@@ -92,7 +92,7 @@ export const handlers: Record<string, CustomHandler> = {
     if (!st || (p.condition === 'characterInPlay' && !inPlayAnywhere(ctx.s, ctx.db, { character: p.character }))) return
     const d = { stages: num(p.stages, 0), lifeCards: num(p.lifeCards, 0) }
     log(ctx.s, 'DAMAGE', `${ctx.source}: ${String(p.character)} is in play, extra damage`, st.initiator)
-    st.lifeCardsDealt += applyDamage(ctx.s, other(st.initiator), d)
+    st.lifeCardsDealt += applyDamage(ctx.s, other(st.initiator), d, ctx.db)
   },
 
   discardFromPlay(ctx, p) {
@@ -257,7 +257,7 @@ export const handlers: Record<string, CustomHandler> = {
       case 'damagePerAlly': {
         const n = allies.length * num(p.lifeCardsPerAlly, 1)
         const foe = targetOf(ctx, p.target)
-        const done = n > 0 ? millCards(s, foe, n) : 0
+        const done = n > 0 ? millCards(s, foe, n, ctx.db) : 0
         return log(s, 'MILL', `${ctx.source}: player ${foe + 1} discards ${done} life card(s) (${allies.length} allies)`, foe)
       }
       case 'redirectDamage':
@@ -327,6 +327,8 @@ export const handlers: Record<string, CustomHandler> = {
     const mp = ctx.s.players[who].mp
     if (mp.levelIndex + 1 !== p.fromLevel) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: player ${who + 1} is not at level ${p.fromLevel}`)
     mp.levelIndex = num(p.toLevel, 1) - 1
+    // Trunks Saga: a dropped personality is set 5 power stages above 0
+    if (ctx.s.rules.trunks.levelStages) mp.stage = 5
     log(ctx.s, 'LEVEL_DOWN', `${ctx.source}: player ${who + 1} goes back to level ${p.toLevel}`, who)
   },
 
@@ -362,7 +364,7 @@ export const handlers: Record<string, CustomHandler> = {
       const base = computeDamage(s, db, st.initiator, st.strike)
       const extra = { stages: base.stages * (p.multiplier - 1), lifeCards: base.lifeCards * (p.multiplier - 1) }
       log(s, 'DAMAGE_X', `${ctx.source} does ${p.multiplier}x damage`, st.initiator)
-      st.lifeCardsDealt += applyDamage(s, other(st.initiator), extra)
+      st.lifeCardsDealt += applyDamage(s, other(st.initiator), extra, db)
       return
     }
     if (typeof p.setLifeCards === 'number') {

@@ -172,15 +172,15 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 - **Constant Combat Power** (p. 31): always available, usable more than once per combat, even before or after combat as the text says. Matches the `constantPower` encoding.
 - **Main personality levels from different sagas may be mixed** (p. 33), as the auto decks do.
 
-**Trunks Saga rules that differ from the engine's Pure 2000 rules (not applied, needs a decision)**
-- Level up: the scouter goes to the new level's highest power stage (engine: stage 5). Level drop: 5 stages above 0.
-- At the highest level, reaching 5 anger sets the scouter to the highest stage and resets anger; the Most Powerful Personality victory is having the highest level among all main personalities in play (engine: max anger at the highest level).
-- Final Physical Attack: discard any card for a PAT physical attack, once per combat, then pass for the rest of that combat.
-- Step 6: when you skip combat, put the top card of your discard pile at the bottom of your life deck.
-- The hero player goes first.
-- Allies: same alignment as the main personality and at least 2 levels below its highest level; the defender chooses whether damage hits the main personality or an ally.
-- Dragon Balls: Earth or Namek per deck, not both; a Dragon Ball victory by capture waits until the start of your next turn.
-- Mastery cards and Tokui-Waza (Trunks Saga cards, not in these two sets).
+**Trunks Saga core rules, applied to the Saiyan + Frieza pool** (Erik's decision, 2026-10-18; switches in `rules.json` → `trunks`, all off in the Saiyan Saga pool)
+- `levelStages`: a level up starts at the new level's highest power stage; a forced level drop (`setLevel`) sets stage 5.
+- `mostPowerfulByHighestLevel`: you win the instant your main personality reaches the highest level any main personality in the game has (stack depth); at your top level, 5 anger sets full power and anger 0 instead of winning.
+- `finalPhysicalAttack`: action `FINAL_PHYSICAL_ATTACK` (discard any hand card, plain PAT physical attack), once per combat; afterwards that player only passes and cannot defend for the rest of the combat.
+- `skipCombatRecovers`: after a turn without combat (skipped, or a location was played), after Step 5 the top discard goes to the bottom of the life deck.
+- `heroFirst`: the hero goes first, both start at stage 5; with two heroes or two villains a coin flip (assumption, the rulebook does not cover it).
+- `allyRules`: allies must match the main personality's alignment (Vegeta and Piccolo main personalities may use either side; simplification of p. 46-47), be at least 2 levels below its highest level, never either main personality's character, and the same character and level only once in play; a higher level replaces your lower one at full power. Deck check: one copy per personality level (Saibaimen 3). Auto decks follow this.
+- `dragonBalls`: Earth and Namek Dragon Balls count as separate sets (no Namek cards exist yet), a deck may not mix them, Dragon Balls hit by damage go to the bottom of the life deck (or leave the game if a copy is in play) and do not count as discards, a life deck of only Dragon Balls loses when it must discard, and a set completed by capture wins at the start of the owner's next turn.
+- Not implemented: the defender choosing to take damage on an ally, allies taking over combat at 0-1 stages, Defense Shields as a separate step, Mastery cards and Tokui-Waza (Trunks Saga cards), cards that put allies into play ignoring the ally rules.
 
 **Still open**
 - **Constant Combat Power** encoding: stored as a `COMBAT_EFFECT` strike wrapping `constantPower`; a passive field on the power would be cleaner.

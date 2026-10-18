@@ -1,4 +1,5 @@
 import type { CardDB } from './cards'
+import { trunksAllyAllowed } from './state'
 import type { DeckList, Rules } from './types'
 
 export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[] {
@@ -28,5 +29,26 @@ export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[]
     const limit = d.limitPerDeck ?? (d.named && d.named === mpChar ? maxNamedCopies : maxCopies)
     if (n > limit) errors.push(`${name}: ${n} copies (max ${limit})`)
   }
+  if (rules.trunks.allyRules) errors.push(...trunksDeckErrors(db, deck))
   return errors
+}
+
+/** Trunks Saga deck rules: one copy per personality level (Saibaimen 3), legal allies, Earth or Namek Dragon Balls. */
+function trunksDeckErrors(db: CardDB, deck: DeckList): string[] {
+  const errors: string[] = []
+  const mpCards = deck.mp.map(id => db[id]).filter(Boolean)
+  const perLevel = new Map<string, number>()
+  const kinds = new Set<string>()
+  for (const id of deck.life) {
+    const d = db[id]
+    if (!d) continue
+    if (d.type === 'Dragon Ball') kinds.add(/Namek/i.test(d.name) ? 'Namek' : 'Earth')
+    if (d.type !== 'Personality' || !d.personality) continue
+    const key = `${d.personality.character} Lv${d.personality.level}`
+    perLevel.set(key, (perLevel.get(key) ?? 0) + 1)
+    if (!trunksAllyAllowed(mpCards, undefined, d)) errors.push(`${d.name} cannot be an ally of this main personality`)
+  }
+  for (const [key, n] of perLevel) if (n > (key.startsWith('Saibaimen') ? 3 : 1)) errors.push(`${key}: ${n} copies (max ${key.startsWith('Saibaimen') ? 3 : 1})`)
+  if (kinds.size > 1) errors.push('A deck may contain Earth or Namek Dragon Balls, not both')
+  return [...new Set(errors)]
 }

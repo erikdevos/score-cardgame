@@ -14,6 +14,15 @@
   "uniqueDragonBallNumbers": true,
   "uniqueDrillsPerPlayer": true,
   "initiative": { "mode": "LOWER_FIRST", "dominanceRatio": 2, "dominantStage": 2, "weakerStage": 10 },
+  "trunks": {
+    "levelStages": false,
+    "mostPowerfulByHighestLevel": false,
+    "finalPhysicalAttack": false,
+    "skipCombatRecovers": false,
+    "heroFirst": false,
+    "allyRules": false,
+    "dragonBalls": false
+  },
   "energyAttack": { "defaultCostStages": 2, "defaultLifeCards": 4 },
   "pat": {
     "brackets": [0, 500, 1000, 2500, 10000, 20000, 50000],

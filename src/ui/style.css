@@ -662,3 +662,16 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .segmented button small { font-size: 10px; font-weight: 600; letter-spacing: 0; opacity: 0.8; }
 .segmented button.on { background: var(--ki); color: #2a0e00; box-shadow: 0 0 18px rgba(255, 140, 0, 0.4); }
 .segmented button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+/* Final Physical Attack (Trunks Saga): pick the card to discard */
+.btn.final { border-color: color-mix(in srgb, var(--villain) 60%, transparent); }
+.btn.final.on { background: var(--villain); color: #fff; }
+.hand.final .card.playable { animation: none; box-shadow: 0 0 0 2px #ff8a3d, 0 0 22px 4px rgba(255, 120, 40, 0.55); }
+.hand.final .hand-slot.ready::before { display: none; }
+.hand.final .hand-slot.ready::after {
+  content: 'Discard to attack'; position: absolute; left: 50%; bottom: 10px; translate: -50% 0; z-index: 2; padding: 3px 10px; border-radius: 8px; white-space: nowrap;
+  background: #ff6a1a; color: #fff; font-weight: 800; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none;
+}
+/* three or more buttons wrap instead of squeezing the prompt */
+.command .actions { max-width: min(440px, 46vw); flex-wrap: wrap; gap: 8px; }
+.command .prompt { min-width: 220px; }

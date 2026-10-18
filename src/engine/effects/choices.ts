@@ -157,7 +157,7 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
   say(`takes ${d.name} from ${whose} ${ZONE_NAME[found.zone]} ${where[q.dest]}`)
   // searching the life deck ends with a shuffle, unless the card went to a fixed place in it
   if (found.zone === 'lifeDeck' && !['LIFE_TOP', 'LIFE_BOTTOM', 'OWNER_LIFE_BOTTOM'].includes(q.dest)) s.rngSeed = shuffleInPlace(owner.lifeDeck, s.rngSeed)
-  if (q.dest === 'PICKER_DRAGON_BALLS' || (q.dest === 'PLAY' && d.type === 'Dragon Ball')) checkDragonBallVictory(s, db)
+  if (q.dest === 'PICKER_DRAGON_BALLS' || (q.dest === 'PLAY' && d.type === 'Dragon Ball')) checkDragonBallVictory(s, db, q.dest === 'PICKER_DRAGON_BALLS' && q.owner !== q.player ? 'capture' : 'play')
 }
 
 export function pickRequest(
