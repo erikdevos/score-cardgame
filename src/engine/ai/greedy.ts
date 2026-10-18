@@ -79,6 +79,8 @@ function score(s: GameState, db: CardDB, a: Action): number {
       const pc = s.pendingChoice
       // Honor Duel: soak damage (first option); stage transfer: as many as possible
       if (pc?.kind === 'OPTION' && pc.purpose === 'honorDuel') return a.index === 0 ? 1 : 0
+      // FS-24: a life card paid per life card dealt; 3 is a fair trade
+      if (pc?.kind === 'OPTION' && pc.purpose === 'variableCost') return -Math.abs(a.index + 1 - 3)
       return a.index
     }
     case 'RESPOND':

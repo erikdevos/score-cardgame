@@ -38,6 +38,8 @@ export function activePassives(s: GameState, db: CardDB, p: PlayerId): Passive[]
   }
   for (const pl of s.players) pl.drills.forEach(collect)
   if (s.location) collect(s.location)
+  // FS-111: a borrowed drill works for the borrower as if it were theirs
+  for (const b of s.combat?.borrowedDrills ?? []) if (b.player === p) collect({ iid: `borrowed-${b.defId}`, defId: b.defId, owner: p })
   // FS-77: a passive that only holds while a character is in play
   for (const pl of s.players) {
     for (const c of pl.drills) {
@@ -89,6 +91,8 @@ function sumPassive(s: GameState, db: CardDB, p: PlayerId, kind: 'HAND_LIMIT' | 
 
 export function win(s: GameState, p: PlayerId, reason: WinReason) {
   if (s.winner !== null) return
+  const block = reason !== 'SURVIVAL' && s.victoryBlocks.find(b => b.player === p && s.turn < b.untilTurn)
+  if (block) return log(s, 'NO_EFFECT', `${block.source}: player ${p + 1} cannot win this way yet`, p)
   s.winner = p
   s.winReason = reason
   s.step = 'GAME_OVER'

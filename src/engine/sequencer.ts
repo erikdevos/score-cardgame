@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { allyAbsorbs, applyDefense, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { allyAbsorbs, applyDefense, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { triggerFrames } from './effects/triggers'
@@ -62,7 +62,7 @@ export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
     const effects = st.effects.onPlaySecondary
     if (isDefenseRole(st.combatRole) || findCustom(effects, 'powerDefense').length || isAutoOnly(effects) || isConstantPower(st)) return false
     if (findCustom(effects, 'usageLimit').some(u => u.per === 'game') && s.usedPerGame.includes(`${p}:${mp.id}`)) return false
-    if (attackRestriction(s, p, st.combatRole)) return false
+    if (attackRestriction(s, p, st.combatRole, false)) return false
     return timingAllows(s, p, effects, 'ATTACK') && requirementsMet(s, db, p, effects) && canPayCost(s, db, p, st)
   }) ?? null
 }
@@ -242,6 +242,10 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (over(s)) return
 
   if (st.lifeCardsDealt >= s.rules.dragonBallCaptureLifeCards && s.players[defender].dragonBalls.length > 0 && !dragonBallsProtected(s, db, defender)) {
+    // FS-P12 (Constant Combat Power): 6+ life cards with an energy attack captures 2 Dragon Balls
+    const double = type === 'ENERGY' && constantPowerEffects(s, db, st.initiator, 'stealOrCaptureDragonBall')
+      .some(e => st.lifeCardsDealt >= Number((e.condition as { minLifeCards?: number } | undefined)?.minLifeCards ?? 99))
+    st.captures = double ? 2 : 1
     st.phase = 'AWAIT_DB_STEAL'
     s.pendingChoice = { kind: 'DB_STEAL', player: st.initiator }
     return
@@ -273,7 +277,9 @@ function afterDamage(s: GameState, db: CardDB, defender: PlayerId, stagesLost: n
   const foe = st.initiator
   for (const { card, params } of tableEffects(s, db, defender, 'retaliationDrain')) {
     const lost = params.per === 'lifeCard' ? lifeLost : stagesLost
-    const n = Math.floor(lost / Number(params.every ?? 1)) * Math.abs(Number(params.opponentStages ?? -1))
+    const n = params.per === 'attack'
+      ? (stagesLost >= Number(params.minStages ?? 1) ? Math.abs(Number(params.opponentStages ?? -1)) : 0)
+      : Math.floor(lost / Number(params.every ?? 1)) * Math.abs(Number(params.opponentStages ?? -1))
     if (n <= 0) continue
     changeStages(s, foe, -n)
     log(s, 'STAGES', `${def(db, card).name}: player ${foe + 1} loses ${n} power stage(s)`, foe)
@@ -295,7 +301,7 @@ export function copyableAttack(s: GameState, db: CardDB, p: PlayerId) {
   const c = s.combat
   const saved = c?.defended[p]
   if (!c || !saved || c.onceKeys.includes(`copy:${p}`) || !tableEffects(s, db, p, 'copyDefendedAttack').length) return null
-  if (attackRestriction(s, p, saved.strike.combatRole) || !canPayCost(s, db, p, saved.strike)) return null
+  if (attackRestriction(s, p, saved.strike.combatRole, false) || !canPayCost(s, db, p, saved.strike)) return null
   return saved
 }
 
@@ -317,6 +323,11 @@ export function stealDragonBall(s: GameState, db: CardDB, iid: string | null) {
     log(s, 'DB_STEAL', `Player ${st.initiator + 1} captures ${def(db, ball).name}`, st.initiator)
     checkDragonBallVictory(s, db, 'capture')
     if (over(s)) return
+    st.captures = (st.captures ?? 1) - 1
+    if (st.captures > 0 && s.players[other(st.initiator)].dragonBalls.length) {
+      s.pendingChoice = { kind: 'DB_STEAL', player: st.initiator }
+      return
+    }
   }
   finishSuccessful(s, db)
 }
@@ -325,6 +336,7 @@ function finishSuccessful(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
   const type = attackTypeOf(st.strike.combatRole)!
   s.combat!.lastAttack[st.initiator] = { type, success: true }
+  s.combat!.onceKeys.push(`hit:${st.initiator}:${type}`)
   schedule(s, effectsFrame(st.initiator, st.label, st.strike.effects.onHit, st.card), step('strike.afterOnHit'))
 }
 
@@ -332,7 +344,10 @@ function finishSuccessful(s: GameState, db: CardDB) {
 export function strikeAfterOnHit(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
   const type = attackTypeOf(st.strike.combatRole)!
-  schedule(s, ...triggerFrames(s, db, { kind: 'afterReceivingSuccessfulAttack', player: other(st.initiator), attackType: type }), step('strike.cleanup'))
+  schedule(s,
+    ...triggerFrames(s, db, { kind: 'afterOwnSuccessfulAttack', player: st.initiator, attackType: type }),
+    ...triggerFrames(s, db, { kind: 'afterReceivingSuccessfulAttack', player: other(st.initiator), attackType: type }),
+    step('strike.cleanup'))
 }
 
 // Step 8
@@ -351,5 +366,9 @@ export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
     s.players[card.owner].nonCombat.push(card)
     return log(s, 'STAYS', `${def(db, card).name} stays on the table for another use this combat`, card.owner)
   }
+  // FS-119: "if Dragon Ball 7 is in play, discard instead of removing from game"
+  const alt = findCustom(def(db, card).effects.onEnterPlay, 'conditionalPostResolution')[0]
+  const condition = alt?.condition as { inPlay?: string } | undefined
+  if (alt && condition?.inPlay && inPlayAnywhere(s, db, { cardName: condition.inPlay })) return retire(s, card, alt.postResolution as 'DISCARD' | 'REMOVE' | 'STAYS')
   retire(s, card, def(db, card).effects.postResolution)
 }

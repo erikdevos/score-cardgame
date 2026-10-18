@@ -700,7 +700,11 @@
     "rawText": "Energy attack costing 1-7 life cards. If successful, defender discards that many life cards in damage.",
     "imageUrl": "/cards/frieza-saga/24.jpg",
     "verified": false,
-    "needsReview": "New handler variableCost: player picks 1-7 life cards as cost; on success the defender takes that many life cards. damage NONE because the amount comes from the handler."
+    "needsReview": "New handler variableCost: player picks 1-7 life cards as cost; on success the defender takes that many life cards. damage NONE because the amount comes from the handler.",
+    "cost": {
+      "type": "NONE",
+      "amount": 0
+    }
   },
   {
     "id": "FS-25",

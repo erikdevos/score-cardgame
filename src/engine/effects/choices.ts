@@ -1,7 +1,7 @@
 // Player choices raised by card effects ("2 cards of your choice", "if you wish").
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
-import { changeAnger, changeStages, checkDragonBallVictory, def, log, schedule } from '../state'
+import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards, schedule } from '../state'
 import type { CardDB } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
@@ -72,6 +72,27 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
   if (q.purpose === 'honorDuel') {
     s.discardAsLife.push({ player: q.player, mode: index === 0 ? 'DAMAGE' : 'DRAW', remaining: Number(q.data.cards), armed: false, source: q.source })
     return
+  }
+  if (q.purpose === 'variableCost') {
+    const n = index + Number(q.data.min ?? 1)
+    millCards(s, q.player, n, db)
+    const st = s.combat?.strike
+    if (st) st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: 0, lifeCards: n, modifierStages: 0, modifierLifeCards: 0 } }
+    return log(s, 'COST', `${q.source}: player ${q.player + 1} pays ${n} life card(s); the attack does ${n} life cards`, q.player)
+  }
+  if (q.purpose === 'lifeForDrills') {
+    const per = Number(q.data.per ?? 2)
+    if (index === 0) return
+    const own = s.players[q.player].lifeDeck
+    s.players[q.player].removed.push(...own.splice(0, index * per))
+    log(s, 'REMOVE', `${q.source}: player ${q.player + 1} removes ${index * per} life cards from the game`, q.player)
+    const foe = (1 - q.player) as PlayerId
+    return queueChoice(s, pickRequest(q.player, foe, 'drills', s.players[foe].drills, index, 'REMOVED', q.source))
+  }
+  if (q.purpose === 'borrowDrill') {
+    const defId = String(q.data[String(index)])
+    s.combat?.borrowedDrills.push({ player: q.player, defId })
+    return log(s, 'BORROW', `${q.source}: player ${q.player + 1} uses ${def(db, { iid: '', defId, owner: q.player }).name}'s power this combat`, q.player)
   }
   if (q.purpose === 'shuffle') {
     const pile = index === 0 ? s.players[q.player].lifeDeck : index === 1 ? s.players[q.player].discard : null

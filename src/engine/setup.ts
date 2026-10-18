@@ -51,6 +51,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     angerLock: [],
     keepHand: [],
     combatSkipped: false,
+    victoryBlocks: [],
     winner: null,
     winReason: null,
     log: [],

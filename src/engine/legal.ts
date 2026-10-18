@@ -85,7 +85,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
-      if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL')) {
+      if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL', false)) {
         out.push(...pl.hand.map(c => ({ type: 'FINAL_PHYSICAL_ATTACK' as const, player: p, iid: c.iid })))
       }
       out.push({ type: 'PASS', player: p })

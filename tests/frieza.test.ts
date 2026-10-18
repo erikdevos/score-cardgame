@@ -3,6 +3,7 @@ import { applyAction, buildCardDB, legalActions, type Action, type GameState, ty
 import saiyan from '../src/data/saiyan-saga/cards.json'
 import frieza from '../src/data/frieza-saga/cards.json'
 import { db as testDb } from './fixtures/testCards'
+import { checkDragonBallVictory } from '../src/engine/state'
 import { give, inCombat, newGame } from './helpers'
 
 // Frieza Saga handlers (transcribed, not yet verified: these test the engine behaviour, not the card text)
@@ -86,4 +87,48 @@ describe('Frieza Saga handlers', () => {
     expect(s.players[0].mp.anger).toBe(attacker - 1)
     expect(s.players[1].mp.anger).toBe(1)
   })
+
+  it('FS-24: the chosen life card cost is paid and becomes the damage', () => {
+    let s = inCombat()
+    const [mine, theirs] = [s.players[0].lifeDeck.length, s.players[1].lifeDeck.length]
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'FS-24') })
+    s = act(s, { type: 'CHOOSE', player: 0, index: 2 }) // 3 life cards
+    if (s.pendingChoice?.kind === 'DEFEND') s = act(s, { type: 'DEFEND', player: 1, iid: null })
+    expect(s.players[0].lifeDeck.length).toBe(mine - 3)
+    expect(s.players[1].lifeDeck.length).toBe(theirs - 3)
+    expect(s.players[0].mp.stage).toBe(5) // no default energy cost on top
+  })
+
+  it('FS-P1 holds back a Dragon Ball victory', () => {
+    let s = inCombat()
+    place(s, 0, 'FS-P1')
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: s.players[0].nonCombat[0].iid })
+    for (const n of [1, 2, 3, 4, 5, 6, 7]) place(s, 1, ['SS-15', 'SS-16', 'SS-75', 'SS-76', 'SS-77', 'SS-186', 'SS-187'][n - 1], 'dragonBalls')
+    checkDragonBallVictory(s, db)
+    expect(s.winner).toBeNull()
+    expect(s.log.some(e => e.msg.includes('cannot win this way yet'))).toBe(true)
+  })
+
+  it('FS-14 removes the top 3 cards of the opponent\'s discard pile when it hits', () => {
+    let s = inCombat()
+    const pile = s.players[1].discard.length
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'FS-14') })
+    if (s.pendingChoice?.kind === 'DEFEND') s = act(s, { type: 'DEFEND', player: 1, iid: null })
+    expect(s.players[1].removed.length).toBe(Math.min(3, pile + 4))
+  })
+
+  it('FS-67 makes its owner discard an opponent card in play at the start of every turn', () => {
+    let s = newGame()
+    s.attacker = 0
+    s.step = 'NON_COMBAT'
+    s.pendingChoice = null
+    place(s, 0, 'FS-67', 'drills')
+    const target = place(s, 1, 'TEST-DRILL', 'drills')
+    s = act(s, { type: 'END_NON_COMBAT', player: 0 })
+    s = act(s, { type: 'SKIP_COMBAT', player: 0 })
+    for (let i = 0; i < 6 && s.turn === 1; i++) s = act(s, legal(s)[0])
+    while (s.pendingChoice?.kind === 'PICK') s = act(s, legal(s)[0])
+    expect(s.players[1].drills.some(c => c.iid === target)).toBe(false)
+  })
 })
+

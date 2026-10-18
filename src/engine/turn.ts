@@ -3,7 +3,7 @@ import type { CardDB, StrikeDef } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
 import { shuffleInPlace } from './rng'
 import { attackPowerOption, beginStrike, react, strikeOf } from './sequencer'
-import { canUseCard, changeStages, checkDragonBallVictory, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
+import { canUseCard, changeStages, checkDragonBallVictory, checkMostPowerful, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
 import { other, type Frame, type GameState, type PlayerId } from './types'
 
 // Step 1
@@ -14,10 +14,14 @@ export function startTurn(s: GameState, db: CardDB) {
   s.combatSkipped = false
   log(s, 'TURN', `Turn ${s.turn}: player ${s.attacker + 1} attacks`, s.attacker)
   // Trunks Saga: a set of 7 completed by capture wins now, if the player still has it
-  if (s.rules.trunks.dragonBalls) checkDragonBallVictory(s, db, 'turnStart')
+  // (also catches a win that FS-P1 held back)
+  checkDragonBallVictory(s, db, 'turnStart')
+  if (s.rules.trunks.mostPowerfulByHighestLevel) checkMostPowerful(s, db, s.attacker)
   if (over(s)) return
   drawCards(s, s.attacker, s.rules.drawPerTurn)
   runDelayed(s, db)
+  // FS-67: drills that act "at the beginning of every turn"
+  schedule(s, ...triggerFrames(s, db, { kind: 'turnStart' }))
 }
 
 /** "On his next turn, he takes his highest level Saibaimen and puts it into play as an ally." */

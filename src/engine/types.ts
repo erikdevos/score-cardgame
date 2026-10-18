@@ -45,6 +45,8 @@ export type StrikePhase = 'AWAIT_DEFENSE' | 'AWAIT_DB_STEAL'
 
 export interface StrikeState {
   initiator: PlayerId
+  /** Dragon Balls the attacker may still capture after this hit (FS-P12: 2) */
+  captures?: number
   /** the card being played, or null for a personality power */
   card: CardInstance | null
   strike: StrikeDef
@@ -72,6 +74,8 @@ export interface AttackRestriction {
   /** created during the restricted player's own phase: that phase does not count */
   skipCurrent: boolean
   source: string
+  /** FS-58, FS-82: only attack cards are blocked, personality powers still work */
+  cardsOnly?: boolean
 }
 
 /** Damage change for attacks on `player` for the rest of this combat. */
@@ -90,6 +94,8 @@ export interface CombatState {
   strike: StrikeState | null
   /** players who made their Final Physical Attack this combat (Trunks Saga) */
   finalAttack: PlayerId[]
+  /** FS-111: drills whose power a player borrows for this combat */
+  borrowedDrills: { player: PlayerId; defId: string }[]
   usedPowers: string[]
   ended: boolean
   restrictions: AttackRestriction[]
@@ -132,7 +138,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -197,6 +203,8 @@ export interface GameState {
   angerLock: PlayerId[]
   /** may keep extra cards in the discard step of this turn */
   keepHand: { player: PlayerId; turn: number }[]
+  /** FS-P1: this player cannot win by Dragon Balls or Most Powerful Personality before `untilTurn` */
+  victoryBlocks: { player: PlayerId; untilTurn: number; source: string }[]
   /** this turn's attacker skipped the combat step (Trunks Saga Step 6) */
   combatSkipped: boolean
   /** effects that happen at the start of a later turn */

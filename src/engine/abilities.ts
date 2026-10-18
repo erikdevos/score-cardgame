@@ -9,7 +9,7 @@ export type Params = Record<string, unknown>
 
 export function newCombat(active: PlayerId): CombatState {
   return {
-    active, consecutivePasses: 0, strike: null, finalAttack: [], usedPowers: [], ended: false,
+    active, consecutivePasses: 0, strike: null, finalAttack: [], borrowedDrills: [], usedPowers: [], ended: false,
     restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
@@ -34,16 +34,16 @@ export function attackTypeOf(role?: CombatRole): 'PHYSICAL' | 'ENERGY' | null {
 export const typeMatches = (t: unknown, actual: 'PHYSICAL' | 'ENERGY') => t === undefined || t === 'ANY' || t === actual
 
 /** The effect that currently stops player p from making an attack with this role, if any. */
-export function attackRestriction(s: GameState, p: PlayerId, role?: CombatRole): string | null {
+export function attackRestriction(s: GameState, p: PlayerId, role?: CombatRole, byCard = true): string | null {
   const type = attackTypeOf(role)
   if (!s.combat || !type) return null
-  return s.combat.restrictions.find(r => r.player === p && !r.skipCurrent && typeMatches(r.attackType, type))?.source ?? null
+  return s.combat.restrictions.find(r => r.player === p && !r.skipCurrent && typeMatches(r.attackType, type) && (byCard || !r.cardsOnly))?.source ?? null
 }
 
-export function restrictAttacks(s: GameState, p: PlayerId, attackType: AttackType, phases: number, source: string) {
+export function restrictAttacks(s: GameState, p: PlayerId, attackType: AttackType, phases: number, source: string, cardsOnly = false) {
   const c = s.combat
   if (!c) return log(s, 'WARN', `${source}: no combat to apply the restriction to`)
-  c.restrictions.push({ player: p, attackType, phases, skipCurrent: phases < 99 && c.active === p, source })
+  c.restrictions.push({ player: p, attackType, phases, skipCurrent: phases < 99 && c.active === p, source, cardsOnly })
   const what = attackType === 'ANY' ? 'attacks' : `${attackType.toLowerCase()} attacks`
   log(s, 'RESTRICT', `${source}: player ${p + 1} cannot make ${what} ${phases >= 99 ? 'for the rest of this combat' : 'in their next attack phase'}`, p)
 }
@@ -141,7 +141,8 @@ export const worksFromTable = (d: CardDef) => TABLE_HANDLERS.some(h => findCusto
 /** Ongoing effects of a player's drills and table cards with this handler. */
 export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): { card: CardInstance; params: Params }[] {
   const pl = s.players[p]
-  return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
+  const borrowed = (s.combat?.borrowedDrills ?? []).filter(b => b.player === p).map(b => ({ iid: `borrowed-${b.defId}`, defId: b.defId, owner: p }))
+  return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls, ...borrowed].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
 }
 
 /** "If X is in play" (anywhere): a character as main personality or ally, or a card on the table. "Dragon Ball 6" matches any Dragon Ball numbered 6. */

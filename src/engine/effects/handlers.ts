@@ -39,7 +39,7 @@ function matchesFilter(s: GameState, db: CardDB, user: PlayerId, d: CardDef, fil
     const inPlay = s.players.some(p => p.dragonBalls.some(c => def(db, c).dragonBallNumber === d.dragonBallNumber))
     return !(inPlay && (s.rules.uniqueDragonBallNumbers || filter.includes('not in play')))
   }
-  if (filter === 'Ally') {
+  if (filter.startsWith('Ally')) {
     const mine = mpDef(s, db, user).personality!.character
     return d.type === 'Personality' && d.personality?.level === 1 && d.personality.character !== mine
   }
@@ -81,6 +81,42 @@ export const handlers: Record<string, CustomHandler> = {
   dragonBallPlayLimit: noop,
   constantPower: noop,
   mirrorAngerReduction: noop, // read in changeAnger
+  conditionalPostResolution: noop, // read when the card retires
+
+  variableCost(ctx, p) {
+    // FS-24: choose 1-7 life cards to pay; that many is the damage if successful
+    const min = num(p.min, 1)
+    const max = Math.min(num(p.max, 7), ctx.s.players[ctx.user].lifeDeck.length - 1)
+    if (max < min) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: not enough life cards to pay`, ctx.user)
+    const options = Array.from({ length: max - min + 1 }, (_, i) => `${i + min} life card${i + min === 1 ? '' : 's'}`)
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: how many life cards do you pay?`, options, purpose: 'variableCost', data: { min } })
+  },
+
+  useDrillPower(ctx) {
+    // FS-111: borrow the power of a drill in play for the rest of this combat
+    const own = new Set(ctx.s.players[ctx.user].drills.map(c => c.defId))
+    const ids = [...new Set(ctx.s.players.flatMap(pl => pl.drills.map(c => c.defId)))].filter(id => !own.has(id))
+    if (!ctx.s.combat || !ids.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no other drill in play to borrow`, ctx.user)
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: whose drill power do you use this combat?`, options: ids.map(id => ctx.db[id].name), purpose: 'borrowDrill', data: Object.fromEntries(ids.map((id, i) => [String(i), id])) })
+  },
+
+  counterCard(ctx) {
+    // FS-121 (approximation): cancel a lasting card by removing an opponent's non-Dragon Ball card in play from the game
+    const { s, db, user } = ctx
+    const foe = other(user)
+    const zones: PickZone[] = drillsProtected(s, db, foe) ? ['nonCombat'] : ['drills', 'nonCombat']
+    const cards = zones.flatMap(z => zoneCards(s, foe, z))
+    if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no card to stop`)
+    queueChoice(s, pickRequest(user, foe, zones, cards, 1, 'REMOVED', ctx.source))
+  },
+
+  preventVictory(ctx) {
+    // FS-P1: the opponent cannot win by Dragon Balls or Most Powerful Personality during their next 2 turns
+    const foe = other(ctx.user)
+    const untilTurn = ctx.s.turn + (ctx.s.attacker === foe ? 5 : 4)
+    ctx.s.victoryBlocks.push({ player: foe, untilTurn, source: ctx.source })
+    log(ctx.s, 'PROTECT', `${ctx.source}: player ${foe + 1} cannot win by Dragon Balls or Most Powerful Personality for their next 2 turns`, ctx.user)
+  },
 
   ifInPlay(ctx, p) {
     if (inPlayAnywhere(ctx.s, ctx.db, p)) resolveEffects(ctx, then(p))
@@ -132,9 +168,23 @@ export const handlers: Record<string, CustomHandler> = {
     if (st) st.takeFirstMilled = ctx.user
   },
 
-  sweepCards(ctx) {
+  sweepCards(ctx, p) {
     const { s, db, user } = ctx
     const foe = other(user)
+    if (p.cardType === 'Ally') {
+      // FS-118: all of the opponent's allies are discarded
+      const gone = s.players[foe].allies.map(a => a.card)
+      s.players[foe].allies = []
+      s.players[foe].discard.push(...gone)
+      return log(s, 'DISCARD', `${ctx.source}: player ${foe + 1} discards their allies (${gone.length})`, foe)
+    }
+    if (p.cardType === 'Non-Combat') {
+      // FS-67: the owner picks N of the opponent's non-Dragon Ball cards in play (drills included)
+      const zones: PickZone[] = drillsProtected(s, db, foe) ? ['nonCombat'] : ['drills', 'nonCombat']
+      const cards = zones.flatMap(z => zoneCards(s, foe, z))
+      if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no card to discard`)
+      return queueChoice(s, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'DISCARD', ctx.source))
+    }
     if (drillsProtected(s, db, foe)) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1}'s drills are protected`)
     const gone = s.players[foe].drills
     s.players[foe].drills = []
@@ -201,6 +251,24 @@ export const handlers: Record<string, CustomHandler> = {
 
   removeFromGame(ctx, p) {
     const { s, db, user } = ctx
+    if (p.zone === 'discard' || p.zone === 'lifeDeck') {
+      // FS-14: top 3 of the opponent's discard pile; FS-21: top card of your own life deck
+      const who = targetOf(ctx, p.target)
+      const pile = s.players[who][p.zone]
+      const n = Math.min(num(p.amount, 1), pile.length)
+      const gone = p.zone === 'discard' ? pile.splice(pile.length - n, n) : pile.splice(0, n)
+      s.players[who].removed.push(...gone)
+      return log(s, 'REMOVE', `${ctx.source}: player ${who + 1} removes ${n} card(s) from their ${p.zone === 'discard' ? 'discard pile' : 'life deck'} from the game`, who)
+    }
+    if (p.perOwnLifeCardsRemoved) {
+      // FS-23: pay N life cards per opponent drill removed
+      const per = num(p.perOwnLifeCardsRemoved, 2)
+      const foe = other(user)
+      const max = drillsProtected(s, db, foe) ? 0 : Math.min(s.players[foe].drills.length, Math.floor((s.players[user].lifeDeck.length - 1) / per))
+      if (max < 1) return log(s, 'NO_EFFECT', `${ctx.source}: no opponent drill to remove`)
+      const options = Array.from({ length: max + 1 }, (_, i) => `${i} drill${i === 1 ? '' : 's'} (${i * per} life cards)`)
+      return queueChoice(s, { kind: 'OPTION', player: user, source: ctx.source, prompt: `${ctx.source}: how many opponent drills do you remove?`, options, purpose: 'lifeForDrills', data: { per } })
+    }
     if (p.target === 'SELF') {
       // Chiaotzu's Blast: Chiaotzu leaves the game. As an ally that is clear; a main personality stays.
       const ally = s.players[user].allies.find(a => def(db, a.card).personality?.character === p.card)
@@ -224,7 +292,9 @@ export const handlers: Record<string, CustomHandler> = {
     const { s, db, user } = ctx
     const owner = p.target === 'OPPONENT' ? other(user) : user
     const zones = (Array.isArray(p.from) ? p.from : [p.from ?? 'lifeDeck']) as PickZone[]
+    const level = s.players[user].mp.levelIndex + 1
     const cards = zones.flatMap(z => zoneCards(s, owner, z)).filter(c => matchesFilter(s, db, user, def(db, c), String(p.filter ?? '')))
+      .filter(c => !p.matchNumberToLevel || def(db, c).dragonBallNumber === level)
     if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: no ${p.filter} found`)
     if (p.which === 'first') {
       // the first one from the top, no choice (SS-240)
@@ -264,6 +334,22 @@ export const handlers: Record<string, CustomHandler> = {
         // the owner chooses which ally takes the damage
         log(s, 'PROTECT', `${ctx.source}: the damage player ${user + 1} would take this combat destroys an ally instead`, user)
         return queueChoice(s, pickRequest(user, user, 'allies', allies.map(a => a.card), 1, 'MARK_ALLY_SHIELD', ctx.source))
+      case 'modifyStages': {
+        // FS-50, FS-51, FS-97: every ally of the target gains or loses stages
+        const who = targetOf(ctx, p.target)
+        for (const a of s.players[who].allies) a.stage = Math.max(0, Math.min(s.rules.maxStage, a.stage + num(p.amount, 0)))
+        return log(s, 'STAGES', `${ctx.source}: player ${who + 1}'s allies ${num(p.amount, 0) >= 0 ? 'gain' : 'lose'} ${Math.abs(num(p.amount, 0))} power stage(s)`, who)
+      }
+      case 'toBottomOfLifeDeck': {
+        // FS-111: with Black Shadow Drill in play, the opponent's allies go to the bottom of their life deck
+        const need = (p.condition as { inPlay?: string } | undefined)?.inPlay
+        if (need && !inPlayAnywhere(s, db, { cardName: need })) return
+        const who = targetOf(ctx, p.target)
+        const gone = s.players[who].allies.map(a => a.card)
+        s.players[who].allies = []
+        s.players[who].lifeDeck.push(...gone)
+        return log(s, 'MOVE', `${ctx.source}: player ${who + 1}'s allies go to the bottom of their life deck`, who)
+      }
       case 'plantAlly': {
         if (s.step === 'NON_COMBAT' && s.attacker === user) s.skipCombat.push({ player: user, turn: s.turn, source: ctx.source })
         const turn = s.turn + (s.attacker === user ? 2 : 1)
@@ -278,7 +364,10 @@ export const handlers: Record<string, CustomHandler> = {
 
   preventAttack(ctx, p) {
     const phases = p.duration === 'thisCombat' ? 99 : 1
-    restrictAttacks(ctx.s, targetOf(ctx, p.target), (p.attackType ?? 'ANY') as AttackType, phases, ctx.source)
+    // FS-82 "no other physical combat cards" hits everyone; FS-17 protects villains: whoever faces a villain
+    let who: PlayerId[] = p.target === 'ALL' ? [0, 1] : [targetOf(ctx, p.target)]
+    if (p.protectsAlignment) who = ([0, 1] as PlayerId[]).filter(x => mpDef(ctx.s, ctx.db, other(x)).personality!.alignment === p.protectsAlignment)
+    for (const x of who) restrictAttacks(ctx.s, x, (p.attackType ?? 'ANY') as AttackType, phases, ctx.source, !!p.cardsOnly)
   },
 
   skipPhase(ctx, p) {

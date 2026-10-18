@@ -8,6 +8,8 @@ export type Trigger =
   | { kind: 'combatStart' }
   | { kind: 'attackPhase'; player: PlayerId }
   | { kind: 'afterReceivingSuccessfulAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY' }
+  | { kind: 'turnStart' }
+  | { kind: 'afterOwnSuccessfulAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY' }
 
 function roleOk(s: GameState, owner: PlayerId, role: unknown) {
   if (role === 'attacker') return owner === s.attacker
@@ -31,8 +33,17 @@ export function triggerFrames(s: GameState, db: CardDB, t: Trigger): Frame[] {
           continue
         }
         if (e.handler !== 'triggeredEffect' || p.trigger !== t.kind || !roleOk(s, pl.id, p.role)) continue
-        if (t.kind !== 'combatStart' && t.player !== pl.id) continue
-        if (t.kind === 'afterReceivingSuccessfulAttack' && !typeMatches(p.attackType, t.attackType)) continue
+        if (t.kind !== 'combatStart' && t.kind !== 'turnStart' && t.player !== pl.id) continue
+        if ((t.kind === 'afterReceivingSuccessfulAttack' || t.kind === 'afterOwnSuccessfulAttack') && !typeMatches(p.attackType, t.attackType)) continue
+        // FS-78: only once both a physical and an energy attack of the owner succeeded this combat
+        const hits = s.combat?.onceKeys ?? []
+        if (p.condition === 'successfulPhysicalAndEnergyThisCombat' && !(hits.includes(`hit:${pl.id}:PHYSICAL`) && hits.includes(`hit:${pl.id}:ENERGY`))) continue
+        const limit = p.limit as { count?: number; per?: string } | undefined
+        if (limit?.per === 'combat' && s.combat) {
+          const key = `${drill.iid}:limit`
+          if (hits.filter(k => k === key).length >= (limit.count ?? 1)) continue
+          s.combat.onceKeys.push(key)
+        }
         const effects = (p.then ?? []) as Effect[]
         if (p.optional) {
           const prompt = `${d.name}: ${effects.map(x => (x.action === 'DRAW' ? `draw ${x.amount}` : x.action.toLowerCase())).join(', ')}?`
