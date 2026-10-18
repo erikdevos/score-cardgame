@@ -1,5 +1,5 @@
 import { computed, ref, shallowRef } from 'vue'
-import { actingPlayer, applyAction, chooseAction, createGame, legalActions, type Action, type DeckList, type GameState, type PlayerId } from '../engine'
+import { actingPlayer, applyAction, chooseAction, createGame, legalActions, type Action, type DeckList, type GameState, type PlayerId, type Rules } from '../engine'
 import { db } from './cardDb'
 import { settings } from './settings'
 
@@ -24,12 +24,12 @@ export function useGame() {
     mode.value === 'hotseat' && settings.hideHandsHotseat && state.value?.winner === null && revealedFor.value !== actor.value)
   const myTurn = computed(() => actor.value !== null && (mode.value === 'hotseat' || actor.value !== AI))
 
-  function start(decks: [DeckList, DeckList], m: Mode, seed = Date.now()) {
+  function start(decks: [DeckList, DeckList], m: Mode, seed = Date.now(), extraRules: Partial<Rules> = {}) {
     clearTimeout(aiTimer)
     mode.value = m
     error.value = ''
     revealedFor.value = null
-    state.value = createGame(db, decks, { seed, rules: { mode: settings.rulesMode } })
+    state.value = createGame(db, decks, { seed, rules: { ...extraRules, mode: settings.rulesMode } })
     scheduleAi()
   }
 

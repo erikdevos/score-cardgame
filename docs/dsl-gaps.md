@@ -162,10 +162,25 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 - Not implemented yet (logged as a warning, the rest of the card still resolves): `variableCost` (FS-24 plays as a normal energy attack), `useDrillPower` (FS-111), `counterCard` (FS-121), `preventVictory` (FS-P1), `mirrorAngerReduction` (FS-P3), `conditionalPostResolution` (FS-119 always removed), FS-P12's Dragon Ball capture power. New params on existing handlers (listed in the notes) are only honoured where the handler already reads them.
 - Deck building: copy limits now count by card title, so a reprint shares the limit with the original (assumption: "max 3 of a card" means by name). Auto-built decks in the Saiyan + Frieza pool use a level 4 on top of levels 1-3 when the pool has one, and per level the newest set's printing.
 
-**Open questions**
-- **PAT brackets**: `rules.json` brackets end at 50,000, while Frieza Saga ratings go up to 900,000 (Goku Lv4). Everything above 50,000 is one bracket, so PAT damage between e.g. 75,000 and 750,000 is the same. Needs the Frieza Saga rulebook's PAT.
-- **Alignments** of new characters (Nail, Dende, Guldo, Jeice, Dodoria, Captain Ginyu, Frieza, Garlic Jr., Spice, Vinegar, Trunks) are assumed from the anime and flagged.
-- **"Dragon Ball 6/7"** in card text (FS-15, FS-119): the set has no Dragon Ball cards of its own; any Dragon Ball with that number counts.
-- **Drills printed as Non-Combat** (FS-55, FS-63, FS-65-80, FS-101, FS-102): typed `Drill` like the Saiyan drills.
-- **"Captain Ginyu"** is used consistently as the character name (printed), not "Ginyu".
-- **Constant Combat Power** (FS-P12-P14): always-on personality powers, stored as a `COMBAT_EFFECT` strike wrapping `constantPower`; a passive field on the power would be cleaner.
+**Settled by the Trunks Saga rulebook** (Score, 2001; Erik's copy, not in the repo; no Frieza Saga rulebook is available)
+- **PAT**: the Saiyan + Frieza pool uses the Trunks Saga Physical Attack Table (`src/engine/config/pat-trunks.json`: 8 brackets from 0 to 1,300,000+). The Saiyan Saga pool keeps the 2000 table.
+- **Alignment**: hero personality cards have blue backgrounds, villains red (rulebook p. 4, 45). Checked on the images: Jeice, Dodoria, Guldo, Frieza (FS-124) red; Dende, Nail blue. The silver foil promos (FS-P12-P17) show no background colour and stay flagged.
+- **"Dragon Ball 6/7"** without Earth/Namek: "Unless a card specifies which type of Dragon Ball it affects, it will affect both" (p. 47). Current reading confirmed.
+- **Drills**: "A Drill card is any Non-Combat card with the word Drill in its title" (p. 40). Typing them `Drill` is correct.
+- **"or"** in card text means the player chooses one action (p. 30), as already ruled for SS-101-103.
+- **Warrior Sword** is the anger counter (p. 10, 32). FS-P3 Calming Sanctuary is implemented: anger its owner loses is also lost by the opponent (stays on the table).
+- **Constant Combat Power** (p. 31): always available, usable more than once per combat, even before or after combat as the text says. Matches the `constantPower` encoding.
+- **Main personality levels from different sagas may be mixed** (p. 33), as the auto decks do.
+
+**Trunks Saga rules that differ from the engine's Pure 2000 rules (not applied, needs a decision)**
+- Level up: the scouter goes to the new level's highest power stage (engine: stage 5). Level drop: 5 stages above 0.
+- At the highest level, reaching 5 anger sets the scouter to the highest stage and resets anger; the Most Powerful Personality victory is having the highest level among all main personalities in play (engine: max anger at the highest level).
+- Final Physical Attack: discard any card for a PAT physical attack, once per combat, then pass for the rest of that combat.
+- Step 6: when you skip combat, put the top card of your discard pile at the bottom of your life deck.
+- The hero player goes first.
+- Allies: same alignment as the main personality and at least 2 levels below its highest level; the defender chooses whether damage hits the main personality or an ally.
+- Dragon Balls: Earth or Namek per deck, not both; a Dragon Ball victory by capture waits until the start of your next turn.
+- Mastery cards and Tokui-Waza (Trunks Saga cards, not in these two sets).
+
+**Still open**
+- **Constant Combat Power** encoding: stored as a `COMBAT_EFFECT` strike wrapping `constantPower`; a passive field on the power would be cleaner.

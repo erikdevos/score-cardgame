@@ -1091,7 +1091,6 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character)",
     "rawText": "Energy attack doing 5 life cards of damage. if stopped, it still does 2 life cards of damage.",
     "imageUrl": "/cards/frieza-saga/37.jpg",
     "verified": false
@@ -1132,7 +1131,6 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character)",
     "rawText": "Physical Attack.",
     "imageUrl": "/cards/frieza-saga/38.jpg",
     "verified": false
@@ -1494,7 +1492,6 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character)",
     "rawText": "Physical Attack. If successful, you also may take the 2 bottom cards from your discard pile into your hand.",
     "imageUrl": "/cards/frieza-saga/45.jpg",
     "verified": false
@@ -1543,7 +1540,6 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character)",
     "rawText": "Energy Attack. This attack cannot be stopped by using combat card defenses.",
     "imageUrl": "/cards/frieza-saga/46.jpg",
     "verified": false
@@ -1595,7 +1591,6 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character)",
     "rawText": "Physical Attack. This attack cannot be stopped by using combat card defenses.",
     "imageUrl": "/cards/frieza-saga/47.jpg",
     "verified": false
@@ -1654,7 +1649,7 @@
         }
       }
     },
-    "needsReview": "alignment assumed (new character); printed PUR 2 on a level 1; playTiming 'endOfCombat' is a new value.",
+    "needsReview": "printed PUR 2 on a level 1; playTiming 'endOfCombat' is a new value.",
     "rawText": "At the end of a combat, put any single ally from your discard pile into play, at 4 stages above zero.",
     "imageUrl": "/cards/frieza-saga/48.jpg",
     "verified": false
@@ -3161,8 +3156,7 @@
     },
     "rawText": "Energy Attack doing 5 life cards of damage, if stopped it still does 3 life cards of damage.",
     "imageUrl": "/cards/frieza-saga/096.jpg",
-    "verified": false,
-    "needsReview": "alignment assumed (Hero, new character)"
+    "verified": false
   },
   {
     "id": "FS-97",
@@ -3652,8 +3646,7 @@
     },
     "rawText": "Stops a physical attack and, in the process, causes 1 life card of damage to your opponent.",
     "imageUrl": "/cards/frieza-saga/110.jpg",
-    "verified": false,
-    "needsReview": "alignment assumed (Hero, new character)"
+    "verified": false
   },
   {
     "id": "FS-111",
@@ -3930,8 +3923,7 @@
     },
     "rawText": "Take your top two discards and place them at the bottom of your life deck.",
     "imageUrl": "/cards/frieza-saga/117.jpg",
-    "verified": false,
-    "needsReview": "alignment assumed (Hero, new character)."
+    "verified": false
   },
   {
     "id": "FS-118",
@@ -4176,7 +4168,7 @@
     "rawText": "Energy attack doing 6 life cards of damage.",
     "imageUrl": "/cards/frieza-saga/124.jpg",
     "verified": false,
-    "needsReview": "alignment assumed (Villain, new character). Holo card: text slightly blurred but readable."
+    "needsReview": "Holo card: text slightly blurred but readable."
   },
   {
     "id": "FS-125",

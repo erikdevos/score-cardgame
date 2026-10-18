@@ -31,7 +31,7 @@ function start(mode: Mode) {
   // Test decks use fictional cards and ignore copy limits; decks of real cards must be legal.
   warnings.value = lists.flatMap((d, i) => (decks.value[i].startsWith('demo') ? [] : validateDeck(db, d, defaultRulesConfig()).map(e => `Player ${i + 1}: ${e}`)))
   if (warnings.value.length) return
-  game.start([lists[0], lists[1]], mode, s)
+  game.start([lists[0], lists[1]], mode, s, FORMATS[settings.format].rules)
   screen.value = 'game'
 }
 </script>

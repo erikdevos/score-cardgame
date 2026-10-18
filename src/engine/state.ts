@@ -128,11 +128,21 @@ export function changeStages(s: GameState, p: PlayerId, delta: number) {
   mp.stage = Math.max(0, Math.min(s.rules.maxStage, mp.stage + delta))
 }
 
-export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number) {
+export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number, mirrored = false) {
   if (delta > 0 && s.angerLock.includes(p)) return log(s, 'ANGER', `Player ${p + 1}'s anger cannot rise yet`, p)
   const mp = s.players[p].mp
+  const before = mp.anger
   mp.anger = Math.max(0, Math.min(s.rules.maxAnger, mp.anger + delta))
   if (delta !== 0) log(s, 'ANGER', `Player ${p + 1} anger ${delta > 0 ? '+' : ''}${delta} (now ${mp.anger})`, p)
+  // FS-P3: anger you lose on your Warrior Sword (the anger counter) is also lost by your opponents
+  const reduced = before - mp.anger
+  if (reduced > 0 && !mirrored) {
+    const mirror = s.players[p].nonCombat.find(c => def(db, c).effects.onEnterPlay.some(e => e.action === 'CUSTOM' && e.handler === 'mirrorAngerReduction'))
+    if (mirror) {
+      log(s, 'ANGER', `${def(db, mirror).name}: opponents lose ${reduced} anger as well`, p)
+      changeAnger(s, db, other(p), -reduced, true)
+    }
+  }
   if (mp.anger >= s.rules.maxAnger) onMaxAnger(s, db, p)
 }
 

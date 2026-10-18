@@ -135,7 +135,7 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
 }
 
 /** Cards that only work while lying on the table (shields, creatures, ...); there is nothing to "use". */
-const TABLE_HANDLERS = ['shieldNextAttack', 'damageAbsorber', 'recurringDamage', 'revealHand']
+const TABLE_HANDLERS = ['shieldNextAttack', 'damageAbsorber', 'recurringDamage', 'revealHand', 'mirrorAngerReduction']
 export const worksFromTable = (d: CardDef) => TABLE_HANDLERS.some(h => findCustom(d.effects.onEnterPlay, h).length > 0)
 
 /** Ongoing effects of a player's drills and table cards with this handler. */

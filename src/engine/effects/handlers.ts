@@ -80,6 +80,7 @@ export const handlers: Record<string, CustomHandler> = {
   conditionalPassive: noop,
   dragonBallPlayLimit: noop,
   constantPower: noop,
+  mirrorAngerReduction: noop, // read in changeAnger
 
   ifInPlay(ctx, p) {
     if (inPlayAnywhere(ctx.s, ctx.db, p)) resolveEffects(ctx, then(p))

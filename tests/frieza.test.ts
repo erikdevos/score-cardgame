@@ -74,4 +74,16 @@ describe('Frieza Saga handlers', () => {
     expect(s.players[1].hand.length).toBe(2)
     expect(s.players[1].discard.length).toBe(discard + 1)
   })
+  it('FS-P3: anger its owner loses is lost by the opponent too', () => {
+    let s = inCombat()
+    place(s, 0, 'FS-P3')
+    s.players[0].mp.anger = 3
+    s.players[1].mp.anger = 2
+    const block = give(s, 1, 'TEST-BLOCK') // lowers the attacker's anger by 1
+    s = act(s, { type: 'PLAY_CARD', player: 0, iid: give(s, 0, 'TEST-PUNCH') })
+    const attacker = s.players[0].mp.anger
+    s = act(s, { type: 'DEFEND', player: 1, iid: block })
+    expect(s.players[0].mp.anger).toBe(attacker - 1)
+    expect(s.players[1].mp.anger).toBe(1)
+  })
 })

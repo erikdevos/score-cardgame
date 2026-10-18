@@ -1,9 +1,15 @@
+import type { Rules } from '../engine'
+import patTrunks from '../engine/config/pat-trunks.json'
 import { realCards, type SetName } from './cardDb'
 
 // Which sets a game draws its cards from. Chosen on the menu, per game.
 export const FORMATS = {
-  SAIYAN: { label: 'Saiyan Saga', sets: ['Saiyan Saga'] as SetName[] },
-  SAIYAN_FRIEZA: { label: 'Saiyan + Frieza', sets: ['Saiyan Saga', 'Frieza Saga'] as SetName[] },
+  SAIYAN: { label: 'Saiyan Saga', sets: ['Saiyan Saga'] as SetName[], rules: {} as Partial<Rules> },
+  // Frieza Saga power levels go far past the Saiyan Saga table: use the Trunks Saga rulebook's table (no Frieza Saga rulebook available)
+  SAIYAN_FRIEZA: {
+    label: 'Saiyan + Frieza', sets: ['Saiyan Saga', 'Frieza Saga'] as SetName[],
+    rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix } } as Partial<Rules>,
+  },
 } as const
 export type FormatKey = keyof typeof FORMATS
 
