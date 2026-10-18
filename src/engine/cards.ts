@@ -86,7 +86,7 @@ export const PersonalitySchema = z.object({
 
 export const CardType = z.enum([
   'Personality', 'Physical Combat', 'Energy Combat', 'Combat',
-  'Non-Combat', 'Drill', 'Dragon Ball', 'Location', 'Battleground',
+  'Non-Combat', 'Drill', 'Dragon Ball', 'Location', 'Battleground', 'Mastery',
 ])
 export type CardType = z.infer<typeof CardType>
 

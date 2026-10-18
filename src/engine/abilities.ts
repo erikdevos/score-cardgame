@@ -2,7 +2,8 @@
 // timing gates, defenses (cards, dual-use cards and personality powers) and damage changes.
 import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
 import type { Damage } from './damage'
-import { def, log, mpDef } from './state'
+import { constantParams, controllingAlly, def, findCustom, inPlayAnywhere, log, mpDef } from './state'
+export { findCustom, inPlayAnywhere }
 import type { AttackType, CardInstance, CombatState, GameState, PlayerId } from './types'
 
 export type Params = Record<string, unknown>
@@ -12,18 +13,6 @@ export function newCombat(active: PlayerId): CombatState {
     active, consecutivePasses: 0, strike: null, finalAttack: [], borrowedDrills: [], controllers: [], usedPowers: [], ended: false,
     restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
-}
-
-/** Params of every CUSTOM effect with this handler, including ones nested in `then`. */
-export function findCustom(effects: Effect[], handler: string): Params[] {
-  const out: Params[] = []
-  for (const e of effects) {
-    if (e.action !== 'CUSTOM') continue
-    const p = e.params ?? {}
-    if (e.handler === handler) out.push(p)
-    if (Array.isArray(p.then)) out.push(...findCustom(p.then as Effect[], handler))
-  }
-  return out
 }
 
 export const allEffects = (e: StrikeDef['effects']) => [...e.onPlaySecondary, ...e.onHit, ...e.onEnterPlay]
@@ -59,7 +48,8 @@ export function endAttackPhase(c: CombatState, p: PlayerId) {
 }
 
 /** Timings that resolve automatically (personality powers) instead of being chosen. */
-export const AUTO_TIMINGS = new Set(['defenderDraw', 'combatStart', 'ownAttackStart'])
+// TS-188 answers the opponent declaring combat
+export const AUTO_TIMINGS = new Set(['defenderDraw', 'combatStart', 'ownAttackStart', 'afterOpponentDeclaresCombat'])
 export type Window = 'NON_COMBAT' | 'ATTACK' | 'DEFEND' | 'REACT' | 'END_OF_TURN' | 'FREE'
 /** Timings that are only usable in their own window, never as a normal play. */
 const WINDOW_TIMINGS: Record<string, Window> = { anyTime: 'FREE', endOfTurn: 'END_OF_TURN', afterOpponentPaysAttackCost: 'REACT' }
@@ -78,6 +68,10 @@ export function timingAllows(s: GameState, p: PlayerId, effects: Effect[], windo
     if (WINDOW_TIMINGS[when] && WINDOW_TIMINGS[when] !== window) return false
     if (!WINDOW_TIMINGS[when] && (window === 'FREE' || window === 'END_OF_TURN' || window === 'REACT')) return false
     if (when === 'afterOwnSuccessfulEnergyAttack' && !lastAttackWas(s, p, 'ENERGY')) return false
+    // TS-185, TS-132: at the beginning of your combat step; TS-P10: when entering any combat (before any attack)
+    const opening = !!s.combat && !s.combat.strike && s.combat.lastAttack.every(x => x === null) && !s.combat.usedCardIds.length
+    if (when === 'beginningOfCombatStep' && (!opening || p !== s.attacker)) return false
+    if (when === 'combatOpening' && !opening) return false
     if (when === 'defendingAgainstEnergyAttack' && (window !== 'DEFEND' || attackTypeOf(s.combat?.strike?.strike.combatRole) !== 'ENERGY')) return false
   }
   for (const d of findCustom(effects, 'stealOrCaptureDragonBall')) {
@@ -135,27 +129,76 @@ export function requirementsMet(s: GameState, db: CardDB, p: PlayerId, effects: 
 }
 
 /** Cards that only work while lying on the table (shields, creatures, ...); there is nothing to "use". */
-const TABLE_HANDLERS = ['shieldNextAttack', 'damageAbsorber', 'recurringDamage', 'revealHand', 'mirrorAngerReduction']
+const TABLE_HANDLERS = ['shieldNextAttack', 'damageAbsorber', 'recurringDamage', 'revealHand', 'mirrorAngerReduction', 'preventLevelUp', 'reflectDamage', 'postponeVictory']
 export const worksFromTable = (d: CardDef) => TABLE_HANDLERS.some(h => findCustom(d.effects.onEnterPlay, h).length > 0)
 
 /** Ongoing effects of a player's drills and table cards with this handler. */
 export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): { card: CardInstance; params: Params }[] {
   const pl = s.players[p]
   const borrowed = (s.combat?.borrowedDrills ?? []).filter(b => b.player === p).map(b => ({ iid: `borrowed-${b.defId}`, defId: b.defId, owner: p }))
-  return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls, ...borrowed].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
+  const drills = s.combat?.lockdown ? [] : [...pl.drills, ...borrowed]
+  return [...drills, ...pl.nonCombat, ...pl.dragonBalls, ...(pl.mastery ? [pl.mastery] : [])].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
 }
 
-/** "If X is in play" (anywhere): a character as main personality or ally, or a card on the table. "Dragon Ball 6" matches any Dragon Ball numbered 6. */
-export function inPlayAnywhere(s: GameState, db: CardDB, what: { character?: unknown; cardName?: unknown }): boolean {
-  if (typeof what.character === 'string') {
-    return s.players.some((pl, i) => mpDef(s, db, i as PlayerId).personality!.character === what.character || pl.allies.some(a => def(db, a.card).personality?.character === what.character))
+/**
+ * Everything of player p that works all the time: drills (not during TS-P10's lockdown), the Mastery card
+ * and the main personality's Constant Combat Power. Used for ongoing triggers and damage changes.
+ */
+export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] {
+  const pl = s.players[p]
+  const out: { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] = []
+  if (!s.combat?.lockdown) for (const card of pl.drills) out.push({ name: def(db, card).name, card, effects: def(db, card).effects.onEnterPlay })
+  if (pl.mastery) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
+  const power = mpDef(s, db, p).personality!.power
+  if (power && !s.combat?.noConstantPowers) {
+    const effects = findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => (c.then ?? []) as Effect[])
+    if (effects.length) out.push({ name: power.name, effects, constant: true })
   }
-  if (typeof what.cardName !== 'string') return false
-  const ball = /^Dragon Ball (\d)$/.exec(what.cardName)
-  return s.players.some(pl => {
-    if (ball) return pl.dragonBalls.some(c => def(db, c).dragonBallNumber === Number(ball[1]))
-    return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls, ...pl.allies.map(a => a.card)].some(c => def(db, c).name === what.cardName)
-  })
+  return out
+}
+
+/** Damage bonuses on player p's own attacks: "+1 life card with every successful attack" (drills, Mastery, constant powers). */
+export function ownDamageBoost(s: GameState, db: CardDB, p: PlayerId, attack: 'PHYSICAL' | 'ENERGY', style: string | undefined): { stages: number; lifeCards: number; sources: string[] } {
+  const out = { stages: 0, lifeCards: 0, sources: [] as string[] }
+  for (const src of permanentSources(s, db, p)) {
+    for (const m of activeCustom(s, db, src.effects, 'damageModifier')) {
+      if (m.scope !== 'OWNER' || (!src.constant && !m.ongoing) || !typeMatches(m.attackType, attack)) continue
+      const over = m.styleOverride as { style?: string; stages?: number; lifeCards?: number } | undefined
+      const use = over && style && over.style === style ? over : m
+      out.stages += Number(use.stages ?? 0)
+      out.lifeCards += Number(use.lifeCards ?? 0)
+      out.sources.push(src.name)
+    }
+  }
+  return out
+}
+
+/** findCustom that only looks inside "if X is in play" when X is in play (TS-153). */
+export function activeCustom(s: GameState, db: CardDB, effects: Effect[], handler: string): Params[] {
+  const out: Params[] = []
+  for (const e of effects) {
+    if (e.action !== 'CUSTOM') continue
+    const p = e.params ?? {}
+    if (e.handler === handler) out.push(p)
+    if (e.handler === 'ifInPlay' && !inPlayAnywhere(s, db, p)) continue
+    if (Array.isArray(p.then)) out.push(...activeCustom(s, db, p.then as Effect[], handler))
+  }
+  return out
+}
+
+/** Trunks Saga Defense Shield (TS-106, TS-166, TS-171): stops the first N unstopped attacks of a type each combat. */
+export function defenseShield(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY'): string | null {
+  const c = s.combat!
+  for (const src of permanentSources(s, db, defender)) {
+    for (const sh of activeCustom(s, db, src.effects, 'defenseShield')) {
+      if (!typeMatches(sh.attackType, attack)) continue
+      const key = `shield:${defender}:${src.name}:${String(sh.attackType)}`
+      if (c.onceKeys.filter(k => k === key).length >= Number(sh.count ?? 1)) continue
+      c.onceKeys.push(key)
+      return `${src.name} (Defense Shield)`
+    }
+  }
+  return null
 }
 
 /** FS-114/115/P17 "cannot be defended by ..." and FS-46/47 "cannot be stopped by combat cards" on the current strike. */
@@ -166,12 +209,18 @@ export function strikeDefenseBlock(strike: StrikeDef | undefined): { power: bool
   return { power: any || by.includes('mainPersonalityPower'), cards: any, combatCards: findCustom(effects, 'cannotBeStoppedBy').some(p => p.source === 'combatCards') }
 }
 
-/** Constant Combat Powers (FS-P13, FS-P14): always-on effects of the main personality's power. */
-export function constantPowerEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): Params[] {
-  const power = mpDef(s, db, p).personality!.power
-  if (!power) return []
-  return findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
+/** The current strike's blocks, plus TS-85: the attacker's drill makes "Straining Move" cards unstoppable. */
+export function currentStrikeBlock(s: GameState, db: CardDB) {
+  const st = s.combat?.strike
+  const block = strikeDefenseBlock(st?.strike)
+  if (st?.card && tableEffects(s, db, st.initiator, 'cardsCannotBeStopped').some(({ params }) => def(db, st.card!).name.includes(String(params.titleContains)))) {
+    return { power: true, cards: true, combatCards: true }
+  }
+  return block
 }
+
+/** Constant Combat Powers (FS-P13, FS-P14): always-on effects of the main personality's power. */
+export const constantPowerEffects = (s: GameState, db: CardDB, p: PlayerId, handler: string): Params[] => constantParams(s, db, p, handler)
 export const isConstantPower = (strike: StrikeDef) => findCustom(strike.effects.onPlaySecondary, 'constantPower').length > 0
 
 export const drillsProtected = (s: GameState, db: CardDB, p: PlayerId) => tableEffects(s, db, p, 'protectDrills').length > 0
@@ -198,10 +247,15 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 }
 
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
-export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole) {
+export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
   if (cost.type !== 'POWER_STAGES' || role !== 'ATTACK_ENERGY') return cost
   for (const { params } of tableEffects(s, db, p, 'attackCostModifier')) {
     if (params.attackType !== 'ENERGY' || (params.role === 'attacker' && s.attacker !== p)) continue
+    if (typeof params.costStagesModifier === 'number') {
+      // TS-146: only Orange Style attacks get both bonuses; the others take the damage bonus
+      if (params.styleBothApply && params.styleBothApply !== style) continue
+      return { ...cost, amount: Math.max(Number(params.minCost ?? 1), cost.amount + params.costStagesModifier) }
+    }
     return { ...cost, amount: Math.min(cost.amount, Number(params.costStages)) }
   }
   return cost
@@ -330,10 +384,18 @@ export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerI
     if (m.player !== defender || !typeMatches(m.attackType, attack)) continue
     stages += m.stages
     lifeCards += m.lifeCards
+    // TS-22: "N less power stages or N less life cards": off the life cards when there are any
+    if (m.either) {
+      if (lifeCards > 0) lifeCards += m.either
+      else stages += m.either
+    }
     log(s, 'REDUCE', `${m.source} changes the damage`, defender)
   }
   for (const m of constantPowerEffects(s, db, defender, 'damageModifier')) {
-    if (!typeMatches(m.attackType, attack)) continue
+    if (!typeMatches(m.attackType, attack) || m.scope === 'OWNER' || m.useStageOf) continue
+    // TS-150/151: only during the opponent's turn; TS-101: only against an ally fighting for the attacker
+    if (m.duringOpponentTurn && s.attacker === defender) continue
+    if (m.sourceIsAlly && !controllingAlly(s, defender === 0 ? 1 : 0)) continue
     if (typeof m.stages === 'number') stages += m.stages
     if (typeof m.lifeCards === 'number') lifeCards += m.lifeCards
     if (typeof m.maxLifeCards === 'number') lifeCards = Math.min(lifeCards, m.maxLifeCards)

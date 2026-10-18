@@ -2,6 +2,8 @@ import type { Rules } from '../engine'
 import patTrunks from '../engine/config/pat-trunks.json'
 import { realCards, type SetName } from './cardDb'
 
+const TRUNKS_CORE = { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, allyRules: true, dragonBalls: true, tokuiWaza: true }
+
 // Which sets a game draws its cards from. Chosen on the menu, per game.
 export const FORMATS = {
   SAIYAN: { label: 'Saiyan Saga', sets: ['Saiyan Saga'] as SetName[], rules: {} as Partial<Rules> },
@@ -11,8 +13,12 @@ export const FORMATS = {
     // Trunks Saga core rules (rulebook 2001) on top of the table; see docs/dsl-gaps.md "Frieza Saga"
     rules: {
       pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix },
-      trunks: { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, allyRules: true, dragonBalls: true },
+      trunks: TRUNKS_CORE,
     } as Partial<Rules>,
+  },
+  SAIYAN_FRIEZA_TRUNKS: {
+    label: 'Saiyan + Frieza + Trunks', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga'] as SetName[],
+    rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
 } as const
 export type FormatKey = keyof typeof FORMATS

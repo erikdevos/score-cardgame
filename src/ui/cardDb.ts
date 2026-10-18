@@ -4,11 +4,14 @@ import saiyanRaw from '../data/saiyan-saga/cards.json'
 import saiyanIndex from '../data/saiyan-saga/index.json'
 import friezaRaw from '../data/frieza-saga/cards.json'
 import friezaIndex from '../data/frieza-saga/index.json'
+import trunksRaw from '../data/trunks-saga/cards.json'
+import trunksIndex from '../data/trunks-saga/index.json'
 
 /** The transcribed sets, in release order. */
 export const SETS = [
   { key: 'saiyan-saga', name: 'Saiyan Saga', raw: saiyanRaw as unknown[], index: saiyanIndex, imageDir: '/cards/' },
   { key: 'frieza-saga', name: 'Frieza Saga', raw: friezaRaw as unknown[], index: friezaIndex, imageDir: '/cards/frieza-saga/' },
+  { key: 'trunks-saga', name: 'Trunks Saga', raw: trunksRaw as unknown[], index: trunksIndex, imageDir: '/cards/trunks-saga/' },
 ] as const
 export type SetName = (typeof SETS)[number]['name']
 

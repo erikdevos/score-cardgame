@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, changeStages, def, log, millCards, mpDef } from '../state'
+import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -82,6 +82,144 @@ export const handlers: Record<string, CustomHandler> = {
   constantPower: noop,
   mirrorAngerReduction: noop, // read in changeAnger
   conditionalPostResolution: noop, // read when the card retires
+  // Trunks Saga: read where they matter
+  defenseShield: noop, // resolveHit (Defense Shield step)
+  angerReductionLimit: noop, // changeAnger
+  angerToLevelUp: noop, // changeAnger (Mastery)
+  preventLevelUp: noop, // level-up, from the table
+  reflectDamage: noop, // after damage, from the table
+  attackAsDefense: noop, // defenses
+  cardsCannotBeStopped: noop, // defenses
+  requireMultipleDefenses: noop, // defenses
+  postponeVictory: noop, // win()
+  borrowPowerStage: noop, // computeDamage
+  // optional "you may" effects: not using them is always allowed
+  convertDamageToStages: noop, // TS-13: energy damage as power stages instead
+  shuffleInsteadOfBottom: noop, // TS-P3: shuffle instead of the bottom of the life deck
+  grantAttack: noop, // TS-70: an extra energy attack option next attack phase (not offered yet)
+
+  drawUntilHandSize(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const n = num(p.size, 3) - ctx.s.players[who].hand.length
+    if (n > 0) drawCards(ctx.s, who, n)
+  },
+
+  preventStageGain(ctx, p) {
+    // TS-29: until the beginning of the user's next turn
+    const who = targetOf(ctx, p.target)
+    const untilTurn = ctx.s.turn + (ctx.s.attacker === ctx.user ? 2 : 1)
+    ctx.s.stageLocks.push({ player: who, untilTurn })
+    log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot gain power stages until player ${ctx.user + 1}'s next turn`, who)
+  },
+
+  modifyAngerPerCardInPile(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const n = ctx.s.players[ctx.user].discard.filter(c => def(ctx.db, c).name === p.cardName).length * num(p.perCard, 1)
+    if (n) changeAnger(ctx.s, ctx.db, who, n)
+    else log(ctx.s, 'NO_EFFECT', `${ctx.source}: no ${String(p.cardName)} in the discard pile`)
+  },
+
+  shuffleHandCardIntoLifeDeck(ctx, p) {
+    const hand = ctx.s.players[ctx.user].hand
+    if (!hand.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no card in hand`)
+    queueChoice(ctx.s, pickRequest(ctx.user, ctx.user, 'hand', hand, num(p.amount, 1), 'LIFE_SHUFFLE', ctx.source))
+  },
+
+  shuffleOpponentHandCard(ctx, p) {
+    // TS-P2: look at the opponent's hand and shuffle a card of it into their life deck
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const hand = ctx.s.players[foe].hand
+    if (!hand.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no cards in hand`)
+    queueChoice(ctx.s, pickRequest(ctx.user, foe, 'hand', hand, num(p.amount, 1), 'LIFE_SHUFFLE', ctx.source))
+  },
+
+  moveHandCardToLifeDeck(ctx, p) {
+    // TS-188: a random card from the opponent's hand goes on top of their life deck
+    const { s, db } = ctx
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const hand = s.players[foe].hand
+    for (let i = 0; i < num(p.amount, 1) && hand.length; i++) {
+      const [r, next] = nextRandom(s.rngSeed)
+      s.rngSeed = next
+      const [card] = hand.splice(Math.floor(r * hand.length), 1)
+      if (p.position === 'bottom') s.players[foe].lifeDeck.push(card)
+      else s.players[foe].lifeDeck.unshift(card)
+      log(s, 'MOVE', `${ctx.source}: player ${foe + 1} puts ${def(db, card).name} from their hand on ${p.position === 'bottom' ? 'the bottom' : 'top'} of their life deck`, foe)
+    }
+  },
+
+  shuffleIntoLifeDeck(ctx, p) {
+    // TS-120: an opponent's Dragon Ball in play goes back into their life deck
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const balls = ctx.s.players[foe].dragonBalls
+    if (!balls.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no Dragon Balls in play`)
+    queueChoice(ctx.s, pickRequest(ctx.user, foe, 'dragonBalls', balls, num(p.amount, 1), 'LIFE_SHUFFLE', ctx.source))
+  },
+
+  damagePerStage(ctx, p) {
+    // TS-69: 1 life card per power stage above 0, counted after paying the cost
+    const st = ctx.s.combat?.strike
+    if (!st) return
+    const n = fighterStage(ctx.s, st.initiator) * num(p.lifeCardsPerStage, 1)
+    st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: 0, lifeCards: n, modifierStages: 0, modifierLifeCards: 0 } }
+    log(ctx.s, 'DAMAGE_X', `${ctx.source}: the attack does ${n} life card(s)`, st.initiator)
+  },
+
+  disableConstantPowers(ctx) {
+    if (!ctx.s.combat) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no combat`)
+    ctx.s.combat.noConstantPowers = true
+    log(ctx.s, 'RESTRICT', `${ctx.source}: Constant Combat Powers stop working for the rest of this combat`)
+  },
+
+  forbidCards(ctx, p) {
+    // TS-P10: drills, allies and personality powers are off for this combat; the drills (TS-42, TS-128) work from the table
+    if (p.duration !== 'thisCombat') return
+    if (!ctx.s.combat) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no combat`)
+    ctx.s.combat.lockdown = true
+    log(ctx.s, 'RESTRICT', `${ctx.source}: no drills, allies or personality powers this combat`)
+  },
+
+  chooseOne(ctx, p) {
+    const branches = (p.options ?? []) as Effect[][]
+    const options = branches.map(b => b.map(e => (e.action === 'MODIFY_ANGER' ? `${e.target === 'SELF' ? 'raise your' : "lower the opponent's"} anger ${Math.abs(e.amount)}` : e.action.toLowerCase())).join(', '))
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: choose one`, options, purpose: 'chooseOne', data: { branches: JSON.stringify(branches) } })
+  },
+
+  ifDrawnCardStyle(ctx, p) {
+    // TS-147/148: the card just drawn is the last one in hand
+    const hand = ctx.s.players[ctx.user].hand
+    const card = hand[hand.length - 1]
+    if (card && def(ctx.db, card).style === p.style) {
+      log(ctx.s, 'REVEAL', `${ctx.source}: player ${ctx.user + 1} shows ${def(ctx.db, card).name}`, ctx.user)
+      resolveEffects(ctx, then(p))
+    } else log(ctx.s, 'NO_EFFECT', `${ctx.source}: the card drawn is not a ${String(p.style)} Style card`)
+  },
+
+  modifyStagesPerLifeCard(ctx, p) {
+    const n = (ctx.s.combat?.lastLifeLost ?? 0) * num(p.perLifeCardReceived, 1)
+    if (!n) return
+    changeStages(ctx.s, targetOf(ctx, p.target), n)
+    log(ctx.s, 'STAGES', `${ctx.source}: player ${ctx.user + 1} gains ${n} power stage(s)`, ctx.user)
+  },
+
+  removeTopDiscardForAnger(ctx, p) {
+    // TS-144: remove the top discard from the game for 1 anger, 2 if it is a Red Style card
+    const pl = ctx.s.players[ctx.user]
+    const card = pl.discard.pop()
+    if (!card) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: the discard pile is empty`)
+    pl.removed.push(card)
+    const bonus = p.styleBonus as { style?: string; anger?: number } | undefined
+    const n = bonus && def(ctx.db, card).style === bonus.style ? num(bonus.anger, 2) : num(p.anger, 1)
+    log(ctx.s, 'REMOVE', `${ctx.source}: player ${ctx.user + 1} removes ${def(ctx.db, card).name} from the game`, ctx.user)
+    changeAnger(ctx.s, ctx.db, ctx.user, n)
+  },
+
+  rearrangeLifeDeckTop(ctx, p) {
+    // TS-P9: look at the top cards; putting them back in the same order is one of the allowed orders
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const top = ctx.s.players[foe].lifeDeck.slice(0, num(p.count, 5))
+    log(ctx.s, 'REVEAL', `${ctx.source}: player ${ctx.user + 1} looks at ${top.map(c => def(ctx.db, c).name).join(', ') || 'nothing'}`, ctx.user)
+  },
 
   variableCost(ctx, p) {
     // FS-24: choose 1-7 life cards to pay; that many is the damage if successful
@@ -469,10 +607,32 @@ export const handlers: Record<string, CustomHandler> = {
       s.combat.damageMods.push({ player: targetOf(ctx, p.target), attackType: 'ANY', stages: -99, lifeCards: -99, source: ctx.source })
       return log(s, 'PROTECT', `${ctx.source}: player ${targetOf(ctx, p.target) + 1} takes no damage for the rest of combat`)
     }
+    if (p.duration === 'thisAttack' && p.maxLifeCards === 0 && st && st.initiator === ctx.user) {
+      // TS-127: the opponent takes no life cards from this attack
+      st.noLifeCards = true
+      return
+    }
     if (p.maxLifeCards !== undefined || p.maxStages !== undefined) {
-      // a defense that lets only part of the damage through
       if (st && ctx.user !== st.initiator) st.defense = { mode: 'CAP', stages: 0, lifeCards: 0, maxLifeCards: p.maxLifeCards as number | undefined, maxStages: p.maxStages as number | undefined }
       return
+    }
+    if (p.duration === 'thisCombat' && typeof p.stagesOrLifeCards === 'number' && s.combat) {
+      // TS-22: attacks on the user do N less power stages or N less life cards this combat
+      s.combat.damageMods.push({ player: targetOf(ctx, p.target), attackType: (p.attackType ?? 'ANY') as AttackType, stages: 0, lifeCards: 0, either: p.stagesOrLifeCards, source: ctx.source })
+      return log(s, 'PROTECT', `${ctx.source}: attacks on player ${targetOf(ctx, p.target) + 1} do less damage this combat`)
+    }
+    if (p.duration === 'thisCombat' && p.scope === 'OWNER' && s.combat) {
+      // TS-132/134: the user's attacks do more damage this combat (TS-132: per Namek Dragon Ball in play)
+      const namek = s.players[ctx.user].dragonBalls.filter(c => /Namek/i.test(def(db, c).name)).length
+      const stages = typeof p.stagesPerNamekDragonBall === 'number' ? p.stagesPerNamekDragonBall * namek : num(p.stages, 0)
+      s.combat.damageMods.push({ player: other(ctx.user), attackType: (p.attackType ?? 'ANY') as AttackType, stages, lifeCards: num(p.lifeCards, 0), source: ctx.source })
+      return log(s, 'DAMAGE_X', `${ctx.source}: player ${ctx.user + 1}'s attacks do +${stages} power stage(s) this combat`, ctx.user)
+    }
+    if (st && st.initiator === ctx.user && !p.scope && (typeof p.stages === 'number' || typeof p.lifeCards === 'number')) {
+      // TS-35: this attack does more damage
+      const d = st.strike.damage ?? { calculation: 'PAT' as const, stages: 0, lifeCards: 0, modifierStages: 0, modifierLifeCards: 0 }
+      st.strike = { ...st.strike, damage: { ...d, modifierStages: d.modifierStages + num(p.stages, 0), modifierLifeCards: d.modifierLifeCards + num(p.lifeCards, 0) } }
+      return log(s, 'DAMAGE_X', `${ctx.source}: more damage`, ctx.user)
     }
     if (p.scope === 'HEROES' && s.combat) {
       for (const pid of [0, 1] as PlayerId[]) {

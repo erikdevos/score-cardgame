@@ -3,7 +3,7 @@ import type { CardDB, StrikeDef } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
 import { shuffleInPlace } from './rng'
 import { attackPowerOption, beginStrike, react, strikeOf } from './sequencer'
-import { canUseCard, changeStages, checkDragonBallVictory, checkMostPowerful, def, drawCards, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
+import { canUseCard, changeStages, checkDragonBallVictory, checkMostPowerful, def, drawCards, win, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
 import { other, type Frame, type GameState, type PlayerId } from './types'
 
 // Step 1
@@ -13,6 +13,13 @@ export function startTurn(s: GameState, db: CardDB) {
   s.combat = null
   s.combatSkipped = false
   log(s, 'TURN', `Turn ${s.turn}: player ${s.attacker + 1} attacks`, s.attacker)
+  // TS-157: a postponed victory is checked again now
+  for (const w of s.postponedWins.filter(x => x.player === s.attacker && x.turn <= s.turn)) {
+    s.postponedWins = s.postponedWins.filter(x => x !== w)
+    const foe = s.players[w.player === 0 ? 1 : 0]
+    if (w.reason === 'SURVIVAL' && !foe.lifeDeck.length) win(s, w.player, 'SURVIVAL')
+    if (w.reason === 'MPP' && s.players[w.player].mp.levelIndex === s.players[w.player].mp.stack.length - 1) win(s, w.player, 'MPP')
+  }
   // Trunks Saga: a set of 7 completed by capture wins now, if the player still has it
   // (also catches a win that FS-P1 held back)
   checkDragonBallVictory(s, db, 'turnStart')
@@ -52,6 +59,7 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
   if (d.type === 'Non-Combat') {
     // Placed face up; its power stays available until used (now, or later in combat).
     pl.nonCombat.push(card)
+    if (findCustom(d.effects.onEnterPlay, 'postponeVictory').length) s.victoryGuards.push(card.iid)
     return log(s, 'PLACE', `Player ${p + 1} places ${d.name} on the table`, p)
   }
   log(s, 'PLAY', `Player ${p + 1} plays ${d.name}`, p)

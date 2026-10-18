@@ -1,5 +1,5 @@
-import type { CardDB, CardDef, Passive } from './cards'
-import { other, type CardInstance, type Frame, type GameState, type PlayerId, type StepName, type WinReason } from './types'
+import type { CardDB, CardDef, Effect, Passive } from './cards'
+import { other, type CardInstance, type DeckList, type Frame, type GameState, type PlayerId, type StepName, type WinReason } from './types'
 
 export function log(s: GameState, t: string, msg: string, player?: PlayerId) {
   s.log.push({ t, msg, player })
@@ -85,6 +85,16 @@ export function trunksAllyAllowed(mpCards: CardDef[], foeCharacter: string | und
 
 /** Card restriction "X only": the player's MP must match an allowed alignment or character. */
 export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): boolean {
+  // TS-42/TS-P4: no cards that end combat while the drill is in play; TS-128: the drill owner's opponent plays no allies
+  for (const pl of s.players) {
+    for (const c of pl.drills) {
+      for (const f of findCustom(def(db, c).effects.onEnterPlay, 'forbidCards')) {
+        const filter = (f.filter ?? {}) as { effect?: string; cardType?: string }
+        if (filter.effect === 'END_COMBAT' && JSON.stringify(d.effects).includes('"END_COMBAT"')) return false
+        if (filter.cardType === 'Ally' && pl.id !== p && d.type === 'Personality') return false
+      }
+    }
+  }
   const u = d.usableBy
   if (!u) return true
   const mp = mpDef(s, db, p).personality!
@@ -96,15 +106,53 @@ export function handLimit(s: GameState, db: CardDB, p: PlayerId): number {
 }
 
 export function pur(s: GameState, db: CardDB, p: PlayerId): number {
-  return Math.max(0, mpDef(s, db, p).personality!.pur + sumPassive(s, db, p, 'PUR_MOD'))
+  return Math.max(0, mpDef(s, db, p).personality!.pur + sumPassive(s, db, p, 'PUR_MOD') + (s.players[p].tokuiWaza ? 1 : 0))
 }
 
 function sumPassive(s: GameState, db: CardDB, p: PlayerId, kind: 'HAND_LIMIT' | 'PUR_MOD') {
   return activePassives(s, db, p).reduce((n, ps) => (ps.kind === kind ? n + ps.amount : n), 0)
 }
 
+/** Params of every CUSTOM effect with this handler, including ones nested in `then`. */
+export function findCustom(effects: Effect[], handler: string): Record<string, unknown>[] {
+  const out: Record<string, unknown>[] = []
+  for (const e of effects) {
+    if (e.action !== 'CUSTOM') continue
+    const p = e.params ?? {}
+    if (e.handler === handler) out.push(p)
+    if (Array.isArray(p.then)) out.push(...findCustom(p.then as Effect[], handler))
+  }
+  return out
+}
+
+/** Constant Combat Powers: always-on effects of the main personality's power (off while a card stops them this combat). */
+export function constantParams(s: GameState, db: CardDB, p: PlayerId, handler: string): Record<string, unknown>[] {
+  const power = mpDef(s, db, p).personality!.power
+  if (!power || s.combat?.noConstantPowers) return []
+  return findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
+}
+
+/** Trunks Saga Mastery card params with this handler. */
+export const masteryParams = (s: GameState, db: CardDB, p: PlayerId, handler: string) => {
+  const m = s.players[p].mastery
+  return m ? findCustom(def(db, m).effects.onEnterPlay, handler) : []
+}
+
+/** Anger needed for the next level: 5, or 6 against TS-149 Blue Style Mastery. */
+export const maxAngerOf = (s: GameState, db: CardDB, p: PlayerId) =>
+  Math.max(s.rules.maxAnger, ...masteryParams(s, db, other(p), 'angerToLevelUp').map(x => Number(x.amount ?? s.rules.maxAnger)))
+
 export function win(s: GameState, p: PlayerId, reason: WinReason) {
   if (s.winner !== null) return
+  // TS-157: the loser postpones the victory to the start of the winner's next turn, then it is checked again
+  const loser = s.players[other(p)]
+  const hope = loser.nonCombat.find(c => s.victoryGuards.includes(c.iid))
+  if (hope && !s.postponedWins.some(w => w.player === p)) {
+    loser.nonCombat = loser.nonCombat.filter(c => c !== hope)
+    loser.removed.push(hope)
+    s.postponedWins.push({ player: p, reason, turn: s.turn + (s.attacker === p ? 2 : 1) })
+    return log(s, 'PROTECT', `Player ${loser.id + 1} postpones player ${p + 1}'s victory to the start of their next turn`, loser.id)
+  }
   const block = reason !== 'SURVIVAL' && s.victoryBlocks.find(b => b.player === p && s.turn < b.untilTurn)
   if (block) return log(s, 'NO_EFFECT', `${block.source}: player ${p + 1} cannot win this way yet`, p)
   s.winner = p
@@ -172,6 +220,8 @@ export function recoverCards(s: GameState, p: PlayerId, n: number): number {
 }
 
 export function changeStages(s: GameState, p: PlayerId, delta: number) {
+  // TS-29: this player cannot gain power stages for now
+  if (delta > 0 && s.stageLocks.some(l => l.player === p && s.turn < l.untilTurn)) return log(s, 'STAGES', `Player ${p + 1} cannot gain power stages yet`, p)
   const ally = controllingAlly(s, p)
   if (ally) return void (ally.stage = Math.max(0, Math.min(s.rules.maxStage, ally.stage + delta)))
   const mp = s.players[p].mp
@@ -180,9 +230,16 @@ export function changeStages(s: GameState, p: PlayerId, delta: number) {
 
 export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number, mirrored = false) {
   if (delta > 0 && s.angerLock.includes(p)) return log(s, 'ANGER', `Player ${p + 1}'s anger cannot rise yet`, p)
+  // TS-166 / TS-200: anger lowered by at most N levels per card
+  if (delta < 0 && !mirrored) {
+    const caps = constantParams(s, db, p, 'angerReductionLimit').map(x => Number(x.maxPerCard ?? 0))
+    if (caps.length) delta = Math.max(delta, -Math.min(...caps))
+    if (delta === 0) return log(s, 'ANGER', `Player ${p + 1}'s anger cannot be lowered`, p)
+  }
   const mp = s.players[p].mp
   const before = mp.anger
-  mp.anger = Math.max(0, Math.min(s.rules.maxAnger, mp.anger + delta))
+  const max = maxAngerOf(s, db, p)
+  mp.anger = Math.max(0, Math.min(max, mp.anger + delta))
   if (delta !== 0) log(s, 'ANGER', `Player ${p + 1} anger ${delta > 0 ? '+' : ''}${delta} (now ${mp.anger})`, p)
   // FS-P3: anger you lose on your Warrior Sword (the anger counter) is also lost by your opponents
   const reduced = before - mp.anger
@@ -193,12 +250,21 @@ export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number
       changeAnger(s, db, other(p), -reduced, true)
     }
   }
-  if (mp.anger >= s.rules.maxAnger) onMaxAnger(s, db, p)
+  if (mp.anger >= max) onMaxAnger(s, db, p)
 }
 
 function onMaxAnger(s: GameState, db: CardDB, p: PlayerId) {
   const pl = s.players[p]
   const mp = pl.mp
+  // TS-37 (lying on the opponent's table): back to anger 3 instead of gaining a level, then removed
+  const foe = s.players[other(p)]
+  const hold = mp.levelIndex < mp.stack.length - 1 && foe.nonCombat.find(c => findCustom(def(db, c).effects.onEnterPlay, 'preventLevelUp').length)
+  if (hold) {
+    foe.nonCombat = foe.nonCombat.filter(c => c !== hold)
+    foe.removed.push(hold)
+    mp.anger = Number(findCustom(def(db, hold).effects.onEnterPlay, 'preventLevelUp')[0].setAngerTo ?? 3)
+    return log(s, 'ANGER', `${def(db, hold).name}: player ${p + 1} goes back to anger ${mp.anger} instead of gaining a level`, p)
+  }
   if (mp.levelIndex < mp.stack.length - 1) {
     mp.anger = 0
     pl.discard.push(...pl.drills)
@@ -291,3 +357,36 @@ export const step = (name: StepName, extra: { player?: PlayerId; iid?: string } 
 
 /** Deep copy of plain game data (available in browsers and Node 17+). */
 export const clone: <T>(v: T) => T = (globalThis as { structuredClone?: <T>(v: T) => T }).structuredClone!
+
+const SAIYAN_HERITAGE = ['Goku', 'Gohan', 'Vegeta', 'Nappa', 'Raditz', 'Trunks']
+/** "Saiyan Heritage only" cards: Saiyan personalities. */
+export const isSaiyanHeritage = (character: string) => SAIYAN_HERITAGE.some(n => character.startsWith(n))
+
+/**
+ * Trunks Saga Tokui-Waza: every styled card in the life deck has the same style (at least one).
+ * Only Saiyans claim Saiyan, only Piccolo and Nail claim Namekian, and a Mastery card must match.
+ */
+export function tokuiWazaStyle(db: CardDB, deck: DeckList): string | null {
+  const styles = new Set(deck.life.map(id => db[id]?.style).filter((x): x is string => !!x))
+  if (styles.size !== 1) return null
+  const [style] = styles
+  const character = db[deck.mp[0]]?.personality?.character ?? ''
+  if (style === 'Saiyan' && !isSaiyanHeritage(character)) return null
+  if (style === 'Namekian' && !/^(Piccolo|Nail)/.test(character)) return null
+  const mastery = deck.mastery ? db[deck.mastery] : undefined
+  if (mastery?.style && mastery.style !== style) return null
+  return style
+}
+
+/** "If X is in play" (anywhere): a character as main personality or ally, or a card on the table. "Dragon Ball 6" matches any Dragon Ball numbered 6. */
+export function inPlayAnywhere(s: GameState, db: CardDB, what: { character?: unknown; cardName?: unknown }): boolean {
+  if (typeof what.character === 'string') {
+    return s.players.some((pl, i) => mpDef(s, db, i as PlayerId).personality!.character === what.character || pl.allies.some(a => def(db, a.card).personality?.character === what.character))
+  }
+  if (typeof what.cardName !== 'string') return false
+  const ball = /^Dragon Ball (\d)$/.exec(what.cardName)
+  return s.players.some(pl => {
+    if (ball) return pl.dragonBalls.some(c => def(db, c).dragonBallNumber === Number(ball[1]))
+    return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls, ...pl.allies.map(a => a.card)].some(c => def(db, c).name === what.cardName)
+  })
+}

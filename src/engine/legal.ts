@@ -117,6 +117,8 @@ function usableNow(s: GameState, db: CardDB, p: PlayerId, c: CardInstance, windo
   if (worksFromTable(d)) return false
   if (d.noStacking && s.combat?.usedCardIds.includes(d.id)) return false
   const effects = [...d.effects.onPlaySecondary, ...d.effects.onEnterPlay]
+  // "for the remainder of this combat" does nothing outside combat
+  if (!s.combat && effects.some(e => e.action === 'CUSTOM' && e.params?.duration === 'thisCombat')) return false
   return canUseCard(s, db, p, d) && timingAllows(s, p, effects, window) && requirementsMet(s, db, p, effects, c)
 }
 
@@ -165,6 +167,7 @@ function dragonBallLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean 
 
 /** Trunks Saga: allies that can take over the combat for p right now. */
 function takeovers(s: GameState, p: PlayerId): Action[] {
+  if (s.combat?.lockdown) return []
   if (!canTakeOver(s, p)) return []
   return s.players[p].allies.filter(a => a.stage > 0).map(a => ({ type: 'ALLY_TAKEOVER' as const, player: p, iid: a.card.iid }))
 }

@@ -32,6 +32,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       <h3>Saiyan + Frieza: Trunks Saga rules</h3>
       <ul class="help-list">
         <li><b>Hero first</b>, both personalities start at stage 5. A level up starts at full power.</li>
+        <li><b>Tokui-Waza</b>: if every styled card in your deck has the same style, you get +1 PUR. A <b>Mastery</b> card of that style starts in play and helps all game.</li>
+        <li><b>Defense Shield</b>: some personalities stop the first attack each combat that you did not stop yourself.</li>
         <li><b>Most Powerful Personality</b>: you win the moment you reach the highest level any main personality in the game has. At your top level, 5 anger powers you up to full instead.</li>
         <li><b>Final Physical Attack</b>: in your attack phase, press <i>Final physical attack</i> and click any card to discard it for a physical attack. Once per combat; afterwards you pass and cannot block for the rest of that combat.</li>
         <li><b>Not attacking</b> (skipping combat) puts the top card of your discard pile back at the bottom of your life deck.</li>

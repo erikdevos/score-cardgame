@@ -1,4 +1,4 @@
-import { isAttackRole, isDefenseRole, nextRandomForTests as nextRandom, trunksAllyAllowed, type CardDB, type DeckList } from '../engine'
+import { isAttackRole, isDefenseRole, isSaiyanHeritage, nextRandomForTests as nextRandom, trunksAllyAllowed, type CardDB, type DeckList } from '../engine'
 import { heroMP, testDeck, villainMP } from '../data/test-cards'
 import { db, setOrder } from './cardDb'
 import { FORMATS, formatCards, type FormatKey } from './formats'
@@ -33,12 +33,31 @@ function autoDeck(cards: CardDef[], mp: string[], character: string, seed: numbe
   // Trunks Saga allies: same side, 2+ levels below the main personality's top level; Pure 2000: any level 1
   const mpCards = mp.map(id => db[id])
   const allyOk = (c: CardDef) => (trunks ? trunksAllyAllowed(mpCards, undefined, c) : c.personality?.level === 1 && c.personality.character !== character)
-  const pool = cards.filter(c => c.type !== 'Personality' || allyOk(c))
+  let s = seed
+  // Trunks Saga: build a Tokui-Waza deck (a single martial arts style, +1 PUR) with a style this character may claim
+  let style: string | undefined
+  if (trunks) {
+    const styles = [...new Set(cards.map(c => c.style).filter((x): x is string => !!x))]
+      .filter(st => (st !== 'Saiyan' || isSaiyanHeritage(character)) && (st !== 'Namekian' || /^(Piccolo|Nail)/.test(character)))
+    const [r, ns] = nextRandom(s); s = ns
+    style = styles[Math.floor(r * styles.length)]
+  }
+  // cards printed for other characters or the other side are dead cards: leave them out
+  const mine = mpCards[0].personality!
+  const usable = (c: CardDef) => !c.usableBy || !!(c.usableBy.characters?.includes(character) || c.usableBy.alignments?.includes(mine.alignment as 'Hero' | 'Villain'))
+  // Trunks Saga: Earth or Namek Dragon Balls, not both
+  let namek: boolean | undefined
+  if (trunks) {
+    const [r, ns] = nextRandom(s); s = ns
+    namek = r < 0.3 && cards.some(c => c.type === 'Dragon Ball' && /Namek/i.test(c.name))
+  }
+  const pool = cards.filter(c => (c.type !== 'Dragon Ball' || namek === undefined || /Namek/i.test(c.name) === namek) && c.type !== 'Mastery' && usable(c) && (c.type !== 'Personality' || allyOk(c)) && (!style || !c.style || c.style === style))
+  // the Mastery card of the deck's style, when the pool has one
+  const mastery = style ? cards.find(c => c.type === 'Mastery' && c.style === style)?.id : undefined
   const combat = pool.filter(c => isAttackRole(c.combatRole) || isDefenseRole(c.combatRole))
   const other = pool.filter(c => !combat.includes(c))
   const life: string[] = []
   const names = new Map<string, number>()
-  let s = seed
   const pick = (arr: typeof pool, n: number) => {
     const copy = [...arr]
     while (n > 0 && copy.length) {
@@ -58,7 +77,7 @@ function autoDeck(cards: CardDef[], mp: string[], character: string, seed: numbe
   }
   pick(combat, 42)
   pick(other, 60 - life.length)
-  return { mp, life }
+  return mastery ? { mp, life, mastery } : { mp, life }
 }
 
 export function deckChoices(format: FormatKey = 'SAIYAN'): DeckChoice[] {

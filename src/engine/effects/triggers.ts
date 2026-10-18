@@ -1,5 +1,5 @@
 // Ongoing effects of drills and automatic personality powers that fire on game events.
-import { AUTO_TIMINGS, findCustom, typeMatches } from '../abilities'
+import { AUTO_TIMINGS, findCustom, permanentSources, typeMatches } from '../abilities'
 import type { CardDB, Effect } from '../cards'
 import { def, log, mpDef, schedule } from '../state'
 import { other, type Frame, type GameState, type PlayerId } from '../types'
@@ -9,7 +9,8 @@ export type Trigger =
   | { kind: 'attackPhase'; player: PlayerId }
   | { kind: 'afterReceivingSuccessfulAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY' }
   | { kind: 'turnStart' }
-  | { kind: 'afterOwnSuccessfulAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY' }
+  | { kind: 'afterOwnSuccessfulAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY'; style?: string }
+  | { kind: 'afterOpponentStopsAttack'; player: PlayerId; attackType: 'PHYSICAL' | 'ENERGY' }
 
 function roleOk(s: GameState, owner: PlayerId, role: unknown) {
   if (role === 'attacker') return owner === s.attacker
@@ -17,16 +18,18 @@ function roleOk(s: GameState, owner: PlayerId, role: unknown) {
   return true
 }
 
-/** The work a game event sets off: ongoing drill effects, in table order. */
+/** The work a game event sets off: ongoing effects of drills, Mastery cards and Constant Combat Powers, in table order. */
 export function triggerFrames(s: GameState, db: CardDB, t: Trigger): Frame[] {
   const out: Frame[] = []
   for (const pl of s.players) {
-    for (const drill of pl.drills) {
-      const d = def(db, drill)
-      const frame = (effects: Effect[]): Frame => ({ k: 'effects', user: pl.id, source: d.name, card: drill, triggered: true, effects })
-      for (const e of d.effects.onEnterPlay) {
-        if (e.action !== 'CUSTOM' || !e.params?.ongoing) continue
-        const p = e.params
+    for (const src of permanentSources(s, db, pl.id)) {
+      const d = { name: src.name }
+      const drill = src.card ?? { iid: `power-${pl.id}`, defId: '', owner: pl.id }
+      const frame = (effects: Effect[]): Frame => ({ k: 'effects', user: pl.id, source: d.name, card: src.card, triggered: true, effects })
+      for (const e of src.effects) {
+        // a constant power works all the time without saying "ongoing"
+        if (e.action !== 'CUSTOM' || (!e.params?.ongoing && !src.constant)) continue
+        const p = e.params ?? {}
         if (e.handler === 'drawFromDiscard' && p.timing === 'startOfEachCombat' && t.kind === 'combatStart') {
           log(s, 'TRIGGER', `${d.name} triggers`, pl.id)
           out.push(frame([e]))
@@ -34,7 +37,10 @@ export function triggerFrames(s: GameState, db: CardDB, t: Trigger): Frame[] {
         }
         if (e.handler !== 'triggeredEffect' || p.trigger !== t.kind || !roleOk(s, pl.id, p.role)) continue
         if (t.kind !== 'combatStart' && t.kind !== 'turnStart' && t.player !== pl.id) continue
-        if ((t.kind === 'afterReceivingSuccessfulAttack' || t.kind === 'afterOwnSuccessfulAttack') && !typeMatches(p.attackType, t.attackType)) continue
+        if ('attackType' in t && !typeMatches(p.attackType, t.attackType)) continue
+        // TS-149: only attacks of one style; TS-100: only after life cards were taken
+        if (p.styleFilter && (t.kind !== 'afterOwnSuccessfulAttack' || t.style !== p.styleFilter)) continue
+        if ((p.condition as { tookLifeCards?: boolean } | undefined)?.tookLifeCards && !(s.combat?.lastLifeLost ?? 0)) continue
         // FS-78: only once both a physical and an energy attack of the owner succeeded this combat
         const hits = s.combat?.onceKeys ?? []
         if (p.condition === 'successfulPhysicalAndEnergyThisCombat' && !(hits.includes(`hit:${pl.id}:PHYSICAL`) && hits.includes(`hit:${pl.id}:ENERGY`))) continue
@@ -73,7 +79,7 @@ export function autoPowerFrames(s: GameState, db: CardDB): Frame[] {
     const when = findCustom(power.strike.effects.onPlaySecondary, 'playTiming')[0]?.when as string | undefined
     if (!when || !AUTO_TIMINGS.has(when)) continue
     if (when === 'ownAttackStart' && p !== s.attacker) continue
-    if (when === 'defenderDraw' && p === s.attacker) continue
+    if ((when === 'defenderDraw' || when === 'afterOpponentDeclaresCombat') && p === s.attacker) continue
     c.usedPowers.push(`${p}:${mp.id}`)
     log(s, 'POWER', `${mp.name}'s power: ${power.name}`, p)
     out.push({ k: 'effects', user: p, source: power.name, effects: [...power.strike.effects.onPlaySecondary] })

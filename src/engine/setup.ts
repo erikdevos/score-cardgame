@@ -1,7 +1,7 @@
 import type { CardDB } from './cards'
 import defaultRules from './config/rules.json'
 import { nextRandom, shuffleInPlace } from './rng'
-import { clone, log, mpDef, powerRating } from './state'
+import { clone, log, mpDef, powerRating, tokuiWazaStyle } from './state'
 import { startTurn } from './turn'
 import type { CardInstance, DeckList, GameState, PlayerId, PlayerState, Rules } from './types'
 
@@ -26,6 +26,8 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     mp: { stack: decks[id].mp.map(d => inst(d, id)), levelIndex: 0, stage: rules.startStage, anger: 0 },
     lifeDeck: decks[id].life.map(d => inst(d, id)),
     hand: [], discard: [], removed: [], allies: [], drills: [], dragonBalls: [], nonCombat: [],
+    tokuiWaza: rules.trunks.tokuiWaza ? tokuiWazaStyle(db, decks[id]) : null,
+    mastery: rules.trunks.tokuiWaza && decks[id].mastery ? inst(decks[id].mastery!, id) : null,
   })
 
   const s: GameState = {
@@ -51,6 +53,9 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     angerLock: [],
     keepHand: [],
     combatSkipped: false,
+    victoryGuards: [],
+    postponedWins: [],
+    stageLocks: [],
     victoryBlocks: [],
     winner: null,
     winReason: null,
@@ -58,6 +63,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
   }
   s.nextIid = iid
   for (const p of s.players) s.rngSeed = shuffleInPlace(p.lifeDeck, s.rngSeed)
+  for (const p of s.players) if (p.tokuiWaza) log(s, 'SETUP', `Player ${p.id + 1} claims a ${p.tokuiWaza} Tokui-Waza: +1 PUR`, p.id)
   s.attacker = rollInitiative(s, db)
   startTurn(s, db)
   return s

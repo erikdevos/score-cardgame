@@ -182,7 +182,31 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 - `allyRules`: allies must match the main personality's alignment (Vegeta and Piccolo main personalities may use either side; simplification of p. 46-47), be at least 2 levels below its highest level, never either main personality's character, and the same character and level only once in play; a higher level replaces your lower one at full power. Deck check: one copy per personality level (Saibaimen 3). Auto decks follow this.
 - `dragonBalls`: Earth and Namek Dragon Balls count as separate sets (no Namek cards exist yet), a deck may not mix them, Dragon Balls hit by damage go to the bottom of the life deck (or leave the game if a copy is in play) and do not count as discards, a life deck of only Dragon Balls loses when it must discard, and a set completed by capture wins at the start of the owner's next turn.
 - Allies in combat (p. 34-35): the defender chooses who takes power stage damage (option `damageTarget`: main personality or an ally with stages; an ally's unabsorbed stages and all life card damage come off the life deck). At 0-1 power stages a player may let an ally take over (`ALLY_TAKEOVER`, a free choice in the attack phase or defend window): until combat ends the ally's card is the fighting personality (power, power level, alignment for card restrictions) and its stages pay costs and take stage changes; anger and levels stay with the main personality.
-- Not implemented: Defense Shields as a separate step, Mastery cards and Tokui-Waza (Trunks Saga cards), cards that put allies into play ignoring the ally rules.
+- Not implemented: cards that put allies into play ignoring the ally rules.
 
 **Still open**
 - **Constant Combat Power** encoding: stored as a `COMBAT_EFFECT` strike wrapping `constantPower`; a passive field on the power would be cleaner.
+
+## Trunks Saga
+
+210 cards (TS-1 to TS-200, TS-P1 to TS-P10), transcribed from the images in five parts, all `verified: false`; 172 carry `needsReview`. Card pool "Saiyan + Frieza + Trunks" uses the Trunks Saga rules plus `tokuiWaza`. The image index numbers are rebuilt from the bucket ranges because WordPress renamed duplicate uploads (`scripts/fetch-card-index.ts`).
+
+**New rules**
+- `tokuiWaza` (p. 38): when every styled card in the life deck has one style, the player claims it at setup: +1 PUR (`PlayerState.tokuiWaza`). Saiyan only for Saiyan heritage characters, Namekian only for Piccolo and Nail, and a Mastery card must match. Claimed automatically (it is always a benefit). Auto decks build single-style decks.
+- **Mastery cards** (type `Mastery`, TS-144 to TS-149): `DeckList.mastery`, placed in play at the start (`PlayerState.mastery`), never in the life deck. Their effects work through the same channels as drills (`permanentSources`: triggers, damage bonuses, table effects).
+- **Defense Shield** (p. 25, step 6): `defenseShield {attackType, count}` inside a Constant Combat Power; after the defender's effects, it stops the first N attacks of that type each combat that were not stopped.
+- **Namekian** style and **Namek Dragon Balls**: recognised by name ("Namek"); a deck uses Earth or Namek Dragon Balls, not both.
+
+**Engine support added**
+- `permanentSources`: drills, the Mastery card and Constant Combat Powers; their `triggeredEffect` and owner damage bonuses (`damageModifier` with `scope: "OWNER"`, `styleOverride`) apply all the time. `ifInPlay` inside a constant power gates its contents (`activeCustom`).
+- Triggers: `afterOpponentStopsAttack`, `styleFilter`, `condition.tookLifeCards`.
+- Timings: `beginningOfCombatStep`, `combatOpening` (TS-P10), `afterOpponentDeclaresCombat` (automatic power, TS-188).
+- Handlers: forbidCards, ifDrawnCardStyle, angerReductionLimit, drawUntilHandSize, preventStageGain, preventLevelUp, modifyAngerPerCardInPile, reflectDamage, shuffleHandCardIntoLifeDeck, damagePerStage, attackAsDefense, cardsCannotBeStopped, disableConstantPowers, chooseOne, shuffleIntoLifeDeck, modifyStagesPerLifeCard, removeTopDiscardForAnger, angerToLevelUp, postponeVictory, requireMultipleDefenses, moveHandCardToLifeDeck, shuffleOpponentHandCard, rearrangeLifeDeckTop; `damageModifier` variants (thisAttack no life cards, thisCombat "stages or life cards", thisCombat owner bonus, bonus on the current attack).
+- Cards that only work "for the remainder of this combat" cannot be used outside combat.
+
+**Approximations**
+- "You may" effects left out (always allowed not to use): TS-13 energy damage as stages, TS-P3 shuffle instead of bottom, TS-70 extra energy attack. TS-P9 shows the top 5 and keeps their order (one of the allowed orders).
+- TS-144 (once per combat) is offered at the start of each combat; TS-146 gives every energy attack +1 life card and only Orange Style attacks the cost reduction.
+- TS-185 "must play 2 cards that stop physical attacks": a card defense needs a second stopping card from hand, which is discarded with it; no power defense.
+- TS-189 / TS-107 (use any personality's power stage for damage) and TS-124 (allies back to hand next turn) are not implemented yet.
+- Transcription questions are in each card's `needsReview` note (alignments of Trunks, Garlic Jr., Spice, Vinegar and King Cold are assumed).

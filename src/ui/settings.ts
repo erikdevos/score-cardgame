@@ -5,7 +5,7 @@ export interface Settings {
   aiDelayMs: number
   hideHandsHotseat: boolean
   /** card pool: see formats.ts */
-  format: 'SAIYAN' | 'SAIYAN_FRIEZA'
+  format: 'SAIYAN' | 'SAIYAN_FRIEZA' | 'SAIYAN_FRIEZA_TRUNKS'
 }
 
 const KEY = 'dbzccg.settings'

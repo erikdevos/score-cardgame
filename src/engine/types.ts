@@ -37,6 +37,10 @@ export interface PlayerState {
   dragonBalls: CardInstance[]
   /** Non-Combat cards placed face up in step 2 whose power has not been used yet. */
   nonCombat: CardInstance[]
+  /** Trunks Saga: the single martial arts style this player claims (+1 PUR), or null */
+  tokuiWaza: string | null
+  /** Trunks Saga: Mastery card placed face up at the start; its power applies all game */
+  mastery: CardInstance | null
 }
 
 export type Step = 'NON_COMBAT' | 'DECLARE' | 'COMBAT' | 'DISCARD' | 'REJUVENATE' | 'GAME_OVER'
@@ -66,6 +70,8 @@ export interface StrikeState {
   damageTo?: string
   /** "may take the first card discarded from the life deck into hand" (SS-112) */
   takeFirstMilled?: PlayerId
+  /** TS-127: the defender takes no life cards from this attack, not even overflow */
+  noLifeCards?: boolean
 }
 
 export type AttackType = 'PHYSICAL' | 'ENERGY' | 'ANY'
@@ -89,6 +95,8 @@ export interface CombatDamageMod {
   stages: number
   lifeCards: number
   source: string
+  /** TS-22: off the life cards when there are any, else off the stages */
+  either?: number
 }
 
 export interface CombatState {
@@ -122,6 +130,12 @@ export interface CombatState {
   onceKeys: string[]
   /** result of each player's most recent attack this combat */
   lastAttack: [LastAttack | null, LastAttack | null]
+  /** TS-93: Constant Combat Powers do nothing for the rest of this combat */
+  noConstantPowers?: boolean
+  /** TS-P10: no drills, allies or personality powers this combat */
+  lockdown?: boolean
+  /** life cards the defender lost to the last successful attack (for "per life card received") */
+  lastLifeLost?: number
 }
 
 export interface LastAttack {
@@ -133,6 +147,8 @@ export type PickZone = 'discard' | 'dragonBalls' | 'lifeDeck' | 'hand' | 'drills
 export type PickDest =
   | 'HAND' | 'LIFE_TOP' | 'LIFE_BOTTOM' | 'PICKER_DRAGON_BALLS' | 'OWNER_LIFE_BOTTOM'
   | 'DISCARD' | 'REMOVED'
+  /** shuffled into the owner's life deck */
+  | 'LIFE_SHUFFLE'
   /** put into play for the picker: Dragon Ball, drill or ally (ally at `allyStage`) */
   | 'PLAY'
   /** an ally gives its power stages to the main personality; the card stays */
@@ -144,7 +160,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -213,6 +229,11 @@ export interface GameState {
   victoryBlocks: { player: PlayerId; untilTurn: number; source: string }[]
   /** this turn's attacker skipped the combat step (Trunks Saga Step 6) */
   combatSkipped: boolean
+  /** TS-157 cards on the table that postpone an opponent's victory */
+  victoryGuards: string[]
+  postponedWins: { player: PlayerId; reason: WinReason; turn: number }[]
+  /** TS-29: no power stage gains before this turn */
+  stageLocks: { player: PlayerId; untilTurn: number }[]
   /** effects that happen at the start of a later turn */
   delayed: { player: PlayerId; turn: number; kind: 'plantAlly'; character: string; source: string }[]
   winner: PlayerId | null
@@ -249,6 +270,8 @@ export interface DeckList {
   /** Main Personality levels, Level 1 first */
   mp: string[]
   life: string[]
+  /** Trunks Saga: optional Mastery card, placed in play at the start (not part of the life deck) */
+  mastery?: string
 }
 
 export const other = (p: PlayerId): PlayerId => (p === 0 ? 1 : 0)

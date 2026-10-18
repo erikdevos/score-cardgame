@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { def, handLimit, handRevealed, isDefenseRole, type Action, type GameState, type PlayerId } from '../../engine'
+import { def, handLimit, handRevealed, isDefenseRole, pur, type Action, type GameState, type PlayerId } from '../../engine'
 import { db } from '../cardDb'
 import { showToast } from '../toast'
 import CardView from './CardView.vue'
@@ -98,7 +98,8 @@ function fan(i: number) {
         <div class="chips">
           <span class="chip" :class="per.alignment === 'Villain' ? 'villain' : 'hero'">{{ per.alignment }}</span>
           <span class="chip">Lv {{ pl.mp.levelIndex + 1 }}/{{ pl.mp.stack.length }}</span>
-          <span class="chip">PUR {{ per.pur }}</span>
+          <span class="chip">PUR {{ pur(state, db, p) }}</span>
+          <span v-if="pl.tokuiWaza" class="chip" :title="`All styled cards in this deck are ${pl.tokuiWaza}: +1 PUR`">{{ pl.tokuiWaza }} Tokui-Waza</span>
           <span v-if="state.attacker === p" class="chip attack">Attacker</span>
           <span v-if="fighter" class="chip attack">{{ fighter }}</span>
         </div>

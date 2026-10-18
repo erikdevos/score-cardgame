@@ -21,7 +21,8 @@
     "skipCombatRecovers": false,
     "heroFirst": false,
     "allyRules": false,
-    "dragonBalls": false
+    "dragonBalls": false,
+    "tokuiWaza": false
   },
   "energyAttack": { "defaultCostStages": 2, "defaultLifeCards": 4 },
   "pat": {

@@ -16,12 +16,16 @@ function click(iid: string) {
   const a = actionFor(iid)
   if (a) emit('act', a)
 }
-const empty = computed(() => !pl.value.dragonBalls.length && !pl.value.nonCombat.length && !pl.value.drills.length && !pl.value.allies.length)
+const empty = computed(() => !pl.value.mastery && !pl.value.dragonBalls.length && !pl.value.nonCombat.length && !pl.value.drills.length && !pl.value.allies.length)
 </script>
 
 <template>
   <div class="table-row" :class="{ theirs }">
     <span class="table-label">{{ theirs ? 'Opponent in play' : 'You in play' }}</span>
+    <div v-if="pl.mastery" class="zone">
+      <h4>Mastery</h4>
+      <div class="row"><CardView :card="def(db, pl.mastery)" size="table" /></div>
+    </div>
     <div v-if="pl.dragonBalls.length" class="zone db">
       <h4>Dragon Balls</h4>
       <TransitionGroup tag="div" name="land" class="row"><CardView v-for="c in pl.dragonBalls" :key="c.iid" :card="def(db, c)" size="table" :playable="!!actionFor(c.iid)" @click="click(c.iid)" /></TransitionGroup>

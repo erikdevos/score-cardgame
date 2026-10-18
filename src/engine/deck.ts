@@ -1,5 +1,5 @@
 import type { CardDB } from './cards'
-import { trunksAllyAllowed } from './state'
+import { tokuiWazaStyle, trunksAllyAllowed } from './state'
 import type { DeckList, Rules } from './types'
 
 export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[] {
@@ -20,6 +20,7 @@ export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[]
   for (const id of deck.life) {
     const d = db[id]
     if (!d) { errors.push(`Unknown card ${id}`); continue }
+    if (d.type === 'Mastery') errors.push(`${d.name} is a Mastery card: it goes in play at the start, not in the life deck`)
     const c = counts.get(d.name) ?? { n: 0, id }
     c.n++
     counts.set(d.name, c)
@@ -29,6 +30,8 @@ export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[]
     const limit = d.limitPerDeck ?? (d.named && d.named === mpChar ? maxNamedCopies : maxCopies)
     if (n > limit) errors.push(`${name}: ${n} copies (max ${limit})`)
   }
+  if (deck.mastery && db[deck.mastery]?.type !== 'Mastery') errors.push('The Mastery slot only takes a Mastery card')
+  if (deck.mastery && db[deck.mastery]?.style && tokuiWazaStyle(db, { ...deck, mastery: undefined }) && tokuiWazaStyle(db, deck) === null) errors.push('The Mastery card must match the Tokui-Waza style')
   if (rules.trunks.allyRules) errors.push(...trunksDeckErrors(db, deck))
   return errors
 }

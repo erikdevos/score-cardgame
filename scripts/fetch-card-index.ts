@@ -1,5 +1,5 @@
 // Scrapes a set's image listing pages into src/data/<set>/index.json.
-// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga]
+// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga|trunks-saga]
 // Only the listing HTML is fetched here; scripts/download-images.ts caches the images.
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -7,6 +7,7 @@ const BASE = 'http://retrodbzccgcom.fatcow.com/card-images'
 const SETS: Record<string, string[]> = {
   'saiyan-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos'],
   'frieza-saga': ['commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'wrapper-redemptions'],
+  'trunks-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
 }
 const set = process.argv[2] ?? 'saiyan-saga'
 const folders = SETS[set]
@@ -42,6 +43,16 @@ for (const bucket of folders) {
     })
   }
   console.log(`${bucket}: ${entries.filter(e => e.bucket === bucket).length}`)
+}
+// Trunks Saga: WordPress renamed duplicate uploads by appending a suffix ("051-1.jpg" became "0511"),
+// so the real number follows from the bucket ranges (commons 1-40, uncommons 41-111, rares 112-156)
+if (set === 'trunks-saga') {
+  const commons: Record<string, number> = { 51: 5, 61: 6, 71: 7, 81: 8, 91: 9, 126: 1, 210: 2, 310: 3, 410: 4, 1010: 10 }
+  for (const e of entries) {
+    if (e.bucket === 'promos') e.number = `P${e.number.slice(1, -1)}`
+    else if (e.bucket === 'commons' && commons[e.number]) e.number = String(commons[e.number])
+    else if (/^0\d{3}$/.test(e.slug) || (e.bucket !== 'starter' && +e.number > 1000)) e.number = String(Math.floor(+e.number / 10))
+  }
 }
 const num = (n: string) => (n.startsWith('P') ? 1000 : 0) + parseInt(n.replace('P', ''))
 entries.sort((a, b) => num(a.number) - num(b.number) || a.bucket.localeCompare(b.bucket))

@@ -2,7 +2,7 @@
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
 import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards, schedule } from '../state'
-import type { CardDB } from '../cards'
+import type { CardDB, Effect } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
 import { resolveEffects } from '.'
@@ -104,6 +104,11 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     if (pile) s.rngSeed = shuffleInPlace(pile, s.rngSeed)
     return
   }
+  if (q.purpose === 'chooseOne') {
+    // TS-113 "... or ...": the chosen branch's effects
+    const branches = JSON.parse(String(q.data.branches)) as Effect[][]
+    return resolveEffects({ s, db, user: q.player, source: q.source }, branches[index] ?? [])
+  }
   if (q.purpose === 'anger') {
     const who = (index === 0 ? q.data.first : q.data.second) as PlayerId
     return changeAnger(s, db, who, Number(q.data.amount))
@@ -165,6 +170,7 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     HAND: 'into their hand', LIFE_TOP: 'on top of the life deck', LIFE_BOTTOM: 'at the bottom of the life deck',
     OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',
+    LIFE_SHUFFLE: `and shuffles it into player ${q.owner + 1}'s life deck`,
   }
   switch (q.dest) {
     case 'HAND': picker.hand.push(card); break
@@ -174,6 +180,10 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     case 'PICKER_DRAGON_BALLS': picker.dragonBalls.push(card); break
     case 'DISCARD': owner.discard.push(card); break
     case 'REMOVED': owner.removed.push(card); break
+    case 'LIFE_SHUFFLE':
+      owner.lifeDeck.push(card)
+      s.rngSeed = shuffleInPlace(owner.lifeDeck, s.rngSeed)
+      break
     case 'PLAY':
       if (d.type === 'Dragon Ball') picker.dragonBalls.push(card)
       else if (d.type === 'Drill') picker.drills.push(card)

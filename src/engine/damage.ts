@@ -61,12 +61,12 @@ function defaultDamage(strike: StrikeDef, rules: Rules) {
  * Stages first; stages that cannot be paid because the MP would drop below 0
  * overflow 1:1 into life cards. Returns life cards actually discarded.
  */
-export function applyDamage(s: GameState, target: PlayerId, d: Damage, db?: CardDB): number {
+export function applyDamage(s: GameState, target: PlayerId, d: Damage, db?: CardDB, noLifeCards = false): number {
   const mp = s.players[target].mp
   const paid = Math.min(mp.stage, d.stages)
   mp.stage -= paid
   const overflow = d.stages - paid
-  let totalLife = d.lifeCards + overflow
+  let totalLife = noLifeCards ? 0 : d.lifeCards + overflow
   // "uses the bottom 3 cards of the discard pile instead of the life deck" for this combat
   let absorbed = 0
   const sub = s.discardAsLife.find(x => x.player === target && x.mode === 'DAMAGE' && x.armed && x.remaining > 0)
