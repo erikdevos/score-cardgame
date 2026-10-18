@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { invalidCards, realCards } from '../cardDb'
-import index from '../../data/saiyan-saga/index.json'
+import { SETS, invalidCards, realCards } from '../cardDb'
 
 defineEmits<{ back: [] }>()
 const KEY = 'dbzccg.verified'
@@ -9,12 +8,15 @@ const load = (): string[] => { try { return JSON.parse(localStorage.getItem(KEY)
 const verified = ref(new Set<string>([...load(), ...realCards.filter(c => c.verified).map(c => c.id)]))
 const filter = ref<'all' | 'unverified' | 'review'>('unverified')
 const query = ref('')
+const setName = ref<string>(SETS[SETS.length - 1].name)
+const inSet = computed(() => realCards.filter(c => c.set === setName.value))
 
 const missing = computed(() => {
-  const nums = new Set(realCards.map(c => c.imageUrl))
-  return index.filter(e => !nums.has(`/cards/${e.slug}.jpg`))
+  const set = SETS.find(s => s.name === setName.value)!
+  const urls = new Set(inSet.value.map(c => c.imageUrl))
+  return set.index.filter(e => !urls.has(`${set.imageDir}${e.slug}.jpg`))
 })
-const list = computed(() => realCards.filter(c => {
+const list = computed(() => inSet.value.filter(c => {
   if (filter.value === 'unverified' && verified.value.has(c.id)) return false
   if (filter.value === 'review' && !c.needsReview) return false
   const q = query.value.toLowerCase()
@@ -29,11 +31,11 @@ function toggle(id: string) {
 }
 
 function download() {
-  const merged = realCards.map(c => ({ ...c, verified: verified.value.has(c.id) }))
+  const merged = inSet.value.map(c => ({ ...c, verified: verified.value.has(c.id) }))
   const url = URL.createObjectURL(new Blob([JSON.stringify(merged, null, 2) + '\n'], { type: 'application/json' }))
   const a = document.createElement('a')
   a.href = url
-  a.download = 'cards.json'
+  a.download = `${SETS.find(s => s.name === setName.value)!.key}-cards.json`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -49,14 +51,15 @@ const structured = (c: (typeof realCards)[number]) => {
     <header class="bar">
       <button class="link" @click="$emit('back')">Menu</button>
       <h2>Card review</h2>
-      <span>{{ realCards.length }} transcribed · {{ verified.size }} verified · {{ invalidCards.length }} invalid · {{ missing.length }} not yet transcribed</span>
+      <select v-model="setName" aria-label="Set"><option v-for="s in SETS" :key="s.key" :value="s.name">{{ s.name }}</option></select>
+      <span>{{ inSet.length }} transcribed · {{ inSet.filter(c => verified.has(c.id)).length }} verified · {{ invalidCards.length }} invalid · {{ missing.length }} not yet transcribed</span>
     </header>
     <div class="filters">
       <label><input v-model="filter" type="radio" value="unverified" /> Unverified</label>
       <label><input v-model="filter" type="radio" value="review" /> Needs review</label>
       <label><input v-model="filter" type="radio" value="all" /> All</label>
       <input v-model="query" placeholder="Search name, id or text" />
-      <button @click="download">Download cards.json with verified flags</button>
+      <button @click="download">Download this set's cards.json with verified flags</button>
     </div>
     <p class="hint">Verified flags are kept in this browser. Download the file and replace <code>src/data/saiyan-saga/cards.json</code> to make them permanent.</p>
     <div v-if="invalidCards.length" class="error">

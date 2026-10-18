@@ -4,11 +4,13 @@ export interface Settings {
   rulesMode: 'PURE_2000' | 'CRD_3'
   aiDelayMs: number
   hideHandsHotseat: boolean
+  /** card pool: see formats.ts */
+  format: 'SAIYAN' | 'SAIYAN_FRIEZA'
 }
 
 const KEY = 'dbzccg.settings'
 function load(): Settings {
-  const base: Settings = { rulesMode: 'PURE_2000', aiDelayMs: 600, hideHandsHotseat: true }
+  const base: Settings = { rulesMode: 'PURE_2000', aiDelayMs: 600, hideHandsHotseat: true, format: 'SAIYAN' }
   try { return { ...base, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') } } catch { return base }
 }
 

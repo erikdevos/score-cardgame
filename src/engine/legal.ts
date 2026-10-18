@@ -1,4 +1,4 @@
-import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
+import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
 import { canUseCard, def, mpDef } from './state'
@@ -128,10 +128,21 @@ function canPlayNonCombat(s: GameState, db: CardDB, iid: string): boolean {
     if (style && s.players.some(p => p.drills.some(c => def(db, c).style === style))) return false
     return true
   }
+  if (d.type === 'Dragon Ball' && dragonBallLimitReached(s, db, s.attacker)) return false
   if (d.type === 'Dragon Ball' && s.rules.uniqueDragonBallNumbers) {
     return !s.players.some(p => p.dragonBalls.some(c => def(db, c).dragonBallNumber === d.dragonBallNumber))
   }
   return true
+}
+
+/** FS-101/102 "Opponents can play only 1 dragon ball on their turn": counted from this turn's log. */
+function dragonBallLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean {
+  const limits = tableEffects(s, db, other(p), 'dragonBallPlayLimit').map(e => Number(e.params.perTurn ?? 1))
+  if (!limits.length) return false
+  const balls = new Set(Object.values(db).filter(d => d.type === 'Dragon Ball').map(d => `Player ${p + 1} plays ${d.name}`))
+  let played = 0
+  for (let i = s.log.length - 1; i >= 0 && s.log[i].t !== 'TURN'; i--) if (s.log[i].t === 'PLAY' && balls.has(s.log[i].msg)) played++
+  return played >= Math.min(...limits)
 }
 
 /** The player who must act next. */

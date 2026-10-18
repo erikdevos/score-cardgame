@@ -14,13 +14,19 @@ export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[]
   const mpChar = mps[0]?.personality?.character
   const { minLife, maxLife, maxCopies, maxNamedCopies } = rules.deck
   if (deck.life.length < minLife || deck.life.length > maxLife) errors.push(`Life deck must have ${minLife}-${maxLife} cards (has ${deck.life.length})`)
-  const counts = new Map<string, number>()
-  for (const id of deck.life) counts.set(id, (counts.get(id) ?? 0) + 1)
-  for (const [id, n] of counts) {
+  // copies are counted by title, so a reprint in a later set shares the limit with the original
+  const counts = new Map<string, { n: number; id: string }>()
+  for (const id of deck.life) {
     const d = db[id]
     if (!d) { errors.push(`Unknown card ${id}`); continue }
+    const c = counts.get(d.name) ?? { n: 0, id }
+    c.n++
+    counts.set(d.name, c)
+  }
+  for (const [name, { n, id }] of counts) {
+    const d = db[id]
     const limit = d.limitPerDeck ?? (d.named && d.named === mpChar ? maxNamedCopies : maxCopies)
-    if (n > limit) errors.push(`${d.name}: ${n} copies (max ${limit})`)
+    if (n > limit) errors.push(`${name}: ${n} copies (max ${limit})`)
   }
   return errors
 }

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { defaultRulesConfig, validateDeck } from '../engine'
 import { db, realCards } from './cardDb'
 import { deckChoices } from './decks'
+import { FORMATS, formatCards, formatReady, unverifiedIn, type FormatKey } from './formats'
 import { settings } from './settings'
 import { useGame, type Mode } from './useGame'
 import CardReview from './components/CardReview.vue'
@@ -11,13 +12,17 @@ import GameBoard from './components/GameBoard.vue'
 
 const game = useGame()
 const screen = ref<'menu' | 'game' | 'review'>('menu')
-const choices = computed(() => deckChoices())
+if (!formatReady(settings.format)) settings.format = 'SAIYAN'
+const choices = computed(() => deckChoices(settings.format))
+const formatKeys = Object.keys(FORMATS) as FormatKey[]
 const pick = (k: string, fallback: number) => (choices.value.some(c => c.key === k) ? k : choices.value[fallback].key)
 const decks = ref([pick('auto-Goku', 0), pick('auto-Vegeta', 1)])
 const seed = ref('')
 const warnings = ref<string[]>([])
 const showSettings = ref(false)
 const find = (k: string) => choices.value.find(c => c.key === k)!
+// switching format: keep each player's character when it exists in the new pool
+watch(choices, () => { decks.value = [pick(decks.value[0], 0), pick(decks.value[1], 1)] })
 const mpOf = (k: string) => db[find(k).mpId]
 
 function start(mode: Mode) {
@@ -40,6 +45,25 @@ function start(mode: Mode) {
       <h1><span class="l1">Dragon Ball</span><span class="l2">Z</span></h1>
       <p class="logo-sub">Collectible Card Game · Saiyan Saga</p>
     </header>
+
+    <div class="format-pick" role="radiogroup" aria-label="Card pool">
+      <span class="eyebrow">Card pool</span>
+      <div class="segmented">
+        <button
+          v-for="f in formatKeys"
+          :key="f"
+          role="radio"
+          :aria-checked="settings.format === f"
+          :class="{ on: settings.format === f }"
+          :disabled="!formatReady(f)"
+          @click="settings.format = f"
+        >
+          {{ FORMATS[f].label }}
+          <small>{{ formatReady(f) ? `${formatCards(f).length} cards` : 'coming soon' }}</small>
+        </button>
+      </div>
+      <span v-if="formatReady(settings.format) && unverifiedIn(settings.format)" class="muted small">{{ unverifiedIn(settings.format) }} cards not verified yet: text and effects may still contain mistakes</span>
+    </div>
 
     <section class="select">
       <article v-for="(k, i) in decks" :key="i" class="fighter" :class="mpOf(k).personality?.alignment === 'Villain' ? 'villain' : 'hero'">
@@ -95,6 +119,6 @@ function start(mode: Mode) {
       <label>Seed <input v-model="seed" inputmode="numeric" placeholder="random" /></label>
     </section>
 
-    <p class="foot muted small">{{ realCards.length }} cards from the 2000 Saiyan Saga set. Decks are built automatically per character.</p>
+    <p class="foot muted small">{{ realCards.length }} cards transcribed. Decks are built automatically per character from the chosen card pool.</p>
   </main>
 </template>

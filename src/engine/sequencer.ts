@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { allyAbsorbs, applyDefense, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { allyAbsorbs, applyDefense, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { triggerFrames } from './effects/triggers'
@@ -37,13 +37,18 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
  */
 export function legalDefenses(s: GameState, db: CardDB, defender: PlayerId): CardInstance[] {
   if (!s.combat?.strike) return []
+  const block = strikeDefenseBlock(s.combat.strike.strike)
+  if (block.cards) return []
   const pl = s.players[defender]
   // Non-Combat cards only block from the table, never straight from hand
-  return [...pl.hand.filter(c => def(db, c).type !== 'Non-Combat'), ...pl.nonCombat].filter(c => defenseFor(s, db, defender, c))
+  return [...pl.hand.filter(c => def(db, c).type !== 'Non-Combat'), ...pl.nonCombat]
+    .filter(c => !(block.combatCards && ['Physical Combat', 'Energy Combat', 'Combat'].includes(def(db, c).type)))
+    .filter(c => defenseFor(s, db, defender, c))
 }
 
 /** The defender's personality power, if it can answer the current strike (once per combat). */
 export function legalPowerDefense(s: GameState, db: CardDB, defender: PlayerId): DefenseOption | null {
+  if (strikeDefenseBlock(s.combat?.strike?.strike).power) return null
   const opt = powerDefense(s, db, defender)
   return opt && canPayCost(s, db, defender, opt.strike) ? opt : null
 }
@@ -55,7 +60,7 @@ export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
   return powerOptions(s, db, p).find(power => {
     const st = power.strike
     const effects = st.effects.onPlaySecondary
-    if (isDefenseRole(st.combatRole) || findCustom(effects, 'powerDefense').length || isAutoOnly(effects)) return false
+    if (isDefenseRole(st.combatRole) || findCustom(effects, 'powerDefense').length || isAutoOnly(effects) || isConstantPower(st)) return false
     if (findCustom(effects, 'usageLimit').some(u => u.per === 'game') && s.usedPerGame.includes(`${p}:${mp.id}`)) return false
     if (attackRestriction(s, p, st.combatRole)) return false
     return timingAllows(s, p, effects, 'ATTACK') && requirementsMet(s, db, p, effects) && canPayCost(s, db, p, st)
@@ -187,6 +192,16 @@ export function defendWithPower(s: GameState, db: CardDB) {
   schedule(s, effectsFrame(defender, power.name, secondaries), step('strike.resolveHit'))
 }
 
+/** FS-37, FS-96: "even if stopped, the defender takes ..." */
+function damageIfStopped(s: GameState, strike: StrikeDef, defender: PlayerId, label: string) {
+  for (const p of findCustom(strike.effects.onPlaySecondary, 'damageIfStopped')) {
+    const d = { stages: Number(p.stages ?? 0), lifeCards: Number(p.lifeCards ?? 0) }
+    if (!d.stages && !d.lifeCards) continue
+    log(s, 'DAMAGE', `Player ${defender + 1} takes ${d.stages} stage(s) and ${d.lifeCards} life card(s) from the stopped ${label}`, defender)
+    applyDamage(s, defender, d)
+  }
+}
+
 // Steps 6-7: hit check, damage, Dragon Ball capture.
 export function resolveHit(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
@@ -195,6 +210,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (st.defense?.mode === 'STOP') {
     log(s, 'STOPPED', `${st.label} is stopped`)
     s.combat!.lastAttack[st.initiator] = { type, success: false }
+    damageIfStopped(s, st.strike, defender, st.label)
     return cleanup(s, db)
   }
 
@@ -203,6 +219,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (shield) {
     log(s, 'STOPPED', `${shield} stops the successful ${st.label}`, defender)
     s.combat!.lastAttack[st.initiator] = { type, success: false }
+    damageIfStopped(s, st.strike, defender, st.label)
     return cleanup(s, db)
   }
 

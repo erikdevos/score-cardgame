@@ -1,0 +1,4859 @@
+[
+  {
+    "id": "FS-1",
+    "name": "Orange Planet Destruction",
+    "set": "Frieza Saga",
+    "number": 1,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Lower opponent's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/1.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-2",
+    "name": "Orange Kamehemeha Attack",
+    "set": "Frieza Saga",
+    "number": 2,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. Lower opponent's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/2.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-3",
+    "name": "Orange Taunting Attack",
+    "set": "Frieza Saga",
+    "number": 3,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Energy attack. Lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/3.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-4",
+    "name": "Red Energy Suspension",
+    "set": "Frieza Saga",
+    "number": 4,
+    "type": "Energy Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/4.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-5",
+    "name": "Red Energy Disk",
+    "set": "Frieza Saga",
+    "number": 5,
+    "type": "Energy Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. Costs 3 stages to use. Lower opponent's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/5.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-6",
+    "name": "Red Energy Disk Blasting",
+    "set": "Frieza Saga",
+    "number": 6,
+    "type": "Energy Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/6.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-7",
+    "name": "Blue Energy Flight",
+    "set": "Frieza Saga",
+    "number": 7,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. Raise your anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/7.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-8",
+    "name": "Recoome Boom",
+    "set": "Frieza Saga",
+    "number": 8,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Recoome",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "nextPhase",
+            "namedFoe": true
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Villains, Goku, and Gohan only. Energy attack. Playing this card stops a single named opponent from making an energy attack on his next combat phase. Lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/8.jpg",
+    "verified": false,
+    "needsReview": "Green (Saiyan-colour) card with the Saiyan-group restriction, but the title has no style word and no style kanji is printed: stored without style."
+  },
+  {
+    "id": "FS-9",
+    "name": "Saiyan Rapture",
+    "set": "Frieza Saga",
+    "number": 9,
+    "type": "Energy Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "rawText": "Villains, Goku, and Gohan only. Energy attack.",
+    "imageUrl": "/cards/frieza-saga/9.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-10",
+    "name": "Saiyan Concussion Punch",
+    "set": "Frieza Saga",
+    "number": 10,
+    "type": "Energy Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Villains, Goku, and Gohan only. Energy attack doing 5 life cards of damage. Lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/10.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-11",
+    "name": "Saiyan Rapid Deflection",
+    "set": "Frieza Saga",
+    "number": 11,
+    "type": "Energy Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "rawText": "Villains, Goku, and Gohan only. Energy attack doing 6 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/11.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-12",
+    "name": "Saiyan Energy Focus",
+    "set": "Frieza Saga",
+    "number": 12,
+    "type": "Non-Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "SELF",
+          "amount": 5
+        }
+      ]
+    },
+    "rawText": "Power up main personality or ally 5 stages.",
+    "imageUrl": "/cards/frieza-saga/12.jpg",
+    "verified": false,
+    "needsReview": "'main personality or ally': SELF used (no SELF_OR_ALLY target, see dsl-gaps power-up recipient). Saiyan style but no printed 'Villains, Goku, and Gohan only', so no usableBy (as SS-197)."
+  },
+  {
+    "id": "FS-13",
+    "name": "Empowerment!",
+    "set": "Frieza Saga",
+    "number": 13,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifUsedBy",
+          "params": {
+            "characters": [
+              "Piccolo",
+              "Nail"
+            ],
+            "role": "mainPersonality",
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Raise Hero's anger 1 level. If Piccolo or Nail is your main personality, raise anger 2 levels. Remove this card from the game after use.",
+    "imageUrl": "/cards/frieza-saga/13.jpg",
+    "verified": false,
+    "needsReview": "'Hero's anger' read as the user's anger (no usableBy; could mean Heroes only). 'raise anger 2 levels' read as 2 in total (base 1 + 1). ifUsedBy with new param role=mainPersonality (text says 'is your main personality', not 'If used by')."
+  },
+  {
+    "id": "FS-14",
+    "name": "Goku's Righteous Force",
+    "set": "Frieza Saga",
+    "number": 14,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Goku",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "discard",
+            "position": "top",
+            "amount": 3
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack. If successful, also draw the top 3 cards from an opponent's discard pile and remove them from the game. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/14.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-15",
+    "name": "Gohan's Temper",
+    "set": "Frieza Saga",
+    "number": 15,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Gohan",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifInPlay",
+          "params": {
+            "cardName": "Dragon Ball 6",
+            "anywhere": true,
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. Raise Hero's anger 1 level. If \"Dragon Ball 6\" is in play raise the anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/15.jpg",
+    "verified": false,
+    "needsReview": "'Hero's anger' read as the user's anger. 'Dragon Ball 6' does not say Earth or Namekian; any Dragon Ball numbered 6 assumed. 'raise the anger 2 levels' read as 2 in total."
+  },
+  {
+    "id": "FS-16",
+    "name": "Tien's Jolting Aura",
+    "set": "Frieza Saga",
+    "number": 16,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Tien",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifInPlay",
+          "params": {
+            "character": "Tien",
+            "anywhere": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "DRAW",
+                      "target": "SELF",
+                      "amount": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Heroes only. Energy attack. If Tien is in play anywhere, you may draw another card.",
+    "imageUrl": "/cards/frieza-saga/16.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-17",
+    "name": "Vegeta's Jolting Slash",
+    "set": "Frieza Saga",
+    "number": 17,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Vegeta",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "PHYSICAL",
+            "duration": "thisCombat",
+            "protectsAlignment": "Villain"
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack. No physical attacks will work against villains this combat. Lower opponent's anger 2 levels. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/17.jpg",
+    "verified": false,
+    "needsReview": "preventAttack with new param protectsAlignment=Villain (only physical attacks on villains are blocked)."
+  },
+  {
+    "id": "FS-18",
+    "name": "Saiyan Concentration",
+    "set": "Frieza Saga",
+    "number": 18,
+    "type": "Non-Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": 1
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Villains, Goku, and Gohan only. Remove opponent's drill card from the game. Lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/18.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-19",
+    "name": "Powerful Followers",
+    "set": "Frieza Saga",
+    "number": 19,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endNextCombat",
+          "params": {
+            "trigger": "currentOrNextOpponentCombat",
+            "timing": "immediate"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops an opponent's current or next combat. Remove this card from the game after use.",
+    "imageUrl": "/cards/frieza-saga/19.jpg",
+    "verified": false,
+    "needsReview": "endNextCombat with new trigger 'currentOrNextOpponentCombat': ends the combat in progress (if the opponent declared it) or the opponent's next combat; timing (before/after damage) not printed."
+  },
+  {
+    "id": "FS-20",
+    "name": "Straining, Floating Attack Move",
+    "set": "Frieza Saga",
+    "number": 20,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Lower your anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/20.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-21",
+    "name": "Straining Blasting Move",
+    "set": "Frieza Saga",
+    "number": 21,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "SELF",
+            "zone": "lifeDeck",
+            "position": "top",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. Costs 1 power stage and, if successful, remove the top card from your life deck from the game.",
+    "imageUrl": "/cards/frieza-saga/21.jpg",
+    "verified": false,
+    "needsReview": "Text says 'your life deck' (the attacker's own), which is a drawback; transcribed literally."
+  },
+  {
+    "id": "FS-22",
+    "name": "Straining Energy Move",
+    "set": "Frieza Saga",
+    "number": 22,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "cost": {
+      "type": "LIFE_CARDS",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "END_COMBAT"
+        }
+      ]
+    },
+    "rawText": "Energy attack costing 1 life card to use. Combat is over after damage, if any, is taken.",
+    "imageUrl": "/cards/frieza-saga/22.jpg",
+    "verified": false,
+    "needsReview": "END_COMBAT must resolve after damage (hit or not); placed in onPlaySecondary. No damage amount printed."
+  },
+  {
+    "id": "FS-23",
+    "name": "Straining Defense Move",
+    "set": "Frieza Saga",
+    "number": 23,
+    "type": "Combat",
+    "rarity": "Common",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": "choice",
+            "perOwnLifeCardsRemoved": 2,
+            "optional": true
+          }
+        }
+      ]
+    },
+    "rawText": "For every 2 of your life cards that you now remove from the game, you may remove from the game 1 opponent drill of your choice.",
+    "imageUrl": "/cards/frieza-saga/23.jpg",
+    "verified": false,
+    "needsReview": "Sword icon despite 'Defense' in the title: usePhase ATTACK. removeFromGame with new params: player chooses how many own top life cards to remove from the game; 1 opponent drill per 2 removed."
+  },
+  {
+    "id": "FS-24",
+    "name": "Straining Blocking Move",
+    "set": "Frieza Saga",
+    "number": 24,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "NONE"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "variableCost",
+          "params": {
+            "costType": "LIFE_CARDS",
+            "min": 1,
+            "max": 7,
+            "damageLifeCardsEqualsCost": true
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack costing 1-7 life cards. If successful, defender discards that many life cards in damage.",
+    "imageUrl": "/cards/frieza-saga/24.jpg",
+    "verified": false,
+    "needsReview": "New handler variableCost: player picks 1-7 life cards as cost; on success the defender takes that many life cards. damage NONE because the amount comes from the handler."
+  },
+  {
+    "id": "FS-25",
+    "name": "Straining Focusing Move",
+    "set": "Frieza Saga",
+    "number": 25,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "cost": {
+      "type": "LIFE_CARDS",
+      "amount": 2
+    },
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops all energy attacks for the rest of this combat. Costs 2 life cards to use.",
+    "imageUrl": "/cards/frieza-saga/25.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-26",
+    "name": "A Hospital Stay",
+    "set": "Frieza Saga",
+    "number": 26,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Power up your main personality to its highest stage. Raise your anger 1 level. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/26.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-27",
+    "name": "Orange Thumbs Up",
+    "set": "Frieza Saga",
+    "number": 27,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifInPlay",
+          "params": {
+            "cardName": "Blue Life Defense Drill",
+            "anywhere": true,
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Stops an opponent's energy attack. Lower opponent's anger 1 level. If \"Blue Life Defense Drill\" is in play lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/27.jpg",
+    "verified": false,
+    "needsReview": "'lower opponent's anger 2 levels' read as 2 in total. 'in play' not limited to own side; anywhere assumed."
+  },
+  {
+    "id": "FS-28",
+    "name": "Orange Fist Detonation",
+    "set": "Frieza Saga",
+    "number": 28,
+    "type": "Physical Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Stops an opponent's physical attack. Lower opponent's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/28.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-29",
+    "name": "Goku's Sudden Outburst",
+    "set": "Frieza Saga",
+    "number": 29,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Goku",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/29.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-30",
+    "name": "Time Is A Warrior's Tool",
+    "set": "Frieza Saga",
+    "number": 30,
+    "type": "Combat",
+    "rarity": "Common",
+    "limitPerDeck": 1,
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ANY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "needsReview": "Encoded as DEFENSE_ANY STOP (stops the current attack) plus preventAttack ANY thisCombat; starburst icon.",
+    "rawText": "Stops all attacks from an opponent in this combat. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/30.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-31",
+    "name": "Dodoria Energy Attack",
+    "set": "Frieza Saga",
+    "number": 31,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Dodoria",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/31.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-32",
+    "name": "Dodoria Flames of Fury",
+    "set": "Frieza Saga",
+    "number": 32,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Dodoria",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "OPPONENT",
+          "amount": -3
+        }
+      ]
+    },
+    "rawText": "Energy attack. If successful, it also does 3 power stages of damage.",
+    "imageUrl": "/cards/frieza-saga/32.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-33",
+    "name": "Jeice Flash Attack",
+    "set": "Frieza Saga",
+    "number": 33,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "named": "Jeice",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If successful, it also stops opponents from making energy attacks for the rest of this combat.",
+    "imageUrl": "/cards/frieza-saga/33.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-34",
+    "name": "Saiyan Planet Explosion",
+    "set": "Frieza Saga",
+    "number": 34,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "style": "Saiyan",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ],
+      "characters": [
+        "Goku",
+        "Gohan"
+      ]
+    },
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Villains, Goku, and Gohan only. Stops an energy attack and stops all energy attacks for the rest of this combat.",
+    "imageUrl": "/cards/frieza-saga/34.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-35",
+    "name": "Saiyan Focusing Power",
+    "set": "Frieza Saga",
+    "number": 35,
+    "type": "Combat",
+    "rarity": "Common",
+    "style": "Saiyan",
+    "usableBy": {
+      "characters": [
+        "Goku",
+        "Gohan",
+        "Vegeta",
+        "Nappa",
+        "Raditz"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "DEFEND",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "SELF",
+          "amount": 5
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "needsReview": "usableBy lists only the named characters; 'other Saiyans and half Saiyans' has no schema (no race field). Style Saiyan assumed from title + green kanji, but the restriction differs from the usual Saiyan group.",
+    "rawText": "Goku, Gohan, Vegeta, Nappa, Raditz, and other Saiyans and half Saiyans only. Power up your main personality 5 power stages. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/35.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-36",
+    "name": "Alien Anger!",
+    "set": "Frieza Saga",
+    "number": 36,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "MODIFY_STAGES",
+          "target": "SELF",
+          "amount": 3
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. Raise your anger 1 level. Power up 3 stages. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/36.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-37",
+    "name": "Jeice Lv1",
+    "set": "Frieza Saga",
+    "number": 37,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Jeice",
+      "level": 1,
+      "powerRatings": [
+        0,
+        32000,
+        34000,
+        36000,
+        38000,
+        40000,
+        42000,
+        44000,
+        46000,
+        48000,
+        50000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack doing 5 life cards of damage. if stopped, it still does 2 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "damage": {
+            "calculation": "FLAT",
+            "lifeCards": 5
+          },
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageIfStopped",
+                "params": {
+                  "stages": 0,
+                  "lifeCards": 2
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character)",
+    "rawText": "Energy attack doing 5 life cards of damage. if stopped, it still does 2 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/37.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-38",
+    "name": "Dodoria Lv1",
+    "set": "Frieza Saga",
+    "number": 38,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Dodoria",
+      "level": 1,
+      "powerRatings": [
+        0,
+        52000,
+        55000,
+        58000,
+        61000,
+        65000,
+        68000,
+        71000,
+        74000,
+        77000,
+        80000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character)",
+    "rawText": "Physical Attack.",
+    "imageUrl": "/cards/frieza-saga/38.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-39",
+    "name": "Tien Lv3",
+    "set": "Frieza Saga",
+    "number": 39,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Tien",
+      "level": 3,
+      "powerRatings": [
+        0,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack. If successful, Tien also takes the top 2 discarded cards and places them at the bottom of his life deck.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "recoverFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 2,
+                  "from": "top",
+                  "to": "bottom"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy Attack. If successful, Tien also takes the top 2 discarded cards and places them at the bottom of his life deck.",
+    "imageUrl": "/cards/frieza-saga/39.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-40",
+    "name": "Yamcha Lv3",
+    "set": "Frieza Saga",
+    "number": 40,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Yamcha",
+      "level": 3,
+      "powerRatings": [
+        0,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. If successful, Yamcha also takes the top 2 discarded cards and places them at the bottom of his life deck.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "recoverFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 2,
+                  "from": "top",
+                  "to": "bottom"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Physical Attack. If successful, Yamcha also takes the top 2 discarded cards and places them at the bottom of his life deck.",
+    "imageUrl": "/cards/frieza-saga/40.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-41",
+    "name": "Chi-Chi Lv2",
+    "set": "Frieza Saga",
+    "number": 41,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Chi-Chi",
+      "level": 2,
+      "powerRatings": [
+        0,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. If successful, it also does +4 power stages of damage if Goku is present.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "conditionalDamage",
+                "params": {
+                  "condition": "characterInPlay",
+                  "character": "Goku",
+                  "stages": 4
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "'Goku is present' read as a Goku personality in play (MP or ally, either player); confirm scope.",
+    "rawText": "Physical Attack. If successful, it also does +4 power stages of damage if Goku is present.",
+    "imageUrl": "/cards/frieza-saga/41.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-42",
+    "name": "Bulma Lv2",
+    "set": "Frieza Saga",
+    "number": 42,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Bulma",
+      "level": 2,
+      "powerRatings": [
+        0,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Bulma may capture a dragon ball from her opponent if she does damage in an energy attack.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "stealOrCaptureDragonBall",
+                "params": {
+                  "target": "OPPONENT",
+                  "which": "choice",
+                  "optional": true
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "Printed text does not say 'Energy attack' as an action; read as an energy attack power with an optional capture on hit.",
+    "rawText": "Bulma may capture a dragon ball from her opponent if she does damage in an energy attack.",
+    "imageUrl": "/cards/frieza-saga/42.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-43",
+    "name": "Chiaotzu Lv3",
+    "set": "Frieza Saga",
+    "number": 43,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Chiaotzu",
+      "level": 3,
+      "powerRatings": [
+        0,
+        14000,
+        16000,
+        18000,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack. If successful, Chiaotzu also stops all other opponent's physical attacks in this combat.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "preventAttack",
+                "params": {
+                  "target": "OPPONENT",
+                  "attackType": "PHYSICAL",
+                  "duration": "thisCombat"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy Attack. If successful, Chiaotzu also stops all other opponent's physical attacks in this combat.",
+    "imageUrl": "/cards/frieza-saga/43.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-44",
+    "name": "Yajirobe Lv3",
+    "set": "Frieza Saga",
+    "number": 44,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Yajirobe",
+      "level": 3,
+      "powerRatings": [
+        0,
+        3200,
+        3700,
+        4200,
+        4700,
+        5200,
+        5700,
+        6200,
+        6700,
+        7200,
+        7700
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. If successful, Yajirobe also does 3 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT",
+            "modifierLifeCards": 3
+          }
+        }
+      }
+    },
+    "rawText": "Physical Attack. If successful, Yajirobe also does 3 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/44.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-45",
+    "name": "Guldo Lv1",
+    "set": "Frieza Saga",
+    "number": 45,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Guldo",
+      "level": 1,
+      "powerRatings": [
+        0,
+        32000,
+        34000,
+        36000,
+        38000,
+        40000,
+        42000,
+        44000,
+        46000,
+        48000,
+        50000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. If successful, you also may take the 2 bottom cards from your discard pile into your hand.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "drawFromDiscard",
+                      "params": {
+                        "amount": 2,
+                        "position": "bottom"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character)",
+    "rawText": "Physical Attack. If successful, you also may take the 2 bottom cards from your discard pile into your hand.",
+    "imageUrl": "/cards/frieza-saga/45.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-46",
+    "name": "Guldo Lv2",
+    "set": "Frieza Saga",
+    "number": 46,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Guldo",
+      "level": 2,
+      "powerRatings": [
+        0,
+        52000,
+        55000,
+        58000,
+        61000,
+        65000,
+        68000,
+        71000,
+        74000,
+        77000,
+        80000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack. This attack cannot be stopped by using combat card defenses.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "cannotBeStoppedBy",
+                "params": {
+                  "source": "combatCards"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character)",
+    "rawText": "Energy Attack. This attack cannot be stopped by using combat card defenses.",
+    "imageUrl": "/cards/frieza-saga/46.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-47",
+    "name": "Guldo Lv3",
+    "set": "Frieza Saga",
+    "number": 47,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Guldo",
+      "level": 3,
+      "powerRatings": [
+        0,
+        80000,
+        85000,
+        90000,
+        95000,
+        100000,
+        105000,
+        110000,
+        115000,
+        120000,
+        125000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. This attack cannot be stopped by using combat card defenses.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "cannotBeStoppedBy",
+                "params": {
+                  "source": "combatCards"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character)",
+    "rawText": "Physical Attack. This attack cannot be stopped by using combat card defenses.",
+    "imageUrl": "/cards/frieza-saga/47.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-48",
+    "name": "Dende Lv1",
+    "set": "Frieza Saga",
+    "number": 48,
+    "type": "Personality",
+    "rarity": "Uncommon",
+    "personality": {
+      "character": "Dende",
+      "level": 1,
+      "powerRatings": [
+        0,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "At the end of a combat, put any single ally from your discard pile into play, at 4 stages above zero.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "playTiming",
+                "params": {
+                  "when": "endOfCombat"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "allyEffect",
+                "params": {
+                  "action": "returnFromDiscard",
+                  "target": "SELF",
+                  "count": 1,
+                  "stage": 4
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "needsReview": "alignment assumed (new character); printed PUR 2 on a level 1; playTiming 'endOfCombat' is a new value.",
+    "rawText": "At the end of a combat, put any single ally from your discard pile into play, at 4 stages above zero.",
+    "imageUrl": "/cards/frieza-saga/48.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-49",
+    "name": "Frieza Smiles",
+    "set": "Frieza Saga",
+    "number": 49,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "named": "Frieza",
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "requiresCondition",
+          "params": {
+            "condition": "firstCardInCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "choice",
+            "options": [
+              "ENERGY",
+              "PHYSICAL"
+            ],
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "needsReview": "Player picks energy or physical; DEFENSE_ANY STOP should only stop the current attack if it matches the chosen type. 'First card in combat' encoded as requiresCondition firstCardInCombat (new condition).",
+    "rawText": "Stops all energy attacks or physical attacks in this combat if played as this personality's first card in combat.",
+    "imageUrl": "/cards/frieza-saga/49.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-50",
+    "name": "Captain Ginyu Realization",
+    "set": "Frieza Saga",
+    "number": 50,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Captain Ginyu",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "OPPONENT",
+          "amount": -3
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "modifyStages",
+            "target": "OPPONENT",
+            "allAllies": true,
+            "amount": -3
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "needsReview": "named 'Captain Ginyu' (as printed in the character box); may need alias with 'Ginyu'.",
+    "rawText": "All opponents and their allies lose 3 power stages. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/50.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-51",
+    "name": "Jeice Shouts",
+    "set": "Frieza Saga",
+    "number": 51,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Jeice",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_STAGES",
+          "target": "OPPONENT",
+          "amount": -2
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "modifyStages",
+            "target": "ALL",
+            "allAllies": true,
+            "amount": -2
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "needsReview": "'All opponents and allies': read literally as every ally (own allies too), unlike FS-50 'their allies'. Confirm.",
+    "rawText": "All opponents and allies lose 2 power stages. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/051.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-52",
+    "name": "Jeice Comet Attack",
+    "set": "Frieza Saga",
+    "number": 52,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Jeice",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Costs 3 power stages to use.",
+    "imageUrl": "/cards/frieza-saga/052.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-53",
+    "name": "Dodoria Boom",
+    "set": "Frieza Saga",
+    "number": 53,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Dodoria",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Costs 3 power stages to use.",
+    "imageUrl": "/cards/frieza-saga/053.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-54",
+    "name": "Goku's Energy Absorption",
+    "set": "Frieza Saga",
+    "number": 54,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Goku",
+    "limitPerDeck": 1,
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 2,
+            "from": "choice",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops an energy attack. Take two cards from your discard pile and put them at the bottom of your life card deck. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/054.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-55",
+    "name": "Guldo's Time Freeze Drill",
+    "set": "Frieza Saga",
+    "number": 55,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Guldo",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "VILLAINS",
+            "attackType": "ANY",
+            "stagesOrLifeCards": -1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "Printed type bar says Non-Combat (title says Drill); typed Drill. 'Villians' misspelled on card. '1 less power stage or life card' encoded as stagesOrLifeCards -1 (reduction choice unclear); applies to all villains, any player.",
+    "rawText": "Villians only. All successful attacks on a villain do 1 less power stage or life card of damage than normal.",
+    "imageUrl": "/cards/frieza-saga/055.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-56",
+    "name": "Gohan's Anger Blast",
+    "set": "Frieza Saga",
+    "number": 56,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Gohan",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 4
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. Costs 4 power stages to use. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/056.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-57",
+    "name": "Krillin's Anger Blast",
+    "set": "Frieza Saga",
+    "number": 57,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Krillin",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Energy attack doing 5 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/057.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-58",
+    "name": "Tien's Power Burst",
+    "set": "Frieza Saga",
+    "number": 58,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Tien",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat",
+            "cardsOnly": true
+          }
+        }
+      ]
+    },
+    "needsReview": "preventAttack with new param cardsOnly: the text stops energy attack cards only (powers still allowed).",
+    "rawText": "Energy Attack. If successful, it also stops the opponent from playing any other energy attack cards in this combat.",
+    "imageUrl": "/cards/frieza-saga/058.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-59",
+    "name": "Yamcha's Skillful Defense",
+    "set": "Frieza Saga",
+    "number": 59,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Yamcha",
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical or energy attack. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/059.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-60",
+    "name": "Vegeta's Gallic Gun",
+    "set": "Frieza Saga",
+    "number": 60,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Vegeta",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "needsReview": "'all opponents' encoded as OPPONENT (no ALL_OPPONENTS target).",
+    "rawText": "Energy Attack. If successful, also lower all opponents' anger 1 level. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/060.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-61",
+    "name": "Vegeta's Powering Up",
+    "set": "Frieza Saga",
+    "number": 61,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Vegeta",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack costing 1 power stage to use. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/061.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-62",
+    "name": "Captain Ginyu's Visionary Attack",
+    "set": "Frieza Saga",
+    "number": 62,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Captain Ginyu",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "needsReview": "named: printed 'Captain Ginyu' (brief calls the character Ginyu); harmonize with the Ginyu personality's character name.",
+    "rawText": "Energy attack costing 1 power stage to use.",
+    "imageUrl": "/cards/frieza-saga/062.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-63",
+    "name": "Yajirobe's Gifting Drill",
+    "set": "Frieza Saga",
+    "number": 63,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Yajirobe",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ANY",
+        "stages": -1,
+        "lifeCards": -1,
+        "scope": "OPPONENT"
+      }
+    ],
+    "needsReview": "Printed type Non-Combat, typed Drill (Saiyan convention). 'by 1 power stage or 1 life card' encoded as both -1 stage and -1 life card; the 'or' may mean only one applies per attack.",
+    "rawText": "Reduces damage from every attack by 1 power stage or 1 life card.",
+    "imageUrl": "/cards/frieza-saga/063.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-64",
+    "name": "Chiaotzu's Glaring Power",
+    "set": "Frieza Saga",
+    "number": 64,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Chiaotzu",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 6
+    },
+    "effects": {
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/064.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-65",
+    "name": "Red Energy Defense Drill",
+    "set": "Frieza Saga",
+    "number": 65,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ENERGY",
+        "lifeCards": -1,
+        "scope": "OPPONENT"
+      }
+    ],
+    "rawText": "Reduces damage from every energy attack by 1 life card.",
+    "imageUrl": "/cards/frieza-saga/065.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-66",
+    "name": "Blue Mental Drill",
+    "set": "Frieza Saga",
+    "number": 66,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "revealHand",
+          "params": {
+            "target": "OPPONENT",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Forces opponents to constantly show the cards in their hands face up on the table.",
+    "imageUrl": "/cards/frieza-saga/066.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-67",
+    "name": "Orange Destruction Drill",
+    "set": "Frieza Saga",
+    "number": 67,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "turnStart",
+            "role": "any",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "sweepCards",
+                "params": {
+                  "cardType": "Non-Combat",
+                  "exclude": [
+                    "Dragon Ball"
+                  ],
+                  "scope": "OPPONENT",
+                  "amount": 1
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "New trigger 'turnStart' (every turn, both players'); sweepCards with new amount/exclude params (owner chooses which card). Drills count as Non-Combat cards here (assumed).",
+    "rawText": "At the beginning of every turn, discard 1 opponent's non-combat/non-dragon ball card in play. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/067.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-68",
+    "name": "Black Zarbon Transformation Drill",
+    "set": "Frieza Saga",
+    "number": 68,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "named": "Zarbon",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "PUR_MOD",
+        "amount": 1,
+        "scope": "OWNER"
+      }
+    ],
+    "rawText": "Increases your power up rating by 1.",
+    "imageUrl": "/cards/frieza-saga/068.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-69",
+    "name": "Red Phasing Drill",
+    "set": "Frieza Saga",
+    "number": 69,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "ENERGY",
+            "lifeCards": 3,
+            "scope": "OWNER",
+            "condition": "defenderIsVillain",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "damageModifier with new condition value 'defenderIsVillain' (DAMAGE_MOD passive cannot filter on alignment).",
+    "rawText": "Do +3 life cards damage in every successful energy attack against any villain.",
+    "imageUrl": "/cards/frieza-saga/069.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-70",
+    "name": "Blue Allies Drill",
+    "set": "Frieza Saga",
+    "number": 70,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Blue",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "PHYSICAL",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": "lifeDeck",
+                  "filter": "Ally level 1",
+                  "to": "hand"
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "New trigger 'afterOwnSuccessfulAttack'. No shuffle printed, so none encoded.",
+    "rawText": "Search your life deck for 1 level-one ally and place it in your hand after every successful physical attack against an opponent you make.",
+    "imageUrl": "/cards/frieza-saga/070.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-71",
+    "name": "Orange Leg Drill",
+    "set": "Frieza Saga",
+    "number": 71,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Orange",
+    "limitPerDeck": 1,
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "PHYSICAL",
+        "stages": -2,
+        "scope": "OPPONENT"
+      }
+    ],
+    "rawText": "Reduces damage from every physical attack by 2 power stages. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/071.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-72",
+    "name": "Black Energy Stamina Drill",
+    "set": "Frieza Saga",
+    "number": 72,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "attackCostModifier",
+          "params": {
+            "attackType": "ENERGY",
+            "costStages": 1,
+            "role": "attacker",
+            "scope": "OWNER",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "Read as 'your energy attacks cost 1 stage' (like SS-146, instead of the normal 2). Could also mean +1 extra cost; confirm.",
+    "rawText": "Costs 1 power stage for you to make any energy attack.",
+    "imageUrl": "/cards/frieza-saga/072.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-73",
+    "name": "Red Implosion Drill",
+    "set": "Frieza Saga",
+    "number": 73,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Red",
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ENERGY",
+        "lifeCards": 2,
+        "scope": "OWNER"
+      }
+    ],
+    "rawText": "Do +2 life cards of damage with each successful energy attack.",
+    "imageUrl": "/cards/frieza-saga/073.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-74",
+    "name": "Captain Ginyu Reversal Drill",
+    "set": "Frieza Saga",
+    "number": 74,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Captain Ginyu",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "retaliationDrain",
+          "params": {
+            "per": "attack",
+            "minStages": 3,
+            "opponentStages": -1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "retaliationDrain with new shape per:'attack' + minStages (one drain per hit of 3+ stages). named 'Captain Ginyu' vs brief's 'Ginyu'.",
+    "rawText": "Villains only. When taking 3 or more power stages of damage, your attacker takes 1 power stage of damage. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/074.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-75",
+    "name": "Jeice's Style Drill",
+    "set": "Frieza Saga",
+    "number": 75,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Jeice",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "autoStopAttack",
+          "params": {
+            "attackType": "ENERGY",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Stops the first energy attack made against you in a combat. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/075.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-76",
+    "name": "Vegeta Getting Bashed Drill",
+    "set": "Frieza Saga",
+    "number": 76,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Vegeta",
+    "usableBy": {
+      "characters": [
+        "Vegeta",
+        "Goku",
+        "Gohan",
+        "Nappa",
+        "Raditz"
+      ]
+    },
+    "effects": {
+      "postResolution": "STAYS"
+    },
+    "passives": [
+      {
+        "kind": "DAMAGE_MOD",
+        "attackType": "ENERGY",
+        "lifeCards": 1,
+        "scope": "OWNER"
+      }
+    ],
+    "rawText": "Vegeta, Goku, Gohan, Nappa, and Raditz only. Do +1 life card of damage with each successful energy attack.",
+    "imageUrl": "/cards/frieza-saga/076.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-77",
+    "name": "Dende Healing Drill",
+    "set": "Frieza Saga",
+    "number": 77,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Dende",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "conditionalPassive",
+          "params": {
+            "condition": {
+              "inPlay": "Dende",
+              "anywhere": true
+            },
+            "passive": {
+              "kind": "PUR_MOD",
+              "amount": 3,
+              "scope": "OWNER"
+            },
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "New handler conditionalPassive (PUR_MOD passive has no condition). 'Anywhere in play' assumed to include any player's MP or allies.",
+    "rawText": "Increases your power up rating (PUR) by 3 when Dende is anywhere in play.",
+    "imageUrl": "/cards/frieza-saga/077.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-78",
+    "name": "Gohan Anger Drill",
+    "set": "Frieza Saga",
+    "number": 78,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Gohan",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "condition": "successfulPhysicalAndEnergyThisCombat",
+            "limit": {
+              "count": 1,
+              "per": "combat"
+            },
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "triggeredEffect with new condition 'successfulPhysicalAndEnergyThisCombat' (fires once both a successful physical and energy attack happened this combat).",
+    "rawText": "Raise your anger 1 level when you successfully do a physical and energy attack in the same combat. Once per combat.",
+    "imageUrl": "/cards/frieza-saga/078.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-79",
+    "name": "Frieza's Influencing Drill",
+    "set": "Frieza Saga",
+    "number": 79,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "named": "Frieza",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "ENERGY",
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": -1
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Lower your opponent's anger 1 level after every successful energy attack against your opponent.",
+    "imageUrl": "/cards/frieza-saga/079.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-80",
+    "name": "Black Erasing Drill",
+    "set": "Frieza Saga",
+    "number": 80,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "attackType": "ENERGY",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "OPPONENT",
+                  "zone": "table",
+                  "cardTypes": [
+                    "Non-Combat"
+                  ],
+                  "exclude": [
+                    "Dragon Ball"
+                  ],
+                  "amount": 1
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "needsReview": "Every successful energy attack assumed (text has no 'once'). Drills count as Non-Combat cards here (assumed).",
+    "rawText": "After making a successful energy attack, remove from the game an opponent's non-combat/non-dragon ball card in play. Limit one per deck.",
+    "imageUrl": "/cards/frieza-saga/080.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-81",
+    "name": "Krillin's Power Block",
+    "set": "Frieza Saga",
+    "number": 81,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Krillin",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "PHYSICAL",
+            "duration": "thisCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack. If successful, it also stops your opponent from making any more physical attacks in this combat. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/081.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-82",
+    "name": "Black Standing Position",
+    "set": "Frieza Saga",
+    "number": 82,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "ALL",
+            "attackType": "PHYSICAL",
+            "duration": "thisCombat",
+            "cardsOnly": true,
+            "cardType": "Physical Combat"
+          }
+        }
+      ]
+    },
+    "needsReview": "preventAttack with target ALL (both players) and cardsOnly: blocks playing Physical Combat cards (also physical defenses), not physical powers.",
+    "rawText": "Physical attack. Also, if successful, no other physical combat cards can be played for the rest of this combat.",
+    "imageUrl": "/cards/frieza-saga/082.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-83",
+    "name": "Black Right Cross",
+    "set": "Frieza Saga",
+    "number": 83,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 3
+    },
+    "rawText": "Physical attack doing 3 power stages of damage. (Do not consult the Physical Attack Table.)",
+    "imageUrl": "/cards/frieza-saga/083.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-84",
+    "name": "Black Driving Leg Thrust",
+    "set": "Frieza Saga",
+    "number": 84,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 4
+    },
+    "rawText": "Physical attack doing 4 power stages of damage. (Do not consult the Physical Attack Table.)",
+    "imageUrl": "/cards/frieza-saga/084.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-85",
+    "name": "Straining Outburst Move",
+    "set": "Frieza Saga",
+    "number": 85,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "rawText": "Physical attack doing 5 life cards of damage. Costs 3 power stages to use.",
+    "imageUrl": "/cards/frieza-saga/085.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-86",
+    "name": "Straining Neck Move",
+    "set": "Frieza Saga",
+    "number": 86,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "cost": {
+      "type": "LIFE_CARDS",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": "Drill",
+            "scope": "OPPONENT"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack costing 1 life card to use. If successful, also discard all of the opponent's drill cards on the table.",
+    "imageUrl": "/cards/frieza-saga/086.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-87",
+    "name": "Krillin's Concentration",
+    "set": "Frieza Saga",
+    "number": 87,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "named": "Krillin",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Combat card",
+            "to": "hand"
+          }
+        }
+      ]
+    },
+    "rawText": "Search your life deck for 1 combat card and put it into your hand.",
+    "imageUrl": "/cards/frieza-saga/087.jpg",
+    "verified": false,
+    "needsReview": "'combat card' assumed to mean any Physical/Energy/Combat type card; no shuffle printed"
+  },
+  {
+    "id": "FS-88",
+    "name": "Hero Enraged!",
+    "set": "Frieza Saga",
+    "number": 88,
+    "type": "Non-Combat",
+    "rarity": "Uncommon",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 2
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 2,
+            "from": "choice",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Raise your anger 2 levels. Take any 2 cards from your discard pile and place them at the bottom of your life deck. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/088.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-89",
+    "name": "Vegeta Lv4",
+    "set": "Frieza Saga",
+    "number": 89,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Vegeta",
+      "level": 4,
+      "powerRatings": [
+        0,
+        125000,
+        150000,
+        175000,
+        200000,
+        225000,
+        250000,
+        275000,
+        300000,
+        325000,
+        350000
+      ],
+      "pur": 3,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical attack doing 6 power stages of damage.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "FLAT",
+            "stages": 6
+          }
+        }
+      }
+    },
+    "rawText": "Physical attack doing 6 power stages of damage.",
+    "imageUrl": "/cards/frieza-saga/089.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-90",
+    "name": "Krillin Lv4",
+    "set": "Frieza Saga",
+    "number": 90,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Krillin",
+      "level": 4,
+      "powerRatings": [
+        0,
+        95000,
+        100000,
+        105000,
+        110000,
+        115000,
+        120000,
+        125000,
+        130000,
+        135000,
+        140000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack. If successful, it also does 3 power stages of damage.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onHit": [
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -3
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy Attack. If successful, it also does 3 power stages of damage.",
+    "imageUrl": "/cards/frieza-saga/090.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-91",
+    "name": "Nappa Lv4",
+    "set": "Frieza Saga",
+    "number": 91,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Nappa",
+      "level": 4,
+      "powerRatings": [
+        0,
+        32000,
+        34000,
+        36000,
+        38000,
+        40000,
+        42000,
+        44000,
+        46000,
+        48000,
+        50000
+      ],
+      "pur": 3,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack. If successful, also steal a dragon ball from your opponent.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onHit": [
+              {
+                "action": "CUSTOM",
+                "handler": "stealOrCaptureDragonBall",
+                "params": {
+                  "amount": 1,
+                  "from": "OPPONENT"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy Attack. If successful, also steal a dragon ball from your opponent.",
+    "imageUrl": "/cards/frieza-saga/091.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-92",
+    "name": "Raditz Lv4",
+    "set": "Frieza Saga",
+    "number": 92,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Raditz",
+      "level": 4,
+      "powerRatings": [
+        0,
+        20000,
+        22000,
+        24000,
+        26000,
+        28000,
+        30000,
+        32000,
+        34000,
+        36000,
+        38000
+      ],
+      "pur": 3,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Stops a physical attack. After that physical attack, raise Raditz's anger 1 level.",
+        "strike": {
+          "combatRole": "DEFENSE_PHYSICAL",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "powerDefense",
+                "params": {
+                  "attackType": "PHYSICAL",
+                  "mode": "STOP"
+                }
+              },
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Stops a physical attack. After that physical attack, raise Raditz's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/092.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-93",
+    "name": "Goku Lv4",
+    "set": "Frieza Saga",
+    "number": 93,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Goku",
+      "level": 4,
+      "powerRatings": [
+        0,
+        480000,
+        510000,
+        540000,
+        570000,
+        600000,
+        630000,
+        660000,
+        690000,
+        720000,
+        750000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Stops an energy attack in a combat. Also, discard an opponent's drill card in play.",
+        "strike": {
+          "combatRole": "DEFENSE_ENERGY",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "powerDefense",
+                "params": {
+                  "attackType": "ENERGY",
+                  "mode": "STOP"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromPlay",
+                "params": {
+                  "target": "OPPONENT",
+                  "cardTypes": [
+                    "Drill"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Stops an energy attack in a combat. Also, discard an opponent's drill card in play.",
+    "imageUrl": "/cards/frieza-saga/093.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-94",
+    "name": "Piccolo Lv4",
+    "set": "Frieza Saga",
+    "number": 94,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Piccolo",
+      "level": 4,
+      "powerRatings": [
+        0,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        220000,
+        240000,
+        260000,
+        280000,
+        300000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack doing 6 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "damage": {
+            "calculation": "FLAT",
+            "lifeCards": 6
+          }
+        }
+      }
+    },
+    "rawText": "Energy attack doing 6 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/094.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-95",
+    "name": "Gohan Lv4",
+    "set": "Frieza Saga",
+    "number": 95,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Gohan",
+      "level": 4,
+      "powerRatings": [
+        0,
+        110000,
+        120000,
+        130000,
+        140000,
+        150000,
+        160000,
+        170000,
+        180000,
+        190000,
+        200000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Physical Attack. If successful it does +4 power stages of damage.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT",
+            "modifierStages": 4
+          }
+        }
+      }
+    },
+    "rawText": "Physical Attack. If successful it does +4 power stages of damage.",
+    "imageUrl": "/cards/frieza-saga/095.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-96",
+    "name": "Nail Lv1",
+    "set": "Frieza Saga",
+    "number": 96,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Nail",
+      "level": 1,
+      "powerRatings": [
+        0,
+        48000,
+        51000,
+        54000,
+        57000,
+        60000,
+        63000,
+        66000,
+        69000,
+        72000,
+        75000
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Energy Attack doing 5 life cards of damage, if stopped it still does 3 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "damage": {
+            "calculation": "FLAT",
+            "lifeCards": 5
+          },
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageIfStopped",
+                "params": {
+                  "lifeCards": 3
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy Attack doing 5 life cards of damage, if stopped it still does 3 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/096.jpg",
+    "verified": false,
+    "needsReview": "alignment assumed (Hero, new character)"
+  },
+  {
+    "id": "FS-97",
+    "name": "Straining Force Positioning Move",
+    "set": "Frieza Saga",
+    "number": 97,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "limitPerDeck": 1,
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "NONE"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "modifyStages",
+            "target": "OPPONENT",
+            "scope": "allAllies",
+            "amount": -2
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack, if successful, this card also causes all allies to lose 2 power stages, but no additional life card damage is taken. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/097.jpg",
+    "verified": false,
+    "needsReview": "ambiguous: 'all allies' assumed to be the opponent's allies; 'no additional life card damage' read as the attack dealing no life cards (damage NONE) - could instead mean only the allies take no life card damage"
+  },
+  {
+    "id": "FS-98",
+    "name": "Blue Stance",
+    "set": "Frieza Saga",
+    "number": 98,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "style": "Blue",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 2
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Raise your anger 2 levels. Lower opponent's anger 1 level.",
+    "imageUrl": "/cards/frieza-saga/098.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-99",
+    "name": "Blue Energy Outburst",
+    "set": "Frieza Saga",
+    "number": 99,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "style": "Blue",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Raise your anger 1 level. Lower opponent's anger 2 levels.",
+    "imageUrl": "/cards/frieza-saga/099.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-100",
+    "name": "Kami As Your Ally",
+    "set": "Frieza Saga",
+    "number": 100,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Kami",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeNamedCardFromDecks",
+          "params": {
+            "target": "OPPONENT",
+            "cardName": "Kami Fades",
+            "zone": [
+              "lifeDeck",
+              "discard"
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Opponents search their life decks and discard piles for “Kami Fades” and remove this card from the game.",
+    "imageUrl": "/cards/frieza-saga/100.jpg",
+    "verified": false,
+    "needsReview": "'remove this card' assumed to mean the 'Kami Fades' copies; unclear whether Kami As Your Ally itself stays/is removed, and whether it acts as an ally card"
+  },
+  {
+    "id": "FS-101",
+    "name": "Hero Teamwork Drill",
+    "set": "Frieza Saga",
+    "number": 101,
+    "type": "Drill",
+    "rarity": "Rare",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "dragonBallPlayLimit",
+          "params": {
+            "target": "OPPONENT",
+            "perTurn": 1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Heroes only. Opponents can play only 1 dragon ball on their turn.",
+    "imageUrl": "/cards/frieza-saga/101.jpg",
+    "verified": false,
+    "needsReview": "printed type bar says Non-Combat; typed Drill from the title, like the Saiyan drills; no style (Hero is not a style)"
+  },
+  {
+    "id": "FS-102",
+    "name": "Villain's Teamwork Drill",
+    "set": "Frieza Saga",
+    "number": 102,
+    "type": "Drill",
+    "rarity": "Rare",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "dragonBallPlayLimit",
+          "params": {
+            "target": "OPPONENT",
+            "perTurn": 1,
+            "ongoing": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "revealHand",
+          "params": {
+            "target": "OPPONENT",
+            "condition": {
+              "inPlay": "Saibaimen"
+            },
+            "affects": "Heroes",
+            "duringCombat": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Villains only. Opponents can play only 1 dragon ball on their turn. Also, if Saibaimen are in play anywhere, heroes must play with their cards face up during combat.",
+    "imageUrl": "/cards/frieza-saga/102.jpg",
+    "verified": false,
+    "needsReview": "printed type bar says Non-Combat; typed Drill from the title; 'cards face up' read as hand revealed"
+  },
+  {
+    "id": "FS-103",
+    "name": "Human Technology",
+    "set": "Frieza Saga",
+    "number": 103,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "END_COMBAT"
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. This card stops the combat. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/103.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-104",
+    "name": "Power",
+    "set": "Frieza Saga",
+    "number": 104,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifOpponentAlignment",
+          "params": {
+            "alignment": "Hero",
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "OPPONENT",
+                "amount": 4
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Villains only. The villain inflicts 4 life cards of damage to any hero. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/104.jpg",
+    "verified": false,
+    "needsReview": "'any hero' could include hero allies; encoded as the opposing hero main personality"
+  },
+  {
+    "id": "FS-105",
+    "name": "Dende's Help",
+    "set": "Frieza Saga",
+    "number": 105,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Dende",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 3,
+            "from": "choice",
+            "to": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Select any 3 discarded cards and place them at the bottom of your life deck. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/105.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-106",
+    "name": "Goku's Super Saiyan Blast!",
+    "set": "Frieza Saga",
+    "number": 106,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "named": "Goku",
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "ATTACK_ENERGY"
+            },
+            "condition": {
+              "inPlay": "Goku's Mixing Drill"
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops an opponent's physical or energy attack. Remove from the game after use. If “Gokus' Mixing Drill” is in play, this card can be used as an energy attack instead.",
+    "imageUrl": "/cards/frieza-saga/106.jpg",
+    "verified": false,
+    "needsReview": "dualUse alternative only when Goku's Mixing Drill is in play (new 'condition' param); printed name spelled “Gokus' Mixing Drill”"
+  },
+  {
+    "id": "FS-107",
+    "name": "Piccolo's Wisdom",
+    "set": "Frieza Saga",
+    "number": 107,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Piccolo",
+    "usableBy": {
+      "characters": [
+        "Piccolo"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Dragon Ball",
+            "matchNumberToLevel": true,
+            "to": "play"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Piccolo only. Select a dragon ball card from your life deck matching Piccolo's current personality level and play it. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/107.jpg",
+    "verified": false,
+    "needsReview": "'matching personality level' assumed to mean Dragon Ball number = Piccolo's current level"
+  },
+  {
+    "id": "FS-108",
+    "name": "Yamcha's Good Wishes",
+    "set": "Frieza Saga",
+    "number": 108,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Yamcha",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "PHYSICAL",
+            "duration": "thisCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical attack and prevents all other physical attacks for the rest of this combat. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/108.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-109",
+    "name": "Captain Ginyu's Sacrifice",
+    "set": "Frieza Saga",
+    "number": 109,
+    "type": "Combat",
+    "rarity": "Rare",
+    "named": "Captain Ginyu",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "DEFEND",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "removeFromGame",
+            "amount": 1,
+            "requirement": true
+          }
+        },
+        {
+          "action": "END_COMBAT"
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "ATTACK_ENERGY"
+            },
+            "condition": {
+              "inPlay": "Saiyan Power Drill"
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Villains only. To end the combat, remove an ally from the game. If “Saiyan Power Drill” is in play, this card instead can be used as an energy attack.",
+    "imageUrl": "/cards/frieza-saga/109.jpg",
+    "verified": false,
+    "needsReview": "named character spelled 'Captain Ginyu' (check against Ginyu personality name); whose ally is removed (own assumed, like SS-217); dualUse with condition"
+  },
+  {
+    "id": "FS-110",
+    "name": "Nail Lv3",
+    "set": "Frieza Saga",
+    "number": 110,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Nail",
+      "level": 3,
+      "powerRatings": [
+        0,
+        60000,
+        70000,
+        80000,
+        90000,
+        100000,
+        110000,
+        120000,
+        130000,
+        140000,
+        150000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Stops a physical attack and, in the process, causes 1 life card of damage to your opponent.",
+        "strike": {
+          "combatRole": "DEFENSE_PHYSICAL",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "powerDefense",
+                "params": {
+                  "attackType": "PHYSICAL",
+                  "mode": "STOP"
+                }
+              },
+              {
+                "action": "DISCARD_LIFE",
+                "target": "OPPONENT",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Stops a physical attack and, in the process, causes 1 life card of damage to your opponent.",
+    "imageUrl": "/cards/frieza-saga/110.jpg",
+    "verified": false,
+    "needsReview": "alignment assumed (Hero, new character)"
+  },
+  {
+    "id": "FS-111",
+    "name": "Krillin's Power Tap",
+    "set": "Frieza Saga",
+    "number": 111,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Krillin",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "useDrillPower",
+          "params": {
+            "source": "anyInPlay",
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "toBottomOfLifeDeck",
+            "target": "OPPONENT",
+            "scope": "allAllies",
+            "condition": {
+              "inPlay": "Black Shadow Drill"
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "For yourself, use the power of any drill in play during a combat. Remove from the game after use. If “Black Shadow Drill” is in play all opponent's allies in play go to the bottom of their life decks.",
+    "imageUrl": "/cards/frieza-saga/111.jpg",
+    "verified": false,
+    "needsReview": "'use the power of any drill' duration assumed to be one combat; Black Shadow Drill clause encoded as a conditional allyEffect"
+  },
+  {
+    "id": "FS-112",
+    "name": "Black Swift Elbow Strike",
+    "set": "Frieza Saga",
+    "number": 112,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "style": "Black",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful, this card also stops all energy attacks for the rest of this combat.",
+    "imageUrl": "/cards/frieza-saga/112.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-113",
+    "name": "Kami Fades",
+    "set": "Frieza Saga",
+    "number": 113,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Kami",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "ALL",
+            "cardTypes": [
+              "Dragon Ball"
+            ],
+            "zones": [
+              "play",
+              "lifeDeck"
+            ],
+            "amount": "all"
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Remove from the game all dragon balls in play and in all life decks.",
+    "imageUrl": "/cards/frieza-saga/113.jpg",
+    "verified": false,
+    "needsReview": "Removes every Dragon Ball from play and all life decks (also captured ones and the user's own); postResolution DISCARD assumed (not printed)."
+  },
+  {
+    "id": "FS-114",
+    "name": "Gohan's Stomp",
+    "set": "Frieza Saga",
+    "number": 114,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "named": "Gohan",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "cannotBeDefended",
+          "params": {
+            "by": [
+              "mainPersonalityPower"
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Heroes only. Energy attack doing 5 life cards in damage that can't be defended against by main personality powers.",
+    "imageUrl": "/cards/frieza-saga/114.jpg",
+    "verified": false,
+    "needsReview": "New handler cannotBeDefended (main personality powers cannot defend)."
+  },
+  {
+    "id": "FS-115",
+    "name": "Piccolo's Stomp",
+    "set": "Frieza Saga",
+    "number": 115,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "named": "Piccolo",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "cannotBeDefended",
+          "params": {
+            "by": [
+              "mainPersonalityPower"
+            ]
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "condition": {
+              "inPlay": "Piccolo's Flight",
+              "controller": "SELF"
+            },
+            "setLifeCards": 7
+          }
+        }
+      ]
+    },
+    "rawText": "Heroes only. Energy attack. Does 5 life cards in damage that can't be defended against by main personality powers. If \"Piccolo's Flight\" is in play it does 7 life cards instead of 5.",
+    "imageUrl": "/cards/frieza-saga/115.jpg",
+    "verified": false,
+    "needsReview": "New handler cannotBeDefended; damageModifier with new params condition.inPlay + setLifeCards; whose Piccolo's Flight counts (own assumed) is unclear."
+  },
+  {
+    "id": "FS-116",
+    "name": "Goku's Quickness",
+    "set": "Frieza Saga",
+    "number": 116,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Goku",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "autoStopAttack",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "nextCombat",
+            "target": "SELF"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "ATTACK_ENERGY",
+              "damage": {
+                "calculation": "PAT"
+              }
+            },
+            "condition": {
+              "inPlay": "Chiaotzu's Drill"
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Stops the first physical attack in the next combat. Remove from the game after use. If \"Chiaotzu's Drill\" is in play this card can be used as an energy attack instead.",
+    "imageUrl": "/cards/frieza-saga/116.jpg",
+    "verified": false,
+    "needsReview": "autoStopAttack per nextCombat (one-shot, not ongoing); dualUse with a condition (Chiaotzu's Drill in play). SS-230 Chiaotzu's Drill is a Physical Combat card, so it is never 'in play' as a drill unless a Frieza Saga version exists. 'Stops the first physical attack' assumed to mean attacks made on the user."
+  },
+  {
+    "id": "FS-117",
+    "name": "Nail Lv2",
+    "set": "Frieza Saga",
+    "number": 117,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Nail",
+      "level": 2,
+      "powerRatings": [
+        0,
+        55000,
+        60000,
+        65000,
+        70000,
+        75000,
+        80000,
+        85000,
+        90000,
+        95000,
+        100000
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Take your top two discards and place them at the bottom of your life deck.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "RECOVER",
+                "target": "SELF",
+                "amount": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Take your top two discards and place them at the bottom of your life deck.",
+    "imageUrl": "/cards/frieza-saga/117.jpg",
+    "verified": false,
+    "needsReview": "alignment assumed (Hero, new character)."
+  },
+  {
+    "id": "FS-118",
+    "name": "The Plan",
+    "set": "Frieza Saga",
+    "number": 118,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": "Ally",
+            "scope": "OPPONENT",
+            "timing": "onEnterPlay"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "All opponents must discard their allies in play. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/118.jpg",
+    "verified": false,
+    "needsReview": "'All opponents' encoded as scope OPPONENT (multiplayer: every opponent)."
+  },
+  {
+    "id": "FS-119",
+    "name": "Mommy's Coming Dear",
+    "set": "Frieza Saga",
+    "number": 119,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "SELF",
+            "maxStages": 0,
+            "maxLifeCards": 0,
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "conditionalPostResolution",
+          "params": {
+            "condition": {
+              "inPlay": "Dragon Ball 7"
+            },
+            "postResolution": "DISCARD"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Stops all damage for the rest of combat. Remove from the game after use. Limit 1 per deck. If \"Dragon Ball 7\" is in play, discard instead of removing from game.",
+    "imageUrl": "/cards/frieza-saga/119.jpg",
+    "verified": false,
+    "needsReview": "'Stops all damage' read as damage to the user only (could mean all players); new handler conditionalPostResolution; 'Dragon Ball 7' does not say Earth or Namekian (any assumed). Not named: no character name in the title (puzzle: Chi-Chi)."
+  },
+  {
+    "id": "FS-120",
+    "name": "Bulma's Scouter",
+    "set": "Frieza Saga",
+    "number": 120,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "named": "Bulma",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Dragon Ball",
+            "to": "play"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Pick a dragon ball from your life deck and play it. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/120.jpg",
+    "verified": false,
+    "needsReview": "No shuffle printed (same as SS-228)."
+  },
+  {
+    "id": "FS-121",
+    "name": "This Too Shall Pass",
+    "set": "Frieza Saga",
+    "number": 121,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "anyTime"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "counterCard",
+          "params": {
+            "exclude": [
+              "Dragon Ball"
+            ],
+            "removeCountered": true
+          }
+        }
+      ],
+      "postResolution": "DISCARD"
+    },
+    "rawText": "Stops the effect of any non-dragon ball card and remove the card from the game. You may use this at any time.",
+    "imageUrl": "/cards/frieza-saga/121.jpg",
+    "verified": false,
+    "needsReview": "New handler counterCard (cancel a card's effect, then remove that card from the game); needs a priority/response window the engine lacks; postResolution DISCARD assumed (not printed)."
+  },
+  {
+    "id": "FS-122",
+    "name": "Focusing Is Everything",
+    "set": "Frieza Saga",
+    "number": 122,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "table",
+            "cardTypes": [
+              "Non-Combat"
+            ],
+            "exclude": [
+              "Dragon Ball"
+            ],
+            "amount": 1
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Heroes only. Remove an opponent's non-combat/non-dragon ball card from the game. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/122.jpg",
+    "verified": false,
+    "needsReview": "Drills assumed to count as non-combat cards (same reading as part C FS-67/FS-80)."
+  },
+  {
+    "id": "FS-123",
+    "name": "Red Foot Jolt",
+    "set": "Frieza Saga",
+    "number": 123,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Rare",
+    "limitPerDeck": 1,
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "NONE"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": "Drill",
+            "scope": "OPPONENT",
+            "timing": "onHit"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful it does no damage, but forces the defender to discard all drill cards in play. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/123.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-124",
+    "name": "Frieza Lv1",
+    "set": "Frieza Saga",
+    "number": 124,
+    "type": "Personality",
+    "rarity": "Ultra Rare",
+    "personality": {
+      "character": "Frieza",
+      "level": 1,
+      "powerRatings": [
+        0,
+        149991,
+        149992,
+        149993,
+        149994,
+        149995,
+        149996,
+        149997,
+        149998,
+        149999,
+        150000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack doing 6 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "damage": {
+            "calculation": "FLAT",
+            "lifeCards": 6
+          }
+        }
+      }
+    },
+    "rawText": "Energy attack doing 6 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/124.jpg",
+    "verified": false,
+    "needsReview": "alignment assumed (Villain, new character). Holo card: text slightly blurred but readable."
+  },
+  {
+    "id": "FS-125",
+    "name": "Goku Lv4",
+    "set": "Frieza Saga",
+    "number": 125,
+    "type": "Personality",
+    "rarity": "Ultra Rare",
+    "personality": {
+      "character": "Goku",
+      "level": 4,
+      "powerRatings": [
+        0,
+        450000,
+        500000,
+        550000,
+        600000,
+        650000,
+        700000,
+        750000,
+        800000,
+        850000,
+        900000
+      ],
+      "pur": 4,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Stops an energy attack and, in the process causes 3 stages of damage to your opponent.",
+        "strike": {
+          "combatRole": "DEFENSE_ENERGY",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "powerDefense",
+                "params": {
+                  "attackType": "ENERGY",
+                  "mode": "STOP"
+                }
+              },
+              {
+                "action": "MODIFY_STAGES",
+                "target": "OPPONENT",
+                "amount": -3
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Stops an energy attack and, in the process causes 3 stages of damage to your opponent.",
+    "imageUrl": "/cards/frieza-saga/125.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Super Saiyan Goku' (Lv4); holo card, comma placement in the power text hard to read."
+  },
+  {
+    "id": "FS-P1",
+    "name": "It's Just Not Worth It!",
+    "set": "Frieza Saga",
+    "number": 1,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "opponentVictoryAttempt"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventVictory",
+          "params": {
+            "victoryTypes": [
+              "DRAGON_BALL",
+              "MPP"
+            ],
+            "target": "triggeringPlayer",
+            "duration": {
+              "turns": 2,
+              "of": "targetPlayer"
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "When played, this stops a dragon ball or main personality victory for the next 2 turns of the person trying to win that way. Limit 1 per deck. Remove from the game after use.",
+    "imageUrl": "/cards/frieza-saga/P1.jpg",
+    "verified": false,
+    "needsReview": "New handler preventVictory and new playTiming 'opponentVictoryAttempt' (reaction when someone would win); exact window unclear."
+  },
+  {
+    "id": "FS-P2",
+    "name": "Captain Ginyu Transformed",
+    "set": "Frieza Saga",
+    "number": 2,
+    "type": "Physical Combat",
+    "rarity": "Promo",
+    "named": "Captain Ginyu",
+    "limitPerDeck": 1,
+    "cost": {
+      "type": "LIFE_CARDS",
+      "amount": 1
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "OPPONENT",
+            "value": 0
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. It costs 1 life card to use. Reduce opponent's anger to 0. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/P2.jpg",
+    "verified": false,
+    "needsReview": "named 'Captain Ginyu' (printed) vs brief 'Ginyu'; anger reset treated as unconditional (not tied to success)."
+  },
+  {
+    "id": "FS-P3",
+    "name": "Calming Sanctuary",
+    "set": "Frieza Saga",
+    "number": 3,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "mirrorAngerReduction",
+          "params": {
+            "source": "Warrior Sword",
+            "target": "OPPONENT",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "For every anger you reduce on your Warrior Sword, reduce all opponents' anger that many as well.",
+    "imageUrl": "/cards/frieza-saga/P3.jpg",
+    "verified": false,
+    "needsReview": "Unclear: 'Warrior Sword' is not defined in the schema (anger meter? a card?). New handler mirrorAngerReduction; ongoing vs one-shot assumed ongoing (no discard text printed)."
+  },
+  {
+    "id": "FS-P4",
+    "name": "Dragon's Glare",
+    "set": "Frieza Saga",
+    "number": 4,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "setAnger",
+          "params": {
+            "target": "ALL",
+            "value": 3
+          }
+        }
+      ]
+    },
+    "rawText": "All players' anger is set to 3.",
+    "imageUrl": "/cards/frieza-saga/P4.jpg",
+    "verified": false,
+    "needsReview": "setAnger with new target ALL."
+  },
+  {
+    "id": "FS-P5",
+    "name": "Frieza's Force Bubble",
+    "set": "Frieza Saga",
+    "number": 5,
+    "type": "Energy Combat",
+    "rarity": "Promo",
+    "named": "Frieza",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "preventAttack",
+          "params": {
+            "target": "OPPONENT",
+            "attackType": "ENERGY",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops all future energy attacks in this combat.",
+    "imageUrl": "/cards/frieza-saga/P5.jpg",
+    "verified": false,
+    "needsReview": "Starburst icon: stops the current energy attack too (assumed) plus all later ones this combat; whether the user's own energy attacks are also stopped is unclear (opponent only assumed)."
+  },
+  {
+    "id": "FS-P6",
+    "name": "The Last Wish",
+    "set": "Frieza Saga",
+    "number": 6,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "discard",
+            "filter": "Ally",
+            "to": "play"
+          }
+        }
+      ]
+    },
+    "rawText": "Search your discard pile and if an ally is there put it into play.",
+    "imageUrl": "/cards/frieza-saga/P6.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-P7",
+    "name": "Friends Help Friends",
+    "set": "Frieza Saga",
+    "number": 7,
+    "type": "Non-Combat",
+    "rarity": "Promo",
+    "limitPerDeck": 1,
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "RECOVER",
+          "target": "SELF",
+          "amount": 3
+        }
+      ]
+    },
+    "rawText": "Take the top 3 cards from your discard pile and place them at the bottom of your life deck. Limit 1 per deck.",
+    "imageUrl": "/cards/frieza-saga/P7.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-P8",
+    "name": "Goku's Good Swift Kick",
+    "set": "Frieza Saga",
+    "number": 8,
+    "type": "Physical Combat",
+    "rarity": "Promo",
+    "named": "Goku",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 5
+    },
+    "rawText": "Physical attack doing 5 stages of damage (do not consult the Physical Attack Table.)",
+    "imageUrl": "/cards/frieza-saga/P8.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-P9",
+    "name": "Red Blocking Hand",
+    "set": "Frieza Saga",
+    "number": 9,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Promo",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 2
+        },
+        {
+          "action": "MODIFY_STAGES",
+          "target": "SELF",
+          "amount": 2
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. Raise your anger and power stages by 2.",
+    "imageUrl": "/cards/frieza-saga/P9.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-P10",
+    "name": "Orange Forceful Kick",
+    "set": "Frieza Saga",
+    "number": 10,
+    "type": "Physical Combat",
+    "style": "Orange",
+    "rarity": "Promo",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierLifeCards": 3
+    },
+    "rawText": "Physical attack. If successful, it also does 3 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/P10.jpg",
+    "verified": false
+  },
+  {
+    "id": "FS-P11",
+    "name": "Vegeta's Lunge",
+    "set": "Frieza Saga",
+    "number": 11,
+    "type": "Combat",
+    "rarity": "Promo",
+    "named": "Vegeta",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromOpponentHand",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "selection": "random"
+          }
+        }
+      ]
+    },
+    "rawText": "Select, unseen, a card from your opponent's hand and discard it.",
+    "imageUrl": "/cards/frieza-saga/P11.jpg",
+    "verified": false,
+    "needsReview": "New handler discardFromOpponentHand (blind pick = random). Sword icon: played instead of an attack."
+  },
+  {
+    "id": "FS-P12",
+    "name": "Frieza Lv1",
+    "set": "Frieza Saga",
+    "number": 12,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Frieza",
+      "level": 1,
+      "powerRatings": [
+        0,
+        125000,
+        150000,
+        175000,
+        200000,
+        225000,
+        250000,
+        275000,
+        300000,
+        325000,
+        350000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "After performing a successful energy attack doing 6 or more life cards of damage you may capture 2 Dragon Balls instead of 1.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "stealOrCaptureDragonBall",
+                      "params": {
+                        "amount": 2,
+                        "trigger": "afterSuccessfulEnergyAttack",
+                        "condition": {
+                          "minLifeCards": 6
+                        },
+                        "replacesNormalCapture": true,
+                        "optional": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "After performing a successful energy attack doing 6 or more life cards of damage you may capture 2 Dragon Balls instead of 1.",
+    "imageUrl": "/cards/frieza-saga/P12.jpg",
+    "verified": false,
+    "needsReview": "New 'Constant Combat Power' (always on, not a once-per-combat use): new wrapper handler constantPower. Alignment assumed (Villain). Wrapper redemption; differs from FS-124 Frieza Lv1 (ratings and power)."
+  },
+  {
+    "id": "FS-P13",
+    "name": "Garlic Jr. Lv1",
+    "set": "Frieza Saga",
+    "number": 13,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Garlic Jr.",
+      "level": 1,
+      "powerRatings": [
+        0,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000,
+        220000,
+        240000,
+        260000,
+        280000,
+        300000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "All successful physical attacks against Garlic Jr. do 3 less power stages of damage, to a minimum of 0.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "attackType": "PHYSICAL",
+                        "stages": -3,
+                        "minStages": 0,
+                        "protects": [
+                          "Garlic Jr."
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "All successful physical attacks against Garlic Jr. do 3 less power stages of damage, to a minimum of 0.",
+    "imageUrl": "/cards/frieza-saga/P13.jpg",
+    "verified": false,
+    "needsReview": "New character Garlic Jr. (movie/filler villain): alignment assumed Villain. Constant Combat Power via constantPower wrapper."
+  },
+  {
+    "id": "FS-P14",
+    "name": "Trunks Lv1",
+    "set": "Frieza Saga",
+    "number": 14,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Trunks",
+      "level": 1,
+      "powerRatings": [
+        0,
+        575000,
+        600000,
+        625000,
+        650000,
+        675000,
+        700000,
+        725000,
+        750000,
+        775000,
+        800000
+      ],
+      "pur": 1,
+      "alignment": "Hero",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "All successful energy attacks against Trunks do a maximum of 2 life cards of damage.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "attackType": "ENERGY",
+                        "maxLifeCards": 2,
+                        "protects": [
+                          "Trunks"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "All successful energy attacks against Trunks do a maximum of 2 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/P14.jpg",
+    "verified": false,
+    "needsReview": "New character Trunks: alignment assumed Hero. Constant Combat Power via constantPower wrapper."
+  },
+  {
+    "id": "FS-P15",
+    "name": "Captain Ginyu Lv1",
+    "set": "Frieza Saga",
+    "number": 15,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Captain Ginyu",
+      "level": 1,
+      "powerRatings": [
+        0,
+        82000,
+        84000,
+        86000,
+        88000,
+        90000,
+        92000,
+        94000,
+        96000,
+        98000,
+        100000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical attack doing 6 life cards of damage.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "FLAT",
+            "lifeCards": 6
+          }
+        }
+      }
+    },
+    "rawText": "Physical attack doing 6 life cards of damage.",
+    "imageUrl": "/cards/frieza-saga/P15.jpg",
+    "verified": false,
+    "needsReview": "alignment assumed (Villain, new character). character printed 'Captain Ginyu' (brief says Ginyu): harmonize with other parts."
+  },
+  {
+    "id": "FS-P16",
+    "name": "Spice Lv1",
+    "set": "Frieza Saga",
+    "number": 16,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Spice",
+      "level": 1,
+      "powerRatings": [
+        0,
+        20000,
+        40000,
+        60000,
+        80000,
+        100000,
+        120000,
+        140000,
+        160000,
+        180000,
+        200000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Draw a card.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "DRAW",
+                "target": "SELF",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Draw a card.",
+    "imageUrl": "/cards/frieza-saga/P16.jpg",
+    "verified": false,
+    "needsReview": "New character Spice (Garlic Jr. henchman): alignment assumed Villain."
+  },
+  {
+    "id": "FS-P17",
+    "name": "Vinegar Lv1",
+    "set": "Frieza Saga",
+    "number": 17,
+    "type": "Personality",
+    "rarity": "Promo",
+    "personality": {
+      "character": "Vinegar",
+      "level": 1,
+      "powerRatings": [
+        0,
+        60000,
+        70000,
+        80000,
+        90000,
+        100000,
+        110000,
+        120000,
+        130000,
+        140000,
+        150000
+      ],
+      "pur": 1,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack. This attack cannot be stopped.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "cannotBeDefended",
+                "params": {
+                  "by": [
+                    "any"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy attack. This attack cannot be stopped.",
+    "imageUrl": "/cards/frieza-saga/P17.jpg",
+    "verified": false,
+    "needsReview": "New character Vinegar (Garlic Jr. henchman): alignment assumed Villain. cannotBeDefended by any."
+  }
+]

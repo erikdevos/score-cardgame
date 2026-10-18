@@ -151,3 +151,21 @@ Possible consolidations once the engine implements these: `shieldNextAttack` / `
 - Hi-tech printings SS-179 to SS-185 have a **different power** from their base Lv1 card (ratings identical; Vegeta and Nappa HT print PUR 1 instead of 2). They are transcribed as printed, not copied.
 - Silver promos (SS-P1-SILVER ... SS-P7-SILVER) are identical to the base promo. Error dupes SS-P4-ERROR (Goku printed as P4) and SS-P115-ERROR (Nappa) differ from the regular promos in ratings and power.
 - SS-230 "Chiaotzu's Drill" is printed as Physical Combat and plays as a one-shot defense, so it is typed Physical Combat, not Drill (a Drill is a Non-Combat card, rulebook p. 27).
+
+## Frieza Saga
+
+Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unverified (74 with `needsReview`). Reviewer notes per card range: `docs/frieza-saga-notes.md`. Played through the "Saiyan + Frieza" card pool on the menu; the "Saiyan Saga" pool is unchanged.
+
+**Engine support**
+- Implemented new handlers: `ifInPlay` (FS-15, FS-16, FS-27), `conditionalDamage` (FS-41), `damageIfStopped` (FS-37, FS-96), `cannotBeDefended` (FS-114, FS-115, FS-P17), `cannotBeStoppedBy` (FS-46, FS-47: no Combat-card defenses), `dragonBallPlayLimit` (FS-101, FS-102), `discardFromPlay` (FS-93), `discardFromOpponentHand` (FS-P11, random), `conditionalPassive` (FS-77), `constantPower` damage effects (FS-P13, FS-P14; these powers are never offered as a "use power" action).
+- `damageModifier` variants: FS-55 (villains take 1 less; taken off the life cards when there are any, otherwise off the stages), FS-69 (+3 life cards against villains), FS-115 (7 life cards with Piccolo's Flight on your table), FS-119 (no damage to the user for the rest of combat).
+- Not implemented yet (logged as a warning, the rest of the card still resolves): `variableCost` (FS-24 plays as a normal energy attack), `useDrillPower` (FS-111), `counterCard` (FS-121), `preventVictory` (FS-P1), `mirrorAngerReduction` (FS-P3), `conditionalPostResolution` (FS-119 always removed), FS-P12's Dragon Ball capture power. New params on existing handlers (listed in the notes) are only honoured where the handler already reads them.
+- Deck building: copy limits now count by card title, so a reprint shares the limit with the original (assumption: "max 3 of a card" means by name). Auto-built decks in the Saiyan + Frieza pool use a level 4 on top of levels 1-3 when the pool has one, and per level the newest set's printing.
+
+**Open questions**
+- **PAT brackets**: `rules.json` brackets end at 50,000, while Frieza Saga ratings go up to 900,000 (Goku Lv4). Everything above 50,000 is one bracket, so PAT damage between e.g. 75,000 and 750,000 is the same. Needs the Frieza Saga rulebook's PAT.
+- **Alignments** of new characters (Nail, Dende, Guldo, Jeice, Dodoria, Captain Ginyu, Frieza, Garlic Jr., Spice, Vinegar, Trunks) are assumed from the anime and flagged.
+- **"Dragon Ball 6/7"** in card text (FS-15, FS-119): the set has no Dragon Ball cards of its own; any Dragon Ball with that number counts.
+- **Drills printed as Non-Combat** (FS-55, FS-63, FS-65-80, FS-101, FS-102): typed `Drill` like the Saiyan drills.
+- **"Captain Ginyu"** is used consistently as the character name (printed), not "Ginyu".
+- **Constant Combat Power** (FS-P12-P14): always-on personality powers, stored as a `COMBAT_EFFECT` strike wrapping `constantPower`; a passive field on the power would be cleaner.

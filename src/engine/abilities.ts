@@ -144,6 +144,35 @@ export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: str
   return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
 }
 
+/** "If X is in play" (anywhere): a character as main personality or ally, or a card on the table. "Dragon Ball 6" matches any Dragon Ball numbered 6. */
+export function inPlayAnywhere(s: GameState, db: CardDB, what: { character?: unknown; cardName?: unknown }): boolean {
+  if (typeof what.character === 'string') {
+    return s.players.some((pl, i) => mpDef(s, db, i as PlayerId).personality!.character === what.character || pl.allies.some(a => def(db, a.card).personality?.character === what.character))
+  }
+  if (typeof what.cardName !== 'string') return false
+  const ball = /^Dragon Ball (\d)$/.exec(what.cardName)
+  return s.players.some(pl => {
+    if (ball) return pl.dragonBalls.some(c => def(db, c).dragonBallNumber === Number(ball[1]))
+    return [...pl.drills, ...pl.nonCombat, ...pl.dragonBalls, ...pl.allies.map(a => a.card)].some(c => def(db, c).name === what.cardName)
+  })
+}
+
+/** FS-114/115/P17 "cannot be defended by ..." and FS-46/47 "cannot be stopped by combat cards" on the current strike. */
+export function strikeDefenseBlock(strike: StrikeDef | undefined): { power: boolean; cards: boolean; combatCards: boolean } {
+  const effects = strike?.effects.onPlaySecondary ?? []
+  const by = findCustom(effects, 'cannotBeDefended').flatMap(p => (p.by ?? ['any']) as string[])
+  const any = by.includes('any')
+  return { power: any || by.includes('mainPersonalityPower'), cards: any, combatCards: findCustom(effects, 'cannotBeStoppedBy').some(p => p.source === 'combatCards') }
+}
+
+/** Constant Combat Powers (FS-P13, FS-P14): always-on effects of the main personality's power. */
+export function constantPowerEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): Params[] {
+  const power = mpDef(s, db, p).personality!.power
+  if (!power) return []
+  return findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
+}
+export const isConstantPower = (strike: StrikeDef) => findCustom(strike.effects.onPlaySecondary, 'constantPower').length > 0
+
 export const drillsProtected = (s: GameState, db: CardDB, p: PlayerId) => tableEffects(s, db, p, 'protectDrills').length > 0
 export const dragonBallsProtected = (s: GameState, db: CardDB, p: PlayerId) => tableEffects(s, db, p, 'preventDragonBallCapture').length > 0
 
@@ -302,9 +331,36 @@ export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerI
     lifeCards += m.lifeCards
     log(s, 'REDUCE', `${m.source} changes the damage`, defender)
   }
+  for (const m of constantPowerEffects(s, db, defender, 'damageModifier')) {
+    if (!typeMatches(m.attackType, attack)) continue
+    if (typeof m.stages === 'number') stages += m.stages
+    if (typeof m.lifeCards === 'number') lifeCards += m.lifeCards
+    if (typeof m.maxLifeCards === 'number') lifeCards = Math.min(lifeCards, m.maxLifeCards)
+    if (typeof m.maxStages === 'number') stages = Math.min(stages, m.maxStages)
+    log(s, 'REDUCE', `${mpDef(s, db, defender).personality!.power!.name} changes the damage`, defender)
+  }
+  // FS-55 (villains take 1 less) and FS-69 (+3 life cards against villains), from any player's drills
+  const defenderIsVillain = mpDef(s, db, defender).personality!.alignment === 'Villain'
+  for (const pl of s.players) {
+    for (const drill of pl.drills) {
+      const d = def(db, drill)
+      for (const m of findCustom(d.effects.onEnterPlay, 'damageModifier')) {
+        if (!m.ongoing || !typeMatches(m.attackType, attack) || !defenderIsVillain) continue
+        if (m.scope === 'VILLAINS') {
+          // "1 less power stage or life card": take it off the life cards when there are any
+          if (lifeCards > 0) lifeCards += Number(m.stagesOrLifeCards ?? -1)
+          else stages += Number(m.stagesOrLifeCards ?? -1)
+        } else if (m.condition === 'defenderIsVillain' && drill.owner !== defender) {
+          lifeCards += Number(m.lifeCards ?? 0)
+        } else continue
+        log(s, 'REDUCE', `${d.name} changes the damage`, defender)
+      }
+    }
+  }
   for (const drill of s.players[defender].drills) {
     const d = def(db, drill)
     for (const m of findCustom(d.effects.onEnterPlay, 'damageModifier')) {
+      if (m.scope === 'VILLAINS' || m.condition === 'defenderIsVillain') continue
       if (!m.ongoing || !typeMatches(m.attackType, attack) || lifeCards <= 0) continue
       if (m.condition === 'foeHasAlly' && !s.players[defender === 0 ? 1 : 0].allies.length) continue
       const key = `${drill.iid}:damageModifier`

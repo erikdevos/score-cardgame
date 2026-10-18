@@ -38,6 +38,19 @@ export function activePassives(s: GameState, db: CardDB, p: PlayerId): Passive[]
   }
   for (const pl of s.players) pl.drills.forEach(collect)
   if (s.location) collect(s.location)
+  // FS-77: a passive that only holds while a character is in play
+  for (const pl of s.players) {
+    for (const c of pl.drills) {
+      for (const e of def(db, c).effects.onEnterPlay) {
+        if (e.action !== 'CUSTOM' || e.handler !== 'conditionalPassive') continue
+        const params = e.params ?? {}
+        const ps = params.passive as Passive | undefined
+        const need = (params.condition as { inPlay?: string } | undefined)?.inPlay
+        const present = !need || s.players.some((x, i) => mpDef(s, db, i as PlayerId).personality!.character === need || x.allies.some(a => def(db, a.card).personality?.character === need))
+        if (ps && present && (ps.scope === 'ALL' || (ps.scope === 'OWNER') === (c.owner === p))) out.push(ps)
+      }
+    }
+  }
   return out
 }
 

@@ -1,5 +1,5 @@
 // CUSTOM effect handlers for card text the atomic DSL cannot express (see docs/dsl-gaps.md).
-import { dragonBallsProtected, drillsProtected, restrictAttacks, type Params } from '../abilities'
+import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
 import { changeAnger, changeStages, def, log, millCards, mpDef } from '../state'
@@ -7,6 +7,7 @@ import { other, type AttackType, type GameState, type PickZone, type PlayerId } 
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
+import { nextRandom } from '../rng'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
 export function targetOf(ctx: EffectContext, t: unknown): PlayerId {
@@ -72,6 +73,48 @@ export const handlers: Record<string, CustomHandler> = {
   optionalShuffle: noop,
   requiresCondition: noop,
   useOtherLevelPower: noop,
+  // Frieza Saga: read where they matter (defenses, hit check, passives, legal plays, damage)
+  damageIfStopped: noop,
+  cannotBeDefended: noop,
+  cannotBeStoppedBy: noop,
+  conditionalPassive: noop,
+  dragonBallPlayLimit: noop,
+  constantPower: noop,
+
+  ifInPlay(ctx, p) {
+    if (inPlayAnywhere(ctx.s, ctx.db, p)) resolveEffects(ctx, then(p))
+    else log(ctx.s, 'NO_EFFECT', `${ctx.source}: ${String(p.cardName ?? p.character)} is not in play, no extra effect`)
+  },
+
+  conditionalDamage(ctx, p) {
+    const st = ctx.s.combat?.strike
+    if (!st || (p.condition === 'characterInPlay' && !inPlayAnywhere(ctx.s, ctx.db, { character: p.character }))) return
+    const d = { stages: num(p.stages, 0), lifeCards: num(p.lifeCards, 0) }
+    log(ctx.s, 'DAMAGE', `${ctx.source}: ${String(p.character)} is in play, extra damage`, st.initiator)
+    st.lifeCardsDealt += applyDamage(ctx.s, other(st.initiator), d)
+  },
+
+  discardFromPlay(ctx, p) {
+    const { s, db, user } = ctx
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const zones = ((p.cardTypes ?? ['Drill']) as string[]).map(x => ZONE_BY_TYPE[x]).filter(z => z && !(z === 'drills' && drillsProtected(s, db, foe)))
+    const cards = zones.flatMap(z => zoneCards(s, foe, z))
+    if (!cards.length) return log(s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has nothing to discard`)
+    queueChoice(s, pickRequest(user, foe, zones, cards, num(p.amount, 1), 'DISCARD', ctx.source))
+  },
+
+  discardFromOpponentHand(ctx, p) {
+    const { s, db } = ctx
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const hand = s.players[foe].hand
+    for (let i = 0; i < num(p.amount, 1) && hand.length; i++) {
+      const [r, next] = nextRandom(s.rngSeed)
+      s.rngSeed = next
+      const [card] = hand.splice(Math.floor(r * hand.length), 1)
+      s.players[foe].discard.push(card)
+      log(s, 'DISCARD', `${ctx.source}: player ${foe + 1} discards ${def(db, card).name} from their hand at random`, foe)
+    }
+  },
 
   temporaryStage(ctx) {
     const st = ctx.s.combat?.strike
@@ -320,6 +363,19 @@ export const handlers: Record<string, CustomHandler> = {
       log(s, 'DAMAGE_X', `${ctx.source} does ${p.multiplier}x damage`, st.initiator)
       st.lifeCardsDealt += applyDamage(s, other(st.initiator), extra)
       return
+    }
+    if (typeof p.setLifeCards === 'number') {
+      // FS-115: more damage while a card of yours is in play
+      const need = (p.condition as { inPlay?: string } | undefined)?.inPlay
+      const mine = !need || [...s.players[ctx.user].nonCombat, ...s.players[ctx.user].drills].some(c => def(db, c).name === need)
+      if (!st || !mine || st.initiator !== ctx.user) return
+      st.strike = { ...st.strike, damage: { calculation: 'FLAT', stages: 0, lifeCards: p.setLifeCards, modifierStages: 0, modifierLifeCards: 0 } }
+      return log(s, 'DAMAGE_X', `${ctx.source}: ${need} is in play, the attack does ${p.setLifeCards} life cards`, ctx.user)
+    }
+    if (p.duration === 'thisCombat' && p.maxStages === 0 && p.maxLifeCards === 0 && s.combat) {
+      // FS-119: no damage to the user for the rest of combat
+      s.combat.damageMods.push({ player: targetOf(ctx, p.target), attackType: 'ANY', stages: -99, lifeCards: -99, source: ctx.source })
+      return log(s, 'PROTECT', `${ctx.source}: player ${targetOf(ctx, p.target) + 1} takes no damage for the rest of combat`)
     }
     if (p.maxLifeCards !== undefined || p.maxStages !== undefined) {
       // a defense that lets only part of the damage through
