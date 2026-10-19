@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { resolveEffects } from './effects'
@@ -36,7 +36,7 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
   const d = def(db, c)
   const opt = cardDefense(d, attack) ?? attackAsDefense(s, db, defender, d, attack)
   // focused attacks cannot be stopped by cards that stop both attack types
-  if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike)) return null
+  if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike) && !canStopFocused(d)) return null
   if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, db, defender, opt.strike)) return null
   if (d.noStacking && s.combat!.usedCardIds.includes(d.id)) return null
   const effects = opt.strike.effects.onPlaySecondary

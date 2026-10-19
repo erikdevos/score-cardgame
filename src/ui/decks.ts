@@ -29,6 +29,10 @@ function realCharacters(pool: CardDef[], maxLevel: number): { character: string;
 }
 
 /** A quick legal 60-card deck: 3 copies of random playable cards, weighted to combat cards. */
+/** Sensei cards and "Sensei Deck only" cards cannot start in a life deck (the Sensei Deck is not modelled). */
+const isSenseiOnly = (c: CardDef) => [...c.effects.onEnterPlay, ...c.effects.onPlaySecondary, ...c.effects.onHit].some(e =>
+  e.action === 'CUSTOM' && (e.handler === 'senseiCard' || (e.handler === 'senseiDeck' && e.params?.only)))
+
 function autoDeck(cards: CardDef[], mp: string[], character: string, seed: number, trunks: boolean): DeckList {
   // Trunks Saga allies: same side, 2+ levels below the main personality's top level; Pure 2000: any level 1
   const mpCards = mp.map(id => db[id])
@@ -52,7 +56,7 @@ function autoDeck(cards: CardDef[], mp: string[], character: string, seed: numbe
     const kinds = [...new Set(cards.filter(c => c.type === 'Dragon Ball').map(c => dragonBallKind(c.name)))].filter(k => k !== 'Earth')
     ballKind = r < 0.3 && kinds.length ? kinds[Math.floor(r / 0.3 * kinds.length)] : 'Earth'
   }
-  const pool = cards.filter(c => (c.type !== 'Dragon Ball' || ballKind === undefined || dragonBallKind(c.name) === ballKind) && c.type !== 'Mastery' && usable(c) && (c.type !== 'Personality' || allyOk(c)) && (!style || !c.style || c.style === style))
+  const pool = cards.filter(c => (c.type !== 'Dragon Ball' || ballKind === undefined || dragonBallKind(c.name) === ballKind) && c.type !== 'Mastery' && !isSenseiOnly(c) && usable(c) && (c.type !== 'Personality' || allyOk(c)) && (!style || !c.style || c.style === style))
   // the Mastery card of the deck's style, when the pool has one
   const mastery = style ? cards.find(c => c.type === 'Mastery' && c.style === style)?.id : undefined
   const combat = pool.filter(c => isAttackRole(c.combatRole) || isDefenseRole(c.combatRole))

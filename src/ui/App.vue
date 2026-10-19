@@ -58,6 +58,7 @@ function start(mode: Mode) {
           :aria-checked="settings.format === f"
           :class="{ on: settings.format === f }"
           :disabled="!formatReady(f)"
+          :title="FORMATS[f].sets.join(' + ')"
           @click="settings.format = f"
         >
           {{ FORMATS[f].label }}

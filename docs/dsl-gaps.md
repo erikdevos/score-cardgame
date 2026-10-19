@@ -265,3 +265,13 @@ The rulebook pages on card types, drills, Dragon Balls and the Cell Saga changes
 - **Mandatory rules now**: Double Power Rule (if one MP starts at half the other's beginning stage, the lower one sets its Scouter to the top and the higher one to 2 stages above 0, the lower goes first) and the Tournament Dragon Ball rule (a captured Dragon Ball's power may be used at once, even if used this turn). Neither is implemented.
 - **Nowhere to Hide**: cards that stop Step 4 Combat can only be played as an attack, never as a defense.
 - **Cherry Picking**: after choosing cards from your Life Deck, reshuffle it and show the cards to the opponent. Only one Battleground or Location in play at a time (already so).
+
+## World Games Saga
+
+211 cards (WG-1 to WG-201, WG-P2 to WG-P11), transcribed in four parts, all `verified: false`; 181 carry `needsReview`. Pool `ALL_SETS` ("Up to World Games Saga") on the Cell Saga Physical Attack Table (no World Games rulebook; real ratings stay below 5M, so the table still works). Images are in `public/cards/world-games-saga/` (gitignored). Level 5 and 12-13 rating boxes are handled as in the Cell Saga.
+
+**Sensei** (Buu Saga rulebook pp. 45-46): a Sensei card has a power and may come with a separate Sensei Deck (cards that say "Sensei Deck" or "Sensei Deck only", plus Fusion Personality cards); at setup you swap cards between the Sensei Deck and the top of your Life Deck. Not modelled. `senseiDeck` is a no-op marker (the card then simply works from the life deck); the auto decks leave out `senseiCard` cards (WG-125, 140, 149, 156) and "Sensei Deck only" cards. Deck legality (50-85 cards, 90 with a Namekian Tokui-Waza in the Buu era) is not enforced by the engine.
+
+**Implemented**: `ifInDiscardPile`, `ifOpponentTokuiWaza`, `modifyAngerPerDragonBall`, and the "can stop a focused attack" exception (`canStopFocused` in `abilities.ts`, read in `defenseFor`).
+
+**Not implemented yet** (WARN or no effect): Z power stages (WG-132 Grand Kai has placeholder ratings 5M-14M), Fusion, `placeSelfInLifeDeck`, `shuffleSelfIntoLifeDeck`, `grantOnHitEffect`, `grantFocused`, `damageCannotBeModified`, `placeInPlayIfDiscardedFromHand`, `modifyStagesChosen`, `ifRemovedCardMatchesMainPersonality`, `drawFromLifeDeck`, `disableMastery`, `nameCardsRemoveFromLifeDeck`, `replacePostResolution`, `discardTopLifeCardThen`, `opponentSplitsDiscard`, `modifyStagesPerCardInPile`, `protectDiscardPile`, `removeTopLifeCardThen`, and the personality powers that use them. "Majin only" cards use `usableBy` characters ["Majin"] as a placeholder; there are no Majin personalities yet, so they are never legal. The "removed from the game pile" zone and "cards under cards" are not tracked.

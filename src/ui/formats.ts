@@ -12,7 +12,7 @@ export const FORMATS = {
   SAIYAN: { label: 'Saiyan Saga', sets: ['Saiyan Saga'] as SetName[], rules: {} as Partial<Rules> },
   // Frieza Saga power levels go far past the Saiyan Saga table: use the Trunks Saga rulebook's table (no Frieza Saga rulebook available)
   SAIYAN_FRIEZA: {
-    label: 'Saiyan + Frieza', sets: ['Saiyan Saga', 'Frieza Saga'] as SetName[],
+    label: 'Up to Frieza Saga', sets: ['Saiyan Saga', 'Frieza Saga'] as SetName[],
     // Trunks Saga core rules (rulebook 2001) on top of the table; see docs/dsl-gaps.md "Frieza Saga"
     rules: {
       pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix },
@@ -20,19 +20,19 @@ export const FORMATS = {
     } as Partial<Rules>,
   },
   SAIYAN_FRIEZA_TRUNKS: {
-    label: 'Saiyan + Frieza + Trunks', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga'] as SetName[],
+    label: 'Up to Trunks Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga'] as SetName[],
     rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
   SAIYAN_FRIEZA_TRUNKS_ANDROIDS: {
-    label: 'Saiyan + Frieza + Trunks + Androids', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga'] as SetName[],
+    label: 'Up to Androids Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga'] as SetName[],
     rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
   SAIYAN_FRIEZA_TRUNKS_ANDROIDS_CELL: {
-    label: 'Saiyan + Frieza + Trunks + Androids + Cell', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga'] as SetName[],
+    label: 'Up to Cell Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga'] as SetName[],
     rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
   ALL_SETS: {
-    label: 'Saiyan + Frieza + Trunks + Androids + Cell + Cell Games', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga'] as SetName[],
+    label: 'Up to World Games Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga'] as SetName[],
     rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
 } as const

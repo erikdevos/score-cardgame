@@ -224,7 +224,31 @@ export const handlers: Record<string, CustomHandler> = {
     }
   },
 
-  modifyCombatDraw: noop, // turn.ts defenderDraw (CS-176)
+  modifyCombatDraw: noop,
+  // World Games Saga
+  senseiDeck: noop, // deck-building keyword: the Sensei Deck itself is not modelled, the card works as a normal card in the life deck
+  canStopFocused: noop, // abilities.canStopFocused
+  stopFocusedAttack: noop,
+  stopsFocusedOnly: noop,
+  defenseRestriction: noop,
+
+  ifInDiscardPile(ctx, p) {
+    const pile = ctx.s.players[targetOf(ctx, p.target)].discard
+    if (pile.some(c => def(ctx.db, c).name === p.cardName)) resolveEffects(ctx, then(p))
+  },
+
+  ifOpponentTokuiWaza(ctx, p) {
+    // "If your opponent declared a <style> Tokui-Waza"
+    const t = ctx.s.players[other(ctx.user)].tokuiWaza
+    if (t && (!p.style || t === p.style)) resolveEffects(ctx, then(p))
+  },
+
+  modifyAngerPerDragonBall(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const n = ctx.s.players[targetOf(ctx, p.owner ?? p.target)].dragonBalls.length * num(p.perDragonBall, 1)
+    if (n) changeAnger(ctx.s, ctx.db, who, n)
+  },
+ // turn.ts defenderDraw (CS-176)
 
   ifOpponentNameContains(ctx, p) {
     if (mpDef(ctx.s, ctx.db, other(ctx.user)).name.includes(String(p.text))) resolveEffects(ctx, then(p))

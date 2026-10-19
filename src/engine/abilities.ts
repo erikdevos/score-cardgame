@@ -187,6 +187,10 @@ export function activeCustom(s: GameState, db: CardDB, effects: Effect[], handle
 }
 
 /** Buu Saga rulebook (p. 50): a "Focused" attack cannot be stopped by Defense Shields, Masteries or cards that stop both attack types. */
+/** World Games Saga: some cards say they can stop a focused attack. */
+export const canStopFocused = (d: CardDef) => ['canStopFocused', 'stopFocusedAttack', 'stopsFocusedOnly'].some(h => findCustom(d.effects.onPlaySecondary, h).length) ||
+  findCustom(d.effects.onPlaySecondary, 'defenseRestriction').some(p => p.canStopFocused)
+
 export const isFocused = (strike?: StrikeDef) => !!strike && ['focused', 'focusedAttack'].some(h => findCustom(strike.effects.onPlaySecondary, h).length)
 
 /**

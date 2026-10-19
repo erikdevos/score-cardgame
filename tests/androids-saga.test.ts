@@ -75,6 +75,7 @@ describe('Cell Saga pool', () => {
 describe('Cell Games Saga pool (all sets)', () => {
   it('loads 135 cards and AI games finish', () => {
     expect(realCards.filter(c => c.set === 'Cell Games Saga')).toHaveLength(135)
+    expect(realCards.filter(c => c.set === 'World Games Saga')).toHaveLength(211)
     const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
     for (let seed = 1; seed <= 30; seed++) {
       const a = choices[seed % choices.length]

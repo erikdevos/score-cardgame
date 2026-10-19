@@ -83,7 +83,7 @@ function onClick() {
     </template>
     <span v-else class="back-art" aria-hidden="true"><span class="ball"><i>&#9733;</i></span><span class="back-label">{{ label ?? 'DBZ' }}</span></span>
     <span v-if="faceUp" class="shine" aria-hidden="true" />
-    <CardAura v-if="faceUp && isTopLevel(card) && size !== 'xs' && size !== 'sm'" :card="card!" :count="size === 'lg' || size === 'mp' ? 100 : 34" />
+    <CardAura v-if="faceUp && isTopLevel(card) && size !== 'xs' && size !== 'sm'" :card="card!" :count="size === 'lg' || size === 'mp' ? 150 : 50" />
     <span v-if="count !== undefined" class="count">{{ count }}</span>
     <span v-if="tag" class="tag-corner">{{ tag }}</span>
     <span v-if="badge" class="role-badge" :class="badge.cls">
