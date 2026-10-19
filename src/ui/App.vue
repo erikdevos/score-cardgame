@@ -45,11 +45,10 @@ function start(mode: Mode) {
     <header class="logo">
       <span class="logo-ball" aria-hidden="true"><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i><i>&#9733;</i></span>
       <h1><span class="l1">Dragon Ball</span><span class="l2">Z</span></h1>
-      <p class="logo-sub">Collectible Card Game · Saiyan Saga</p>
+      <p class="logo-sub">SCORE Collectible Card Game</p>
     </header>
 
     <div class="format-pick" role="radiogroup" aria-label="Card pool">
-      <span class="eyebrow">Card pool</span>
       <div class="segmented">
         <button
           v-for="f in formatKeys"

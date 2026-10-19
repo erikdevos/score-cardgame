@@ -1,5 +1,5 @@
 // Scrapes a set's image listing pages into src/data/<set>/index.json.
-// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga|trunks-saga|androids-saga|cell-saga|cell-games-saga|world-games-saga|babidi-saga]
+// Usage: npx tsx scripts/fetch-card-index.ts [saiyan-saga|frieza-saga|trunks-saga|androids-saga|cell-saga|cell-games-saga|world-games-saga|babidi-saga|buu-saga]
 // Only the listing HTML is fetched here; scripts/download-images.ts caches the images.
 import { mkdirSync, writeFileSync } from 'node:fs'
 
@@ -12,6 +12,7 @@ const SETS: Record<string, string[]> = {
   'cell-games-saga': ['commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
   'world-games-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
   'babidi-saga': ['commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
+  'buu-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
   'cell-saga': ['starter', 'commons', 'uncommons', 'rares', 'ultra-rares', 'promos', 'previews'],
 }
 const set = process.argv[2] ?? 'saiyan-saga'
@@ -58,10 +59,10 @@ if (set === 'androids-saga') {
     else if (+e.number > 10) e.number = String(Math.floor(+e.number / 10))
   }
 }
-if (set === 'cell-saga' || set === 'cell-games-saga' || set === 'world-games-saga' || set === 'babidi-saga') {
+if (set === 'cell-saga' || set === 'cell-games-saga' || set === 'world-games-saga' || set === 'babidi-saga' || set === 'buu-saga') {
   // same upload suffix problem: "0011.jpg" is card 1, "1262" is card 126
   for (const e of entries) {
-    if (e.slug === '201') continue // World Games Saga card 201 is the only upload without a suffix
+    if (e.slug === '201' || e.slug === '166-alt') continue // uploads without a numeric suffix (World Games 201, Buu alternate 166)
     e.number = e.bucket === 'promos' ? `P${e.number.slice(1, -1)}` : String(Math.floor(+e.number / 10))
   }
 }

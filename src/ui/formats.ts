@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import type { CardDef, Rules } from '../engine'
 import patTrunks from '../engine/config/pat-trunks.json'
 import patCell from '../engine/config/pat-cell.json'
+import patBuu from '../engine/config/pat-buu.json'
 import { realCards, type SetName } from './cardDb'
 import { settings } from './settings'
 
@@ -32,8 +33,8 @@ export const FORMATS = {
     rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
   ALL_SETS: {
-    label: 'Up to Babidi Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga', 'Babidi Saga'] as SetName[],
-    rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
+    label: 'All sets (up to Buu Saga)', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga', 'Babidi Saga', 'Buu Saga'] as SetName[],
+    rules: { pat: { brackets: patBuu.brackets, matrix: patBuu.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
 } as const
 export type FormatKey = keyof typeof FORMATS

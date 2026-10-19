@@ -16,6 +16,8 @@ import worldGamesRaw from '../data/world-games-saga/cards.json'
 import worldGamesIndex from '../data/world-games-saga/index.json'
 import babidiRaw from '../data/babidi-saga/cards.json'
 import babidiIndex from '../data/babidi-saga/index.json'
+import buuRaw from '../data/buu-saga/cards.json'
+import buuIndex from '../data/buu-saga/index.json'
 
 /** The transcribed sets, in release order. */
 export const SETS = [
@@ -27,6 +29,7 @@ export const SETS = [
   { key: 'cell-games-saga', name: 'Cell Games Saga', raw: cellGamesRaw as unknown[], index: cellGamesIndex, imageDir: '/cards/cell-games-saga/' },
   { key: 'world-games-saga', name: 'World Games Saga', raw: worldGamesRaw as unknown[], index: worldGamesIndex, imageDir: '/cards/world-games-saga/' },
   { key: 'babidi-saga', name: 'Babidi Saga', raw: babidiRaw as unknown[], index: babidiIndex, imageDir: '/cards/babidi-saga/' },
+  { key: 'buu-saga', name: 'Buu Saga', raw: buuRaw as unknown[], index: buuIndex, imageDir: '/cards/buu-saga/' },
 ] as const
 export type SetName = (typeof SETS)[number]['name']
 
