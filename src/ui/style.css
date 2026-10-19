@@ -1,8 +1,9 @@
 /* DBZ CCG: dark "arena" app theme. Orange/gold ki, energy blue, scouter green. */
 /* Serpentine: the official card-game typeface (headings and titles) */
-@font-face { font-family: 'Serpentine'; font-weight: 400; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 300 400; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-light.woff2') format('woff2'); }
 @font-face { font-family: 'Serpentine'; font-weight: 500; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-medium.woff2') format('woff2'); }
 @font-face { font-family: 'Serpentine'; font-weight: 700; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 300 400; font-style: italic; font-display: swap; src: url('./fonts/web/serpentine-light-italic.woff2') format('woff2'); }
 @font-face { font-family: 'Serpentine'; font-weight: 500; font-style: italic; font-display: swap; src: url('./fonts/web/serpentine-medium-italic.woff2') format('woff2'); }
 @font-face { font-family: 'Serpentine'; font-weight: 700; font-style: italic; font-display: swap; src: url('./fonts/web/serpentine-bold-italic.woff2') format('woff2'); }
 

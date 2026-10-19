@@ -1,6 +1,6 @@
 import type { CardDB, StrikeDef } from './cards'
 import { tableEffects } from './abilities'
-import { activePassives, def, findCustom, log, millCards, powerRating } from './state'
+import { activePassives, def, findCustom, log, millCards, powerRating, pur } from './state'
 import type { GameState, PlayerId, Rules } from './types'
 
 export function bracketOf(rating: number, rules: Rules): number {
@@ -87,7 +87,16 @@ export function applyDamage(s: GameState, target: PlayerId, d: Damage, db?: Card
 /** Endurance N of a card: the first Endurance effect of the card, or 1 for Non-Combat cards while a grantEndurance drill is in play (CG-112). */
 function enduranceOf(s: GameState, db: CardDB, owner: PlayerId, card: { defId: string }): number {
   const d = def(db, card as never)
-  const own = Object.values(d.effects).flatMap(v => (Array.isArray(v) ? findCustom(v as never[], 'endurance') : [])).map(p => Number(p.amount ?? 0))
+  const pl = s.players[owner]
+  // Endurance X (Buu Saga rulebook p. 54): X comes from the game, the card says which value
+  const value = (p: Record<string, unknown>) => {
+    if (p.amount !== 'X') return Number(p.amount ?? 0)
+    if (p.x === 'ownAnger') return pl.mp.anger
+    if (p.x === 'dragonBallsControlled') return pl.dragonBalls.length
+    if (p.x === 'ownPurMinus1') return Math.max(0, pur(s, db, owner) - 1)
+    return 0
+  }
+  const own = Object.values(d.effects).flatMap(v => (Array.isArray(v) ? findCustom(v as never[], 'endurance') : [])).map(value)
   if (own.length) return Math.max(...own)
   const grant = tableEffects(s, db, owner, 'grantEndurance').find(g => g.params.onlyIfNone && (g.params.cardTypes as string[] | undefined)?.includes(d.type))
   return grant ? Number(grant.params.amount ?? 1) : 0

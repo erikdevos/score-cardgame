@@ -32,7 +32,7 @@ export const FORMATS = {
     rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
   ALL_SETS: {
-    label: 'Up to World Games Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga'] as SetName[],
+    label: 'Up to Babidi Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga', 'Babidi Saga'] as SetName[],
     rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
 } as const
