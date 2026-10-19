@@ -239,3 +239,13 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 **Implemented**: `ifOpponentNameContains`, `ifOpponentMoreStages`, `ifTopDiscardNotAttack`, `discardHand`, `setStages`, `loseGameIfOpponentSurvives`, `modifyCombatDraw` (read in `defenderDraw`).
 
 **Not implemented yet** (WARN, the clause does nothing): `lookAtTopCards` (CS-100), `placeSelfInLifeDeck` (CS-107), `discardToStopAttack` and `inPlaceOfAttackDiscard` (Mastery CS-126, CS-129). The new params many cards gained (see `needsReview`) are not read yet either; the sim logs "damage modifier not implemented for these parameters" most often.
+
+## Cell Games Saga
+
+135 cards (CG-1 to CG-125, CG-P2 to CG-P11), transcribed in three parts, all `verified: false`; 126 carry `needsReview`. Pool "Saiyan + Frieza + Trunks + Androids + Cell + Cell Games" (`ALL_SETS`). Images are in `public/cards/cell-games-saga/` (gitignored). Level 5 and 12-13 rating boxes are handled as in the Cell Saga (level 4 with "Lv5" in the name, lowest ratings dropped). "Cell Jr." is stored as characters "Cell Jr. 1" and "Cell Jr. 2" (alignment assumed Villain), so several can be allies at once.
+
+**New printed keywords, meaning unknown (no rulebook) and not enforced**: **Endurance N** (about 45 cards; handler `endurance` is a marker, `grantEndurance` on CG-112), **Focused physical/energy attack** (`focused`, `focusedAttack`, 9 cards), and the **Fight Back** phase (CG-77, `skipFightBack`). Need a ruling from the rulebook or from Erik before they can be implemented.
+
+**Implemented**: `ifOwnStages`, `ifPowerRatingGreater`, `ifAnger`, `ifMainPersonality`, `winGame`, `discardLifeBoth` (always the maximum, no choice yet), `modifyStagesByAlignment`.
+
+**Not implemented yet** (WARN or no effect): `temporaryPurModifier` (CG-5), `discardAttached` and `discardAttachedCards` (CG-44, CG-67), `rearrangeDiscard` (CG-62), `removeAndShuffleFromDiscard` (CG-65), `lookAtTopCards` (CG-68), `skipFightBack` (CG-77), `loseGameAtAnger` (CG-99), `placeAllyInsteadOfAttack` (CG-100). Defense Shield drills put `defenseShield` directly in `onEnterPlay` (9 cards): the engine reads it from personality powers only. `forbidCards` ignores the card-type filter of CG-8. Low-resolution scans: CG-124 and CG-125 may misread ("0 to 3" vs "2 or 3" cards, "+5" vs "-5").

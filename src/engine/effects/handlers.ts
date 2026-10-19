@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, win } from '../state'
+import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -172,6 +172,57 @@ export const handlers: Record<string, CustomHandler> = {
   playCostModifier: noop, // sequencer extraPlayCost (AS-44)
   removeInsteadOfDiscard: noop, // engine.ts sweepDiscards (AS-96)
   playNonCombatInsteadOfAttack: noop, // legal.ts, turn.ts (AS-125)
+
+  // Cell Games Saga keywords whose meaning is unknown (no rulebook): carried as data, no effect yet
+  endurance: noop,
+  grantEndurance: noop,
+  focused: noop,
+  focusedAttack: noop,
+  temporaryPurModifier: noop, // CG-5, not applied yet
+  discardAttached: noop, // CG-44: the engine has no attached cards except AS-36
+
+  ifOwnStages(ctx, p) {
+    const n = fighterStage(ctx.s, ctx.user)
+    if (n <= num(p.max, 99) && n >= num(p.min, 0)) resolveEffects(ctx, then(p))
+  },
+
+  ifPowerRatingGreater(ctx, p) {
+    const mine = powerRating(ctx.s, ctx.db, ctx.user)
+    const mineWins = mine > powerRating(ctx.s, ctx.db, other(ctx.user))
+    resolveEffects(ctx, mineWins ? then(p) : ((p.otherwise ?? []) as Effect[]))
+  },
+
+  ifAnger(ctx, p) {
+    if (ctx.s.players[targetOf(ctx, p.target)].mp.anger === num(p.equals, -1)) resolveEffects(ctx, then(p))
+  },
+
+  ifMainPersonality(ctx, p) {
+    const d = mpDef(ctx.s, ctx.db, ctx.user).personality!
+    if (d.character === p.character && (p.level === undefined || d.level === p.level)) resolveEffects(ctx, then(p))
+  },
+
+  winGame(ctx, p) {
+    win(ctx.s, targetOf(ctx, p.target), 'SURVIVAL')
+  },
+
+  discardLifeBoth(ctx, p) {
+    // CG-55: "up to 4": the most the own life deck allows (the choice is not asked yet)
+    const n = Math.min(num(p.max, 1), Math.max(0, ctx.s.players[ctx.user].lifeDeck.length - 1))
+    const mine = millCards(ctx.s, ctx.user, n, ctx.db)
+    const theirs = millCards(ctx.s, other(ctx.user), mine, ctx.db)
+    log(ctx.s, 'MILL', `${ctx.source}: both players discard ${mine} / ${theirs} life card(s)`)
+  },
+
+  modifyStagesByAlignment(ctx, p) {
+    // CG-56: every hero (main personalities and allies) loses stages
+    const { s, db } = ctx
+    for (const pl of s.players) {
+      if (mpDef(s, db, pl.id).personality!.alignment !== p.alignment) continue
+      changeStages(s, pl.id, num(p.amount, 0))
+      if (p.includeAllies) for (const a of pl.allies) a.stage = Math.max(0, a.stage + num(p.amount, 0))
+      log(s, 'STAGES', `${ctx.source}: player ${pl.id + 1}'s ${String(p.alignment)} personalities lose ${Math.abs(num(p.amount, 0))} power stage(s)`, pl.id)
+    }
+  },
 
   modifyCombatDraw: noop, // turn.ts defenderDraw (CS-176)
 

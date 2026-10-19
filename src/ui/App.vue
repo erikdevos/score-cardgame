@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { defaultRulesConfig, validateDeck } from '../engine'
-import { db, isTopLevel, realCards } from './cardDb'
+import { db, realCards } from './cardDb'
 import { deckChoices } from './decks'
-import { FORMATS, formatCards, formatReady, unverifiedIn, type FormatKey } from './formats'
+import { FORMATS, formatCards, isTopLevel, formatReady, unverifiedIn, type FormatKey } from './formats'
 import { settings } from './settings'
 import { useGame, type Mode } from './useGame'
 import CardCatalog from './components/CardCatalog.vue'

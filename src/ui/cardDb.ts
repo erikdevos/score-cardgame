@@ -10,6 +10,8 @@ import androidsRaw from '../data/androids-saga/cards.json'
 import androidsIndex from '../data/androids-saga/index.json'
 import cellRaw from '../data/cell-saga/cards.json'
 import cellIndex from '../data/cell-saga/index.json'
+import cellGamesRaw from '../data/cell-games-saga/cards.json'
+import cellGamesIndex from '../data/cell-games-saga/index.json'
 
 /** The transcribed sets, in release order. */
 export const SETS = [
@@ -18,6 +20,7 @@ export const SETS = [
   { key: 'trunks-saga', name: 'Trunks Saga', raw: trunksRaw as unknown[], index: trunksIndex, imageDir: '/cards/trunks-saga/' },
   { key: 'androids-saga', name: 'Androids Saga', raw: androidsRaw as unknown[], index: androidsIndex, imageDir: '/cards/androids-saga/' },
   { key: 'cell-saga', name: 'Cell Saga', raw: cellRaw as unknown[], index: cellIndex, imageDir: '/cards/cell-saga/' },
+  { key: 'cell-games-saga', name: 'Cell Games Saga', raw: cellGamesRaw as unknown[], index: cellGamesIndex, imageDir: '/cards/cell-games-saga/' },
 ] as const
 export type SetName = (typeof SETS)[number]['name']
 
@@ -36,11 +39,3 @@ export const setOrder = (name: string) => SETS.findIndex(s => s.name === name)
 
 export const db: CardDB = { ...buildCardDB(testCards), ...Object.fromEntries(realCards.map(c => [c.id, c])) }
 
-/** Highest personality level per character across all sets: those cards are the unique, shiny versions. */
-const topLevel = new Map<string, number>()
-for (const c of realCards) {
-  const p = c.type === 'Personality' ? c.personality : undefined
-  if (p && c.rarity !== 'Promo') topLevel.set(p.character, Math.max(topLevel.get(p.character) ?? 0, p.level))
-}
-/** True for the highest-level Personality of a character (metallic/holo treatment). */
-export const isTopLevel = (c?: CardDef) => !!c && c.type === 'Personality' && !!c.personality && topLevel.get(c.personality.character) === c.personality.level

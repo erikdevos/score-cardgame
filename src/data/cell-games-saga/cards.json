@@ -1,0 +1,5293 @@
+[
+  {
+    "id": "CG-1",
+    "name": "Black Explosion",
+    "set": "Cell Games Saga",
+    "number": 1,
+    "type": "Energy Combat",
+    "style": "Black",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromPlay",
+          "params": {
+            "target": "OPPONENT",
+            "cardTypes": [
+              "Ally"
+            ],
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Energy attack. If successful, discard one of your opponent's Allies in play.",
+    "imageUrl": "/cards/cell-games-saga/0012.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-2",
+    "name": "Black Fist Lock",
+    "set": "Cell Games Saga",
+    "number": 2,
+    "type": "Physical Combat",
+    "style": "Black",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack doing +4 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0022.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-3",
+    "name": "Black Preparation",
+    "set": "Cell Games Saga",
+    "number": 3,
+    "type": "Energy Combat",
+    "style": "Black",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Focused energy attack. If successful, raise your anger 1 level.",
+    "imageUrl": "/cards/cell-games-saga/0032.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-4",
+    "name": "Blue Forced Punch",
+    "set": "Cell Games Saga",
+    "number": 4,
+    "type": "Physical Combat",
+    "style": "Blue",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack doing +3 power stages of damage. If successful, lower your opponent's anger 2 levels.",
+    "imageUrl": "/cards/cell-games-saga/0042.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-5",
+    "name": "Blue Thrusted Blast",
+    "set": "Cell Games Saga",
+    "number": 5,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "temporaryPurModifier",
+          "params": {
+            "target": "SELF",
+            "amount": 2,
+            "duration": "endOfOwnNextTurn"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Energy attack doing 5 life cards of damage. If successful, your Main Personality's PUR is considered to be +2 until the end of your next turn.",
+    "imageUrl": "/cards/cell-games-saga/0052.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. New handler temporaryPurModifier."
+  },
+  {
+    "id": "CG-6",
+    "name": "Deadly Attack",
+    "set": "Cell Games Saga",
+    "number": 6,
+    "type": "Combat",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "disableAllies",
+            "scope": "OPPONENT",
+            "cannotUsePowers": true,
+            "noDamageRedirect": true,
+            "cannotTakeOver": true,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Stops a physical attack. For the remainder of Combat your opponent cannot use Ally card powers, redirect damage to Allies, or have Allies take over Combat.",
+    "imageUrl": "/cards/cell-games-saga/0062.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Reuses allyEffect disableAllies (CS-113) with new params cannotTakeOver and scope OPPONENT. Starburst icon."
+  },
+  {
+    "id": "CG-7",
+    "name": "Flashback",
+    "set": "Cell Games Saga",
+    "number": 7,
+    "type": "Combat",
+    "rarity": "Common",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 4,
+            "from": "choice",
+            "to": "shuffle",
+            "chooser": "SELF"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 4,
+            "from": "choice",
+            "to": "shuffle",
+            "chooser": "OPPONENT"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Choose 4 cards in your opponent's discard pile and shuffle them into his Life Deck. Your opponent chooses 4 cards in your discard pile and shuffles them back into your Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0072.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. recoverFromDiscard gets new params target OPPONENT and chooser (who picks the cards). Sword icon."
+  },
+  {
+    "id": "CG-8",
+    "name": "Gohan's Kick",
+    "set": "Cell Games Saga",
+    "number": 8,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Gohan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "effect": [
+                "END_COMBAT",
+                "STOP_ALL_PHYSICAL",
+                "STOP_ALL_ENERGY"
+              ]
+            },
+            "scope": "ALL",
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +3 power stages of damage. Cards that end Combat, or cards that stop all physical attacks or all energy attacks, cannot be used for the remainder of Combat.",
+    "imageUrl": "/cards/cell-games-saga/0082.jpg",
+    "verified": false,
+    "needsReview": "forbidCards (TS-42) with a longer filter list: also cards that stop all physical or all energy attacks; duration thisCombat. Existing forbidCards implementation locks drills/allies/powers for thisCombat, not these card filters. Printed title has a trademark symbol after Gohan's (dropped). Green card, no style kanji: treated as Freestyle named card."
+  },
+  {
+    "id": "CG-9",
+    "name": "Gohan's Strike",
+    "set": "Cell Games Saga",
+    "number": 9,
+    "type": "Physical Combat",
+    "rarity": "Common",
+    "named": "Gohan",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Focused physical attack doing +2 power stages of damage. Raise your anger 1 level.",
+    "imageUrl": "/cards/cell-games-saga/0092.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Printed title has a trademark symbol (dropped). Green card, no style kanji: Freestyle named card."
+  },
+  {
+    "id": "CG-10",
+    "name": "Namekian Crushing Hold",
+    "set": "Cell Games Saga",
+    "number": 10,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "recoverFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 2,
+                  "from": "top",
+                  "to": "shuffle"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 2. Physical attack doing +3 power stages of damage. If you declared a Tokui-Waza, shuffle the top 2 cards of your discard pile into your Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0102.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. \"Tokui-Waza\" is printed this way here (Tokui-Waza)."
+  },
+  {
+    "id": "CG-11",
+    "name": "Namekian Fist Dodge",
+    "set": "Cell Games Saga",
+    "number": 11,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Common",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 0,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "DEFENSE_PHYSICAL",
+              "defense": {
+                "mode": "STOP"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Namekian Heritage only. Physical attack, or stops a physical attack.",
+    "imageUrl": "/cards/cell-games-saga/0113.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Namekian Heritage only = Piccolo and Nail (as CS-11). Attack/defend icon: dark blue sword read, text allows both (dualUse)."
+  },
+  {
+    "id": "CG-12",
+    "name": "Namekian Flying Kick",
+    "set": "Cell Games Saga",
+    "number": 12,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "SELF",
+            "zone": "discard",
+            "choice": true,
+            "anyAmount": true
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +3 power stages of damage. If successful, choose any cards in your discard pile and remove them from the game.",
+    "imageUrl": "/cards/cell-games-saga/0123.jpg",
+    "verified": false,
+    "needsReview": "removeFromGame with new param anyAmount (any number of own discard cards, player chooses)."
+  },
+  {
+    "id": "CG-13",
+    "name": "Namekian Foot Lunge",
+    "set": "Cell Games Saga",
+    "number": 13,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 4
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 1,
+            "from": "choice",
+            "to": "shuffle"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 4. Physical attack doing +2 power stages of damage. If successful, choose a card in your discard pile and shuffle it back into your Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0133.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-14",
+    "name": "Orange Dragon Aid",
+    "set": "Cell Games Saga",
+    "number": 14,
+    "type": "Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "stealOrCaptureDragonBall",
+          "params": {
+            "amount": 2,
+            "upTo": true,
+            "target": "OPPONENT",
+            "destination": "bottomOfOpponentLifeDeck"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Take 1 or 2 of your opponent's Dragon Balls and place them at the bottom of his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0143.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. As SS-241 with new param upTo (1 or 2)."
+  },
+  {
+    "id": "CG-15",
+    "name": "Orange Uniting Strike",
+    "set": "Cell Games Saga",
+    "number": 15,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifInPlay",
+          "params": {
+            "characters": [
+              "Goku",
+              "Gohan"
+            ],
+            "match": "all",
+            "anywhere": true,
+            "then": [],
+            "replaceDamage": {
+              "calculation": "FLAT",
+              "stages": 0,
+              "lifeCards": 8
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Energy attack. If Goku and Gohan are in play, this attack does 8 life cards of damage instead.",
+    "imageUrl": "/cards/cell-games-saga/0153.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. ifInPlay (CS-82) with new param replaceDamage, modelled on ifTokuiWaza replaceDamage (AS-56). \"In play\" read as anywhere (main personality or ally of either player)."
+  },
+  {
+    "id": "CG-16",
+    "name": "Power Boost",
+    "set": "Cell Games Saga",
+    "number": 16,
+    "type": "Energy Combat",
+    "rarity": "Common",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "beforeOwnEnergyAttack"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "ENERGY",
+            "lifeCards": 2,
+            "duration": "nextAttack",
+            "noCost": true
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Use immediately before you perform an energy attack. You do not pay any costs for the energy attack and it does +2 life cards of damage.",
+    "imageUrl": "/cards/cell-games-saga/0163.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Typed Energy Combat (printed) but works as a combat effect played before an energy attack; damageModifier gets new params duration nextAttack and noCost; playTiming when beforeOwnEnergyAttack is new. Freestyle (blue-white card, no kanji)."
+  },
+  {
+    "id": "CG-17",
+    "name": "Red Anger Rising",
+    "set": "Cell Games Saga",
+    "number": 17,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "ALL",
+            "attackType": "PHYSICAL",
+            "stagesPerDragonBallInPlay": 1,
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Physical attack. For the remainder of Combat all physical attacks do +1 power stages of damage for each Dragon Ball in play. Raise your anger 1 level.",
+    "imageUrl": "/cards/cell-games-saga/0173.jpg",
+    "verified": false,
+    "needsReview": "damageModifier new param stagesPerDragonBallInPlay; \"all physical attacks\" read as both players, all Dragon Balls in play (both sides)."
+  },
+  {
+    "id": "CG-18",
+    "name": "Red Drop Kick",
+    "set": "Cell Games Saga",
+    "number": 18,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "optional",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "SELF",
+                  "zone": "discard",
+                  "amount": 5,
+                  "upTo": true,
+                  "choice": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack doing +3 power stages of damage. You may choose up to 5 cards in your discard pile and remove them from the game.",
+    "imageUrl": "/cards/cell-games-saga/0183.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Not conditional on a hit (as printed)."
+  },
+  {
+    "id": "CG-19",
+    "name": "Red Duck",
+    "set": "Cell Games Saga",
+    "number": 19,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amountPerAnger": 1,
+            "from": "top",
+            "to": "shuffle"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. Shuffle the top X cards in your discard pile back into your Life Deck. X = your current anger level.",
+    "imageUrl": "/cards/cell-games-saga/0193.jpg",
+    "verified": false,
+    "needsReview": "recoverFromDiscard new param amountPerAnger (X = current anger level). Starburst icon."
+  },
+  {
+    "id": "CG-20",
+    "name": "Red Fist Lunge",
+    "set": "Cell Games Saga",
+    "number": 20,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Physical attack. If successful, raise your anger 1 level and lower your opponent's anger 2 levels.",
+    "imageUrl": "/cards/cell-games-saga/0203.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-21",
+    "name": "Red Flying Attack",
+    "set": "Cell Games Saga",
+    "number": 21,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [],
+            "replaceDamage": {
+              "calculation": "PAT",
+              "modifierStages": 5,
+              "modifierLifeCards": 0
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If you declared a Tokui-Waza, this attack does +5 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0213.jpg",
+    "verified": false,
+    "needsReview": "Small gold kanji badge bottom left (Goku); no rules text."
+  },
+  {
+    "id": "CG-22",
+    "name": "Red Shifty Maneuver",
+    "set": "Cell Games Saga",
+    "number": 22,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromPlay",
+                "params": {
+                  "target": "ANY",
+                  "cardTypes": [
+                    "Drill"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. If you declared a Tokui-Waza, raise your anger 1 level and discard a Drill in play.",
+    "imageUrl": "/cards/cell-games-saga/0223.jpg",
+    "verified": false,
+    "needsReview": "Drill to discard: any Drill in play (owner not stated), player chooses."
+  },
+  {
+    "id": "CG-23",
+    "name": "Saiyan Ally Strike",
+    "set": "Cell Games Saga",
+    "number": 23,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Ally",
+            "to": "play",
+            "setPowerStage": "MAX",
+            "matchLevelToMainPersonality": true
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack. If successful, search your Life Deck for any Ally whose personality level is the same as your Main Personality's, and place it in play at its highest power stage.",
+    "imageUrl": "/cards/cell-games-saga/0233.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. searchDeck new param matchLevelToMainPersonality (SS-218 style, setPowerStage MAX)."
+  },
+  {
+    "id": "CG-24",
+    "name": "Saiyan Blocking Technique",
+    "set": "Cell Games Saga",
+    "number": 24,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "PHYSICAL",
+            "stages": 2,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. All physical attacks you perform for the remainder of Combat do +2 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0243.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-25",
+    "name": "Saiyan Energy Surprise",
+    "set": "Cell Games Saga",
+    "number": 25,
+    "type": "Energy Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 1
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [],
+            "replaceDamage": {
+              "calculation": "FLAT",
+              "stages": 0,
+              "lifeCards": 7
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 1. Energy attack. If you declared a Tokui-Waza, this attack does 7 life cards of damage. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0253.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-26",
+    "name": "Saiyan Fist Attack",
+    "set": "Cell Games Saga",
+    "number": 26,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack doing +4 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0263.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-27",
+    "name": "Saiyan Knee Block",
+    "set": "Cell Games Saga",
+    "number": 27,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "REDUCE",
+      "stages": 4,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "DISCARD_LIFE",
+          "target": "OPPONENT",
+          "amount": 2
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Prevent 4 power stages of damage from a physical attack. Your opponent discards the top 2 life cards from his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0273.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. Reduce 4 stages (modes as powerDefense REDUCE). Small gold kanji badge bottom left (Goku); no rules text."
+  },
+  {
+    "id": "CG-28",
+    "name": "Saiyan Power Rush",
+    "set": "Cell Games Saga",
+    "number": 28,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromPlay",
+          "params": {
+            "target": "OPPONENT",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +2 power stages of damage. If successful, discard one of your opponent's Drills in play.",
+    "imageUrl": "/cards/cell-games-saga/0283.jpg",
+    "verified": false,
+    "needsReview": "Small gold kanji badge bottom left (Goku); no rules text."
+  },
+  {
+    "id": "CG-29",
+    "name": "Saiyan Triple Blast",
+    "set": "Cell Games Saga",
+    "number": 29,
+    "type": "Energy Combat",
+    "style": "Saiyan",
+    "rarity": "Common",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 3
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "DRAW",
+          "target": "SELF",
+          "amount": 1
+        }
+      ]
+    },
+    "rawText": "Focused energy attack doing 3 life cards of damage. If successful, draw a card.",
+    "imageUrl": "/cards/cell-games-saga/0293.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-30",
+    "name": "Strength Training",
+    "set": "Cell Games Saga",
+    "number": 30,
+    "type": "Combat",
+    "rarity": "Common",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifPowerRatingGreater",
+          "params": {
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "OPPONENT",
+                "amount": 3
+              }
+            ],
+            "otherwise": [
+              {
+                "action": "SET_STAGE",
+                "target": "SELF",
+                "value": "MAX"
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "If your Main Personality's power rating is greater than your opponent's, your opponent discards the top 3 cards of his Life Deck. Otherwise, raise your Main Personality to its highest power stage. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0303.jpg",
+    "verified": false,
+    "needsReview": "New handler ifPowerRatingGreater (compares main personality power ratings). Attack/defend icon not readable with certainty; sword assumed. Freestyle."
+  },
+  {
+    "id": "CG-31",
+    "name": "Time to Party!",
+    "set": "Cell Games Saga",
+    "number": 31,
+    "type": "Non-Combat",
+    "rarity": "Common",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "SET_STAGE",
+          "target": "OPPONENT",
+          "value": "MAX"
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": 1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "target": "ALL",
+            "from": "lifeDeck",
+            "filter": "FreestyleDrill",
+            "to": "play",
+            "optional": true
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. All Main Personalities are raised to their highest power stage. Every player raises his anger 1 level. Every player may search his Life Deck for a Freestyle Drill and place it in play.",
+    "imageUrl": "/cards/cell-games-saga/0313.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. searchDeck new params target ALL (every player) and filter FreestyleDrill, optional. Puzzle piece \"3 of 3 Krillin\". Flavor: Make sure that you make a wish first!"
+  },
+  {
+    "id": "CG-32",
+    "name": "Black Anticipation Drill",
+    "set": "Cell Games Saga",
+    "number": 32,
+    "type": "Drill",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "constantPower",
+          "params": {
+            "ongoing": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "defenseShield",
+                "params": {
+                  "attackType": "ENERGY",
+                  "count": 1,
+                  "per": "combat"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0323.jpg",
+    "verified": false,
+    "needsReview": "Defense Shield on a drill: constantPower+defenseShield as the Trunks/Androids personality powers (the engine may only read these on personalities). Puzzle \"1 of 6 Cell\"."
+  },
+  {
+    "id": "CG-33",
+    "name": "Black Blasting Beam",
+    "set": "Cell Games Saga",
+    "number": 33,
+    "type": "Energy Combat",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "ifOwnStages",
+                "params": {
+                  "max": 0,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "conditionalDamage",
+                      "params": {
+                        "stages": 2,
+                        "lifeCards": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Energy attack. If you declared a Tokui-Waza, and the personality that performed this attack is at 0 power stages, this attack does +2 life cards and +2 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0333.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. New handler ifOwnStages (attacker at 0 stages)."
+  },
+  {
+    "id": "CG-34",
+    "name": "Black Double Attack Drill",
+    "set": "Cell Games Saga",
+    "number": 34,
+    "type": "Drill",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "PHYSICAL",
+            "stages": 2,
+            "ongoing": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "noRedirect",
+            "scope": "OPPONENT",
+            "attackType": "PHYSICAL",
+            "onlyAgainstOwnAttacks": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Endurance 2. All of your physical attacks do +2 power stages of damage and cannot be redirected to Allies.",
+    "imageUrl": "/cards/cell-games-saga/0343.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. \"cannot be redirected to Allies\" read as: damage of your physical attacks cannot be redirected to the opponent's Allies; new allyEffect action noRedirect. Puzzle \"1 of 5 Gohan\"."
+  },
+  {
+    "id": "CG-35",
+    "name": "Black Hand Energy Blast",
+    "set": "Cell Games Saga",
+    "number": 35,
+    "type": "Energy Combat",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 1
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "conditionalDamage",
+                "params": {
+                  "stages": 2,
+                  "lifeCards": 0
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 1. Energy attack doing 3 life cards of damage. If you declared a Tokui-Waza, the attack also does +2 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/0353.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance."
+  },
+  {
+    "id": "CG-36",
+    "name": "Black Face Slap",
+    "set": "Cell Games Saga",
+    "number": 36,
+    "type": "Physical Combat",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromOpponentHand",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "selection": "random"
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +2 power stages of damage. If successful, choose 1 card at random from your opponent's hand and have him discard it.",
+    "imageUrl": "/cards/cell-games-saga/0363.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-37",
+    "name": "Black Recovery",
+    "set": "Cell Games Saga",
+    "number": 37,
+    "type": "Energy Combat",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "combatRole": "DEFENSE_ENERGY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "discardFromHand",
+                      "params": {
+                        "target": "SELF",
+                        "amount": 1
+                      }
+                    },
+                    {
+                      "action": "CUSTOM",
+                      "handler": "discardFromOpponentHand",
+                      "params": {
+                        "target": "OPPONENT",
+                        "amount": 1,
+                        "selection": "random"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Stops an energy attack. If you declared a Tokui-Waza, you may discard a card from your hand. If you do, choose 1 card at random from your opponent's hand and have him discard it.",
+    "imageUrl": "/cards/cell-games-saga/0373.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-38",
+    "name": "Black Saving Drill",
+    "set": "Cell Games Saga",
+    "number": 38,
+    "type": "Drill",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "autoStopAttack",
+          "params": {
+            "attackType": "ANY",
+            "count": 1,
+            "per": "combat",
+            "condition": {
+              "minAnger": 3
+            },
+            "removeAfterUse": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Endurance 2. Stops the first physical or energy attack your opponent performs in Combat if your anger level is 3 or higher. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0383.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. autoStopAttack (FS-75) with new params condition minAnger and removeAfterUse. Puzzle \"1 of 3 Krillin\"."
+  },
+  {
+    "id": "CG-39",
+    "name": "Black Shifting Drill",
+    "set": "Cell Games Saga",
+    "number": 39,
+    "type": "Drill",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "constantPower",
+          "params": {
+            "ongoing": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "defenseShield",
+                "params": {
+                  "attackType": "PHYSICAL",
+                  "count": 1,
+                  "per": "combat"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0393.jpg",
+    "verified": false,
+    "needsReview": "Defense Shield on a drill (see CG-32). Puzzle \"1 of 2 Vegeta\"."
+  },
+  {
+    "id": "CG-40",
+    "name": "Black Wrist Block",
+    "set": "Cell Games Saga",
+    "number": 40,
+    "type": "Physical Combat",
+    "style": "Black",
+    "rarity": "Uncommon",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [],
+            "alternativeRole": "DEFENSE_ANY"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. If you declared a Tokui-Waza, this card stops a physical or energy attack instead.",
+    "imageUrl": "/cards/cell-games-saga/0403.jpg",
+    "verified": false,
+    "needsReview": "ifTokuiWaza new param alternativeRole DEFENSE_ANY (defense widens to any attack)."
+  },
+  {
+    "id": "CG-41",
+    "name": "Blue Arm Blast",
+    "set": "Cell Games Saga",
+    "number": 41,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "DEFENSE_PHYSICAL",
+              "defense": {
+                "mode": "STOP"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 5 life cards of damage, or stops a physical attack.",
+    "imageUrl": "/cards/cell-games-saga/0413.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-42",
+    "name": "Blue Defensive Effect",
+    "set": "Cell Games Saga",
+    "number": 42,
+    "type": "Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "angerRaiseLimit",
+          "params": {
+            "target": "ALL",
+            "maxPerCard": 0,
+            "duration": "thisCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 2. Lower an opponent's anger 1 level. All effects that raise a player's anger are ignored for the remainder of Combat. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0423.jpg",
+    "verified": false,
+    "needsReview": "Endurance N is a new printed keyword, encoded as new handler endurance. angerRaiseLimit (AS-93) with maxPerCard 0 and duration thisCombat. Sword icon read."
+  },
+  {
+    "id": "CG-43",
+    "name": "Blue Energy Arrow",
+    "set": "Cell Games Saga",
+    "number": 43,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 3
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "discard",
+            "position": "top",
+            "amount": 10
+          }
+        }
+      ]
+    },
+    "rawText": "Focused energy attack doing 3 life cards of damage. If successful, remove the top 10 cards of your opponent's discard pile from the game.",
+    "imageUrl": "/cards/cell-games-saga/0433.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-44",
+    "name": "Blue Energy Blast",
+    "set": "Cell Games Saga",
+    "number": 44,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 6
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardAttached",
+          "params": {
+            "target": "SELF"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. If successful, discard any cards attached to your Main Personality. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0443.jpg",
+    "verified": false,
+    "needsReview": "New handler discardAttached (cards attached to own Main Personality)."
+  },
+  {
+    "id": "CG-45",
+    "name": "Blue Prepared Drill",
+    "set": "Cell Games Saga",
+    "number": 45,
+    "type": "Drill",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "constantPower",
+          "params": {
+            "ongoing": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "defenseShield",
+                "params": {
+                  "attackType": "ENERGY",
+                  "count": 1,
+                  "per": "combat"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0453.jpg",
+    "verified": false,
+    "needsReview": "Defense Shield on a drill (see CG-32). Puzzle \"2 of 5 Gohan\"."
+  },
+  {
+    "id": "CG-46",
+    "name": "Blue Recovery Drill",
+    "set": "Cell Games Saga",
+    "number": 46,
+    "type": "Drill",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOwnSuccessfulAttack",
+            "condition": {
+              "minLifeCards": 5
+            },
+            "limit": {
+              "count": 1,
+              "per": "combat"
+            },
+            "optional": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromHand",
+                "params": {
+                  "amount": 1,
+                  "asCost": true
+                }
+              },
+              {
+                "action": "SET_STAGE",
+                "target": "SELF",
+                "value": "MAX"
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Endurance 2. Once per Combat, after dealing 5 or more life cards of damage, discard 1 card from your hand to raise your Main Personality to his highest power rating.",
+    "imageUrl": "/cards/cell-games-saga/0463.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Type bar prints Non-Combat. 'After dealing 5 or more life cards of damage' read as after an own successful attack that dealt >=5 life cards (condition.minLifeCards, as sequencer lifeCardsDealt). 'Highest power rating' read as highest power stage (SET_STAGE MAX)."
+  },
+  {
+    "id": "CG-47",
+    "name": "Blue Pivot Kick",
+    "set": "Cell Games Saga",
+    "number": 47,
+    "type": "Physical Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "stealOrCaptureDragonBall",
+          "params": {
+            "target": "OPPONENT",
+            "which": "choice",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack. If successful, capture an opponent's Dragon Ball.",
+    "imageUrl": "/cards/cell-games-saga/0473.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). Capture read as one Dragon Ball of any kind, no timing difference."
+  },
+  {
+    "id": "CG-48",
+    "name": "Blue Stamina Drill",
+    "set": "Cell Games Saga",
+    "number": 48,
+    "type": "Drill",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0483.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-49",
+    "name": "Blue Total Resistance",
+    "set": "Cell Games Saga",
+    "number": 49,
+    "type": "Combat",
+    "style": "Blue",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 1
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "ANY",
+            "zone": "table",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": 1
+          }
+        },
+        {
+          "action": "MODIFY_STAGES",
+          "target": "SELF",
+          "amount": 2
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "modifyStages",
+            "target": "SELF",
+            "allAllies": true,
+            "amount": 2
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 1. Choose a Drill in play and remove it from the game. Your Main Personality and your Allies gain 2 power stages. Raise your anger 1 level. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0493.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon: played instead of an attack. Drill of either player (target ANY) assumed; 'gain 2 power stages' as MODIFY_STAGES +2 for the MP and each ally."
+  },
+  {
+    "id": "CG-50",
+    "name": "Bracing for Impact",
+    "set": "Cell Games Saga",
+    "number": 50,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "SELF",
+            "attackType": "ENERGY",
+            "maxLifeCards": 2,
+            "maxStages": 0,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Energy attacks do a maximum of 2 life cards and 0 power stages of damage for the remainder of Combat.",
+    "imageUrl": "/cards/cell-games-saga/0503.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon: played instead of an attack. Read as a cap on energy attacks against the user (as CS-147); might apply to all energy attacks of both players."
+  },
+  {
+    "id": "CG-51",
+    "name": "Caught in the Act",
+    "set": "Cell Games Saga",
+    "number": 51,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "DEFEND",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "afterAllyActs"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "stopAndDiscardAlly",
+            "target": "OPPONENT"
+          }
+        }
+      ]
+    },
+    "rawText": "Use when an Ally performs an attack or uses a power. The attack or power is stopped and the Ally is discarded.",
+    "imageUrl": "/cards/cell-games-saga/0514.jpg",
+    "verified": false,
+    "needsReview": "Icon looks like the sword on the image, but the text is a reaction to an ally's action: usePhase DEFEND chosen, verify. New playTiming when 'afterAllyActs' and allyEffect action stopAndDiscardAlly (whose ally: the acting ally, assumed an opponent's, since you would not stop your own)."
+  },
+  {
+    "id": "CG-52",
+    "name": "Cell's Power Burst",
+    "set": "Cell Games Saga",
+    "number": 52,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Cell",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": [
+              "Ally"
+            ],
+            "scope": "OPPONENT",
+            "amount": 2,
+            "upTo": false,
+            "choose": true
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. If successful, discard 2 of your opponent's Allies in play.",
+    "imageUrl": "/cards/cell-games-saga/0524.jpg",
+    "verified": false,
+    "needsReview": "Green frame, no style word: no style. Named Cell (title has the character). Chosen by the attacker; fewer allies = discard what exists."
+  },
+  {
+    "id": "CG-53",
+    "name": "Cell's Instant Transmission",
+    "set": "Cell Games Saga",
+    "number": 53,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "named": "Cell",
+    "usableBy": {
+      "characters": [
+        "Cell"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "nonCombatStep",
+            "keepCombat": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": [
+              "Battleground",
+              "Location"
+            ],
+            "to": "play"
+          }
+        }
+      ]
+    },
+    "rawText": "Cell only. You can use this card during your Non-Combat Step. Search your Life Deck for a Battleground or Location and place it in play. You do not have to skip Combat.",
+    "imageUrl": "/cards/cell-games-saga/0534.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. New playTiming when 'nonCombatStep' with keepCombat (using it does not make the player skip Combat; compare Location cards that skip combat). 'Cell only' = personality Cell (all forms)."
+  },
+  {
+    "id": "CG-54",
+    "name": "Cell's Swift Strike",
+    "set": "Cell Games Saga",
+    "number": 54,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Cell",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -2
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 2,
+            "from": "top",
+            "to": "bottom"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Physical attack. Lower your opponent's anger 2 levels. Take the top 2 cards of your discard pile and place them at the bottom of your Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0544.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Anger and recovery read as unconditional (not tied to success)."
+  },
+  {
+    "id": "CG-55",
+    "name": "Energy Rush",
+    "set": "Cell Games Saga",
+    "number": 55,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "optional",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardLifeBoth",
+                "params": {
+                  "max": 4,
+                  "upTo": true,
+                  "chooser": "SELF"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Focused energy attack. If successful, you may discard up to 4 cards from the top of your Life Deck. Your opponent must discard the same number from the top of his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0554.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). New handler discardLifeBoth (attacker picks 0-4, both players discard that many from the top). Blue frame without style word: no style. Energy attack with no damage figure: default (no damage field, as AS-15)."
+  },
+  {
+    "id": "CG-56",
+    "name": "Everyone Is Attacked!",
+    "set": "Cell Games Saga",
+    "number": 56,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "usableBy": {
+      "alignments": [
+        "Villain"
+      ]
+    },
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 1
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "modifyStagesByAlignment",
+          "params": {
+            "alignment": "Hero",
+            "amount": -3,
+            "target": "ALL",
+            "includeAllies": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 1. Villains only. Every hero loses 3 power stages. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0564.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon. New handler modifyStagesByAlignment: every hero personality in play (main personalities and allies, either side) loses 3 stages, minimum 0."
+  },
+  {
+    "id": "CG-57",
+    "name": "Fighting in Cover",
+    "set": "Cell Games Saga",
+    "number": 57,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "CHOSEN_PERSONALITY",
+            "attackType": "PHYSICAL",
+            "stages": -2,
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "CHOSEN_PERSONALITY",
+            "attackType": "ENERGY",
+            "lifeCards": -2,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Choose a personality in play. For the remainder of Combat, damage from each physical attack performed by that personality is reduced by 2 power stages, and damage from each energy attack performed by that personality is reduced by 2 life cards.",
+    "imageUrl": "/cards/cell-games-saga/0574.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon. damageModifier new param target CHOSEN_PERSONALITY (the attacker whose attacks are reduced, chosen when played); stages/lifeCards negative = reduction on that personality's attacks."
+  },
+  {
+    "id": "CG-58",
+    "name": "Cell's Backslap",
+    "set": "Cell Games Saga",
+    "number": 58,
+    "type": "Physical Combat",
+    "rarity": "Uncommon",
+    "named": "Cell",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "drawFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 1,
+            "from": "bottom"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack. Draw the bottom card of your discard pile and place it in your hand. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0584.jpg",
+    "verified": false,
+    "needsReview": "Draw read as unconditional."
+  },
+  {
+    "id": "CG-59",
+    "name": "Namekian Restoration",
+    "set": "Cell Games Saga",
+    "number": 59,
+    "type": "Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 10
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amount": 1,
+            "from": "top",
+            "to": "shuffle"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 10. Shuffle the top card of your discard pile back into your Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0594.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon: played instead of an attack. Endurance 10 is the highest seen."
+  },
+  {
+    "id": "CG-60",
+    "name": "Namekian Dragon Blast",
+    "set": "Cell Games Saga",
+    "number": 60,
+    "type": "Energy Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "lifeCardsPerDragonBall": 1,
+            "dragonBallType": "Namek",
+            "anywhere": true,
+            "duration": "thisAttack"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "recoverFromDiscard",
+          "params": {
+            "target": "SELF",
+            "amountPerDragonBall": "Namek",
+            "anywhere": true,
+            "from": "choice",
+            "to": "bottom"
+          }
+        }
+      ]
+    },
+    "rawText": "Namekian Heritage only. Energy attack doing +X life cards of damage. Choose X cards from your discard pile and place them on the bottom of your Life Deck. X = the number of Namek Dragon Balls in play.",
+    "imageUrl": "/cards/cell-games-saga/0604.jpg",
+    "verified": false,
+    "needsReview": "'Namekian Heritage only' = Piccolo and Nail (as CS-11). damageModifier lifeCardsPerDragonBall with new dragonBallType; recoverFromDiscard new param amountPerDragonBall. All Namek Dragon Balls in play, either owner. Recovery read as unconditional."
+  },
+  {
+    "id": "CG-61",
+    "name": "Namekian Energy Spike",
+    "set": "Cell Games Saga",
+    "number": 61,
+    "type": "Energy Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "limitPerDeck": 8,
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 2,
+      "lifeCards": 4
+    },
+    "effects": {
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Namekian Heritage only. You can have up to 8 copies of this card in your deck. Energy attack doing +2 power stages of damage. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0614.jpg",
+    "verified": false,
+    "needsReview": "'Namekian Heritage only' = Piccolo and Nail (as CS-11). +2 power stages read as FLAT 4 life cards + 2 stages (as CS-63)."
+  },
+  {
+    "id": "CG-62",
+    "name": "Namekian Face Smack",
+    "set": "Cell Games Saga",
+    "number": 62,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "rearrangeDiscard",
+                "params": {
+                  "count": 10,
+                  "ends": [
+                    "top",
+                    "bottom"
+                  ],
+                  "optional": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. If you declared a Tokui-Waza, you may rearrange the top 10 or bottom 10 cards of your discard pile in any order.",
+    "imageUrl": "/cards/cell-games-saga/0624.jpg",
+    "verified": false,
+    "needsReview": "New handler rearrangeDiscard (the user picks the top or bottom 10 and orders them). Timing not printed: read as when the card resolves."
+  },
+  {
+    "id": "CG-63",
+    "name": "Namekian Piercing Beam",
+    "set": "Cell Games Saga",
+    "number": 63,
+    "type": "Energy Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": [
+              "Ally"
+            ],
+            "scope": "OPPONENT",
+            "amount": 1,
+            "choose": true
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Energy attack. If successful, discard one of your opponent's Allies in play. Lower your opponent's anger 1 level.",
+    "imageUrl": "/cards/cell-games-saga/0634.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Anger loss read as unconditional (not tied to 'if successful'), as TS-66."
+  },
+  {
+    "id": "CG-64",
+    "name": "Namekian Power Stance Drill",
+    "set": "Cell Games Saga",
+    "number": 64,
+    "type": "Drill",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0644.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-65",
+    "name": "Namekian Quick Blast",
+    "set": "Cell Games Saga",
+    "number": 65,
+    "type": "Energy Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "removeAndShuffleFromDiscard",
+          "params": {
+            "choose": 4,
+            "upTo": true,
+            "remove": 2,
+            "shuffleRest": true
+          }
+        }
+      ]
+    },
+    "rawText": "Focused energy attack doing 5 life cards of damage. If successful, choose up to 4 cards in your discard pile. Remove 2 of them from the game. Shuffle the remaining cards back into your Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0654.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). New handler removeAndShuffleFromDiscard (pick up to 4 discards, remove 2 of them, shuffle the rest into the Life Deck; with fewer than 3 chosen, all are removed up to 2)."
+  },
+  {
+    "id": "CG-66",
+    "name": "Namekian Ready Drill",
+    "set": "Cell Games Saga",
+    "number": 66,
+    "type": "Drill",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "ENERGY",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0664.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-67",
+    "name": "Namekian Right Cross",
+    "set": "Cell Games Saga",
+    "number": 67,
+    "type": "Physical Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "usableBy": {
+      "characters": [
+        "Piccolo",
+        "Nail"
+      ]
+    },
+    "limitPerDeck": 8,
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardAttachedCards",
+                "params": {
+                  "target": "SELF",
+                  "optional": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Namekian Heritage only. You can have up to 8 copies of this card in your deck. Physical attack doing +2 power stages of damage. If you declared a Tokui-Waza, you may discard any cards attached to your Main Personality.",
+    "imageUrl": "/cards/cell-games-saga/0674.jpg",
+    "verified": false,
+    "needsReview": "'Namekian Heritage only' = Piccolo and Nail (as CS-11). New handler discardAttachedCards (discard cards attached to the user's own MP, see AS-36)."
+  },
+  {
+    "id": "CG-68",
+    "name": "Namekian Scouting",
+    "set": "Cell Games Saga",
+    "number": 68,
+    "type": "Combat",
+    "style": "Namekian",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 4
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "lookAtTopCards",
+          "params": {
+            "target": "OPPONENT",
+            "count": 4,
+            "remove": 1,
+            "removeFilter": "non-Dragon Ball",
+            "rest": "putBackAnyOrder"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 4. Look at the top 4 cards of your opponent's Life Deck. Remove 1 non-Dragon Ball card from the game and put the rest back in any order on top of the Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0684.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Sword icon. Reuses lookAtTopCards (CS-100, not implemented yet) with new params target OPPONENT, remove, removeFilter, rest."
+  },
+  {
+    "id": "CG-69",
+    "name": "Orange Beatdown",
+    "set": "Cell Games Saga",
+    "number": 69,
+    "type": "Physical Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "discardFromOpponentHand",
+          "params": {
+            "target": "OPPONENT",
+            "amount": 1,
+            "selection": "choice",
+            "viewHand": true,
+            "filter": "Physical Combat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. Physical attack. If successful, look at your opponent's hand and choose a Physical Combat card. Your opponent discards the chosen card, if any.",
+    "imageUrl": "/cards/cell-games-saga/0694.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Params as AS-90 with new filter."
+  },
+  {
+    "id": "CG-70",
+    "name": "Orange Burning Aura Drill",
+    "set": "Cell Games Saga",
+    "number": 70,
+    "type": "Drill",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0704.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-71",
+    "name": "Orange Energy Concentration",
+    "set": "Cell Games Saga",
+    "number": 71,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "cost": {
+      "type": "POWER_STAGES",
+      "amount": 3
+    },
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "discardFromOpponentHand",
+                "params": {
+                  "target": "OPPONENT",
+                  "amount": 1,
+                  "selection": "opponentChoice"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Energy attack. Costs 3 power stages to perform. If successful, and you declared a Tokui-Waza, your opponent discards a card from his hand.",
+    "imageUrl": "/cards/cell-games-saga/0714.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Opponent chooses the card (selection opponentChoice), not random."
+  },
+  {
+    "id": "CG-72",
+    "name": "Orange Energy Setup",
+    "set": "Cell Games Saga",
+    "number": 72,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "dualUse",
+          "params": {
+            "alternative": {
+              "combatRole": "DEFENSE_PHYSICAL",
+              "defense": {
+                "mode": "STOP"
+              },
+              "requires": {
+                "tokuiWaza": true
+              }
+            }
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack. If you declared a Tokui-Waza, you may use this card to stop a physical attack instead. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0724.jpg",
+    "verified": false,
+    "needsReview": "dualUse as SS-13 with a Tokui-Waza requirement on the alternative (new key requires.tokuiWaza). Printed as an attack (sword icon); no damage figure: default energy damage."
+  },
+  {
+    "id": "CG-73",
+    "name": "Orange Energy Shot",
+    "set": "Cell Games Saga",
+    "number": 73,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 6
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifStopped",
+          "params": {
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "OPPONENT",
+                "amount": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 6 life cards of damage. If stopped, your opponent must discard the top 2 cards of his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0734.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-74",
+    "name": "Orange Fateful Attack",
+    "set": "Cell Games Saga",
+    "number": 74,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Dende Dragon Ball",
+            "to": "play",
+            "withoutPower": true
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Energy attack. If successful, find a Dende Dragon Ball in your Life Deck and place it in play without using its power.",
+    "imageUrl": "/cards/cell-games-saga/0744.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). searchDeck new param withoutPower (the Dragon Ball's raise-to-full / anger effect is skipped). Not shuffled: no shuffle printed."
+  },
+  {
+    "id": "CG-75",
+    "name": "Orange Aggressive Technique",
+    "set": "Cell Games Saga",
+    "number": 75,
+    "type": "Physical Combat",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "ENERGY",
+            "lifeCards": 2,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +2 power stages of damage. If successful, all energy attacks this personality performs for the remainder of Combat do +2 life cards of damage.",
+    "imageUrl": "/cards/cell-games-saga/0754.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). "
+  },
+  {
+    "id": "CG-76",
+    "name": "Orange Steady Drill",
+    "set": "Cell Games Saga",
+    "number": 76,
+    "type": "Drill",
+    "style": "Orange",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "ENERGY",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0764.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-77",
+    "name": "Piccolo's Fury",
+    "set": "Cell Games Saga",
+    "number": 77,
+    "type": "Energy Combat",
+    "rarity": "Uncommon",
+    "named": "Piccolo",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "skipFightBack",
+          "params": {
+            "then": "attackerAttacks",
+            "requireAttackType": "ENERGY",
+            "orPass": true
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If successful, skip the next \"Fight Back\" phase and go to your \"Attacker Attacks\" phase, instead. You must play an energy attack during that \"Attacker Attacks\" phase or pass.",
+    "imageUrl": "/cards/cell-games-saga/0774.jpg",
+    "verified": false,
+    "needsReview": "Red frame, no style word: no style. New phase name 'Fight Back' (not in the Pure 2000 turn structure; presumably the defender's counterattack). New handler skipFightBack."
+  },
+  {
+    "id": "CG-78",
+    "name": "Prepared Dodge",
+    "set": "Cell Games Saga",
+    "number": 78,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "combatRole": "DEFENSE_ANY",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": -1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical or energy attack. Lower your opponent's anger 1 level. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0784.jpg",
+    "verified": false,
+    "needsReview": "Starburst icon: DEFENSE_ANY."
+  },
+  {
+    "id": "CG-79",
+    "name": "Protective Shelter",
+    "set": "Cell Games Saga",
+    "number": 79,
+    "type": "Location",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "combatStart",
+            "scope": "ALL",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "drawFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 1,
+                  "from": "bottom"
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "When entering Combat draw the bottom card of your discard pile.",
+    "imageUrl": "/cards/cell-games-saga/0794.jpg",
+    "verified": false,
+    "needsReview": "Location (landscape image). Read as applying to every player who enters Combat (scope ALL, as other Locations); could be owner only. 'When entering Combat' = both attacker and defender."
+  },
+  {
+    "id": "CG-80",
+    "name": "Quick Combat Drill",
+    "set": "Cell Games Saga",
+    "number": 80,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "combatStart",
+            "role": "defender",
+            "optional": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "drawFromDiscard",
+                "params": {
+                  "target": "SELF",
+                  "amount": 1,
+                  "from": "bottom"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "modifyCombatDraw",
+                "params": {
+                  "target": "SELF",
+                  "amount": -1
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Whenever entering Combat as the defender, you may draw the bottom card of your discard pile into your hand. If you do this you draw 1 less card during your \"Defender Draws 3 Cards\" phase.",
+    "imageUrl": "/cards/cell-games-saga/0804.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat. Uses the modifyCombatDraw handler of CS-176."
+  },
+  {
+    "id": "CG-81",
+    "name": "Red Energy Drill",
+    "set": "Cell Games Saga",
+    "number": 81,
+    "type": "Drill",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "ENERGY",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0814.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-82",
+    "name": "Red Energy Surprise",
+    "set": "Cell Games Saga",
+    "number": 82,
+    "type": "Energy Combat",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 3
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 2
+        }
+      ]
+    },
+    "rawText": "Focused energy attack doing 3 life cards of damage. If successful, gain 2 anger.",
+    "imageUrl": "/cards/cell-games-saga/0824.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). 'gain 2 anger' read as raise your anger 2 levels."
+  },
+  {
+    "id": "CG-83",
+    "name": "Red Forward Stance Drill",
+    "set": "Cell Games Saga",
+    "number": 83,
+    "type": "Drill",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0834.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-84",
+    "name": "Red Overhand Slash",
+    "set": "Cell Games Saga",
+    "number": 84,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 1,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focused",
+          "params": {}
+        }
+      ],
+      "onHit": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 2
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +1 power stages of damage. If successful, raise your anger 2 levels.",
+    "imageUrl": "/cards/cell-games-saga/0844.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Focused' (handler focused, meaning unknown). Printed '+1 power stages' (plural) kept verbatim."
+  },
+  {
+    "id": "CG-85",
+    "name": "Red Power Punch",
+    "set": "Cell Games Saga",
+    "number": 85,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Red Drill",
+            "to": "play"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. Physical attack doing +3 power stages of damage. If successful, search your Life Deck for a Red Drill and place it into play.",
+    "imageUrl": "/cards/cell-games-saga/0854.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). "
+  },
+  {
+    "id": "CG-86",
+    "name": "Red Shielded Strike",
+    "set": "Cell Games Saga",
+    "number": 86,
+    "type": "Physical Combat",
+    "style": "Red",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "cardType": "Energy Combat"
+            },
+            "scope": "OPPONENT",
+            "duringCombat": true,
+            "duration": "thisCombat"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 2. Physical attack. If successful, your opponent may not play Energy Combat cards for the remainder of Combat. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0864.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Energy Combat cards read as the card type (not the personality's energy attacks from powers)."
+  },
+  {
+    "id": "CG-87",
+    "name": "Saiyan Energy Drill",
+    "set": "Cell Games Saga",
+    "number": 87,
+    "type": "Drill",
+    "style": "Saiyan",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "ENERGY",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped energy attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0874.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-88",
+    "name": "Saiyan Protection Drill",
+    "set": "Cell Games Saga",
+    "number": 88,
+    "type": "Drill",
+    "style": "Saiyan",
+    "rarity": "Uncommon",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "defenseShield",
+          "params": {
+            "attackType": "PHYSICAL",
+            "count": 1,
+            "per": "combat",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Defense Shield: Stops the first unstopped physical attack performed against you during Combat.",
+    "imageUrl": "/cards/cell-games-saga/0884.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill (title; drill icon). Defense Shield as TS drills: defenseShield in onEnterPlay, ongoing."
+  },
+  {
+    "id": "CG-89",
+    "name": "Saiyan Pride",
+    "set": "Cell Games Saga",
+    "number": 89,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "rarity": "Uncommon",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifStopped",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "removeFromGame",
+                "params": {
+                  "target": "ANY",
+                  "zone": "table",
+                  "cardTypes": [
+                    "Drill"
+                  ],
+                  "amount": 1
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Endurance 2. Physical attack. If stopped, select a Drill in play and remove it from the game. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/0894.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Drill of either player (target ANY) assumed."
+  },
+  {
+    "id": "CG-90",
+    "name": "Senzu Drill",
+    "set": "Cell Games Saga",
+    "number": 90,
+    "type": "Drill",
+    "rarity": "Uncommon",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": {
+              "titleContains": "Senzu"
+            },
+            "amount": 1,
+            "to": "hand",
+            "oncePerTurn": true,
+            "timing": [
+              "inPlaceOfAttack",
+              "nonCombatStep"
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Endurance 3. Heroes only. Once per turn, in place of an attack or during your Non-Combat Step, you may search your Life Deck for 1 card with \"Senzu\" in the title and place it into your hand.",
+    "imageUrl": "/cards/cell-games-saga/0904.jpg",
+    "verified": false,
+    "needsReview": "New keyword 'Endurance N' (handler endurance, meaning unknown, no rulebook). Type bar prints Non-Combat. No style (colorless). searchDeck new params filter.titleContains, oncePerTurn, timing (a usable drill power, like CS-100). Shuffle not printed."
+  },
+  {
+    "id": "CG-91",
+    "name": "Something Dangerous is Coming!",
+    "set": "Cell Games Saga",
+    "number": 91,
+    "type": "Combat",
+    "rarity": "Uncommon",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "sweepCards",
+          "params": {
+            "cardType": "Ally",
+            "scope": "OPPONENT",
+            "amount": 1,
+            "choose": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Ally",
+            "to": "play",
+            "setPowerStage": 3
+          }
+        }
+      ]
+    },
+    "rawText": "Discard one of your opponent's Allies in play. Search your Life Deck for an Ally and place it in play at 3 power stages above 0.",
+    "imageUrl": "/cards/cell-games-saga/0914.jpg",
+    "verified": false,
+    "needsReview": "Sword icon: usePhase ATTACK. sweepCards (Ally, one, owner picks) + searchDeck setPowerStage 3 as AS-34."
+  },
+  {
+    "id": "CG-92",
+    "name": "Tien's Block",
+    "set": "Cell Games Saga",
+    "number": 92,
+    "type": "Physical Combat",
+    "named": "Tien",
+    "rarity": "Uncommon",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "discard",
+            "filter": "Drill",
+            "to": "play"
+          }
+        }
+      ]
+    },
+    "rawText": "Stops a physical attack. Raise your anger 1 level. Search your discard pile for a Drill and place it in play.",
+    "imageUrl": "/cards/cell-games-saga/0924.jpg",
+    "verified": false,
+    "needsReview": "searchDeck from discard, filter Drill, to play (no stage). Starburst icon."
+  },
+  {
+    "id": "CG-93",
+    "name": "Blue Windup Blast",
+    "set": "Cell Games Saga",
+    "number": 93,
+    "type": "Energy Combat",
+    "style": "Blue",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "ENERGY",
+            "lifeCardsPerDiscardedCardOfRarity": {
+              "rarity": "Uncommon",
+              "pile": "discard",
+              "amount": 1
+            },
+            "maxLifeCards": 10,
+            "duration": "thisAttack"
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack doing 1 life card of damage for each Uncommon card in your discard pile, to a maximum of 10 life cards.",
+    "imageUrl": "/cards/cell-games-saga/0934.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. damage FLAT 0 life cards plus damageModifier with new params lifeCardsPerDiscardedCardOfRarity / maxLifeCards / replaceBase (damage replaces the default 4 life cards)."
+  },
+  {
+    "id": "CG-94",
+    "name": "Cell Jr. 1 Lv1",
+    "set": "Cell Games Saga",
+    "number": 94,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Cell Jr. 1",
+      "level": 1,
+      "powerRatings": [
+        0,
+        2100000,
+        2200000,
+        2300000,
+        2400000,
+        2500000,
+        2600000,
+        2700000,
+        2800000,
+        2900000,
+        3000000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Search your Life Deck or discard pile for a Cell Jr. and place it in play at 3 power stages above 0.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "searchDeck",
+                "params": {
+                  "from": [
+                    "lifeDeck",
+                    "discard"
+                  ],
+                  "filter": "Cell Jr.",
+                  "to": "play",
+                  "setPowerStage": 3
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Search your Life Deck or discard pile for a Cell Jr. and place it in play at 3 power stages above 0.",
+    "imageUrl": "/cards/cell-games-saga/0944.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Cell Jr. 1' (the 1 is a numbering of the Cell Jr. variants, '1 of 4 Cell Jr.' puzzle box), level 1. New character Cell Jr.: alignment assumed Villain. Character stored as 'Cell Jr. 1' (separate from 'Cell Jr. 2' so several Cell Jr. can be allies at once under the one-per-character-and-level ally rule); reviewer to confirm. searchDeck from both lifeDeck and discard (new: from as list)."
+  },
+  {
+    "id": "CG-95",
+    "name": "Injured",
+    "set": "Cell Games Saga",
+    "number": 95,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "playTiming",
+          "params": {
+            "when": "afterOwnSuccessfulPhysicalAttack"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attached": true,
+            "attachTo": "choice",
+            "attackType": "ANY",
+            "stages": -2,
+            "lifeCards": -2,
+            "until": "attachedPersonalityAtHighestStage",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Attach this card to a personality after you perform a successful physical attack. All attacks performed by this personality do -2 power stages and -2 life cards of damage. Discard this card when this personality is at its highest power stage.",
+    "imageUrl": "/cards/cell-games-saga/0954.jpg",
+    "verified": false,
+    "needsReview": "Attached card: new playTiming value afterOwnSuccessfulPhysicalAttack; damageModifier with new params attached / until. 'a personality' read as any main personality chosen on play (own or opponent's). Yamcha in the box is a puzzle name, not named. Printed -2 stages AND -2 life cards (both)."
+  },
+  {
+    "id": "CG-96",
+    "name": "Saiyan Face Smash",
+    "set": "Cell Games Saga",
+    "number": 96,
+    "type": "Physical Combat",
+    "style": "Saiyan",
+    "usableBy": {
+      "characters": [
+        "Vegeta",
+        "Goku",
+        "Gohan",
+        "Nappa",
+        "Raditz",
+        "Trunks"
+      ]
+    },
+    "rarity": "Rare",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 3,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "afterOpponentPlaysCard",
+            "cardType": "Physical Combat",
+            "duration": "thisCombat",
+            "then": [
+              {
+                "action": "DISCARD_LIFE",
+                "target": "OPPONENT",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Saiyan Heritage only. Physical attack doing +3 power stages of damage. For the remainder of Combat, whenever your opponent uses a Physical Combat card, he has to discard the top card of his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/0964.jpg",
+    "verified": false,
+    "needsReview": "Saiyan Heritage = Vegeta, Goku, Gohan, Nappa, Raditz, Trunks as TS-50. triggeredEffect with new trigger afterOpponentPlaysCard (cardType filter), duration thisCombat."
+  },
+  {
+    "id": "CG-97",
+    "name": "Surprise Hit",
+    "set": "Cell Games Saga",
+    "number": 97,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "stagesPerDiscardedCardOfType": {
+              "cardType": "Non-Combat",
+              "pile": "discard",
+              "amount": 1
+            },
+            "duration": "thisAttack"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +1 power stages of damage for each Non-Combat card in your discard pile.",
+    "imageUrl": "/cards/cell-games-saga/0974.jpg",
+    "verified": false,
+    "needsReview": "Printed '+1 power stages'. damageModifier with new param stagesPerDiscardedCardOfType."
+  },
+  {
+    "id": "CG-98",
+    "name": "Cell Jr. 2 Lv1",
+    "set": "Cell Games Saga",
+    "number": 98,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Cell Jr. 2",
+      "level": 1,
+      "powerRatings": [
+        0,
+        2100000,
+        2200000,
+        2300000,
+        2400000,
+        2500000,
+        2600000,
+        2700000,
+        2800000,
+        2900000,
+        3000000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Physical attack doing +1 power stage of damage for each Cell Jr. you control.",
+        "strike": {
+          "combatRole": "ATTACK_PHYSICAL",
+          "damage": {
+            "calculation": "PAT"
+          },
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "attackType": "PHYSICAL",
+                  "stagesPerOwnCharacterWithTitle": {
+                    "titleContains": "Cell Jr.",
+                    "includeMain": true,
+                    "amount": 1
+                  },
+                  "duration": "thisAttack"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Physical attack doing +1 power stage of damage for each Cell Jr. you control.",
+    "imageUrl": "/cards/cell-games-saga/0984.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Cell Jr. 2' ('3 of 4 Cell Jr.'), level 1. New character: alignment assumed Villain; see CG-94 for the 'Cell Jr. 1 / 2' naming question. damageModifier with new param stagesPerOwnCharacterWithTitle (counts the main personality and allies in play whose title contains 'Cell Jr.')."
+  },
+  {
+    "id": "CG-99",
+    "name": "Goku's Farewell",
+    "set": "Cell Games Saga",
+    "number": 99,
+    "type": "Non-Combat",
+    "named": "Goku",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "angerLock",
+          "params": {
+            "target": "SELF",
+            "direction": "lower",
+            "includesSet": true,
+            "duration": "game",
+            "ongoing": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "setLevel",
+          "params": {
+            "target": "SELF",
+            "level": "MAX",
+            "stage": "MAX"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventVictory",
+          "params": {
+            "target": "SELF",
+            "victoryType": "mostPowerfulPersonality",
+            "duration": "game"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "turnStart",
+            "role": "self",
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 1
+              }
+            ],
+            "ongoing": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "loseGameAtAnger",
+          "params": {
+            "target": "SELF",
+            "anger": 5,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "For the remainder of the game nothing can keep you from gaining anger. Your anger cannot be lowered or set. Advance to your highest Main Personality level and power stage. You cannot win by the Most Powerful Personality Victory. At the beginning of each of your turns you gain 1 anger. When you reach 5 anger you lose the game.",
+    "imageUrl": "/cards/cell-games-saga/0994.jpg",
+    "verified": false,
+    "needsReview": "New rules combination. angerLock with new param direction 'lower' (also blocks setting; inverse of the existing 'cannot raise'), setLevel with level MAX, preventVictory with new params target SELF / victoryType, new handler loseGameAtAnger. 'nothing can keep you from gaining anger' encoded as no anger-gain prevention (ignores locks). Printed in small type; read fully."
+  },
+  {
+    "id": "CG-100",
+    "name": "Korin's Tower",
+    "set": "Cell Games Saga",
+    "number": 100,
+    "type": "Location",
+    "named": "Korin",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "placeAllyInsteadOfAttack",
+          "params": {
+            "from": "hand",
+            "setPowerStage": 3,
+            "optional": true,
+            "scope": "ALL",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "In place of an attack, you may place an Ally from your hand into play at 3 power stages above 0.",
+    "imageUrl": "/cards/cell-games-saga/1004.jpg",
+    "verified": false,
+    "needsReview": "Landscape Location card. Named Korin from the title. New handler placeAllyInsteadOfAttack (modelled on playNonCombatInsteadOfAttack AS-125). scope ALL assumed (any player may use a Location in play; 'you' read as the acting player)."
+  },
+  {
+    "id": "CG-101",
+    "name": "The Power of the Dragon",
+    "set": "Cell Games Saga",
+    "number": 101,
+    "type": "Combat",
+    "limitPerDeck": 1,
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": [
+              "lifeDeck",
+              "discard"
+            ],
+            "filter": "Ally",
+            "to": "play",
+            "setPowerStage": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "table",
+            "cardTypes": [
+              "Dragon Ball"
+            ],
+            "amount": "all"
+          }
+        }
+      ]
+    },
+    "rawText": "Select an Ally from your Life Deck or discard pile and place it in play at 3 power stages above 0. Shuffle all of your opponent's Dragon Balls back into his Life Deck. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/1014.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. 'Dragon Balls' read as the opponent's Dragon Balls in play (shuffleIntoLifeDeck zone table, as TS-120 with amount all); could also include ones in other zones. No 'remove from the game' printed: DISCARD."
+  },
+  {
+    "id": "CG-102",
+    "name": "Megaton Bull Crusher",
+    "set": "Cell Games Saga",
+    "number": 102,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "stagesPerDiscardedCardOfRarity": {
+              "rarity": "Common",
+              "pile": "discard",
+              "amount": 1
+            },
+            "maxStages": 10,
+            "duration": "thisAttack"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +1 power stages of damage for each Common card in your discard pile, to a maximum of +10 power stages.",
+    "imageUrl": "/cards/cell-games-saga/1024.jpg",
+    "verified": false,
+    "needsReview": "damageModifier with new params stagesPerDiscardedCardOfRarity / maxStages."
+  },
+  {
+    "id": "CG-103",
+    "name": "Orange Energy Smash",
+    "set": "Cell Games Saga",
+    "number": 103,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "preventAttack",
+                "params": {
+                  "target": "OPPONENT",
+                  "attackType": "ENERGY",
+                  "duration": "nextPhase"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If you declared a Tokui-Waza, your opponent cannot perform an energy attack during his next \"Attacker Attacks\" phase.",
+    "imageUrl": "/cards/cell-games-saga/1034.jpg",
+    "verified": false,
+    "needsReview": "preventAttack duration nextPhase as the Saiyan Saga cards."
+  },
+  {
+    "id": "CG-104",
+    "name": "Blue Fist Smash",
+    "set": "Cell Games Saga",
+    "number": 104,
+    "type": "Physical Combat",
+    "style": "Blue",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focusedAttack"
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "SELF",
+            "attackType": "ANY",
+            "preventStagesOrLifeCards": "stagesDealtByThisAttack",
+            "forNextAttacks": 1,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Focused physical attack doing +2 power stages of damage. If successful, prevent X power stages or life cards of damage from the next attack performed against this personality this Combat. X = power stages of damage dealt by this attack.",
+    "imageUrl": "/cards/cell-games-saga/1044.jpg",
+    "verified": false,
+    "needsReview": "'Focused' is a new keyword (marker handler focusedAttack, rules effect unknown, see notes). damageModifier with new params preventEqualToDealt / forNextAttacks (life cards or stages, X = stages dealt by this attack)."
+  },
+  {
+    "id": "CG-105",
+    "name": "Double Teaming",
+    "set": "Cell Games Saga",
+    "number": 105,
+    "type": "Combat",
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "requiresCondition",
+          "params": {
+            "mustBeUsedBy": "MAIN_PERSONALITY"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "ANY",
+            "stagesPerAllyInPlay": 1,
+            "anywhere": true,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. This card must be used by your Main Personality. All attacks performed by this personality for the remainder of Combat do +1 power stages of damage for each Ally in play.",
+    "imageUrl": "/cards/cell-games-saga/1054.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. 'Endurance' is a new keyword (marker handler endurance, rules meaning unknown, see notes). requiresCondition mustBeUsedBy MAIN_PERSONALITY. damageModifier with new param stagesPerAllyInPlay (all allies in play, any player; could mean own allies only)."
+  },
+  {
+    "id": "CG-106",
+    "name": "Straining Rebirth Move",
+    "set": "Cell Games Saga",
+    "number": 106,
+    "type": "Physical Combat",
+    "limitPerDeck": 1,
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "SELF",
+            "zone": "discard",
+            "amount": "choice",
+            "choices": [
+              5,
+              9,
+              1
+            ],
+            "choice": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "OPPONENT",
+            "zone": "discard",
+            "amountMultiplierOfOwn": 2,
+            "choice": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Choose 5, 9, or 1 card from your discard pile and shuffle them into your Life Deck. Your opponent shuffles twice as many cards into his Life Deck. Remove from the game after use. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/1064.jpg",
+    "verified": false,
+    "needsReview": "Number list read as printed ('5, 9, or 1'; looks like a misprint, maybe 1, 3 or 5). Printed type Physical Combat with a sword but no attack: COMBAT_EFFECT usePhase ATTACK. Opponent's source pile not printed: assumed his discard pile. New params choices / multiplier on shuffleIntoLifeDeck. Straining Move: no style."
+  },
+  {
+    "id": "CG-107",
+    "name": "Android 18's Effect",
+    "set": "Cell Games Saga",
+    "number": 107,
+    "type": "Energy Combat",
+    "named": "Android 18",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_ENERGY",
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "stealOrCaptureDragonBall",
+          "params": {
+            "target": "OPPONENT",
+            "which": "choice",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "Energy attack. If successful, capture a Dragon Ball from your opponent.",
+    "imageUrl": "/cards/cell-games-saga/1074.jpg",
+    "verified": false,
+    "needsReview": "As TS-66 (stealOrCaptureDragonBall on hit). Green frame, no style word. Printed title with trademark symbol dropped."
+  },
+  {
+    "id": "CG-108",
+    "name": "Aura Clash",
+    "set": "Cell Games Saga",
+    "number": 108,
+    "type": "Combat",
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 6
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "OPPONENT",
+          "amount": 6
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventVictory",
+          "params": {
+            "target": "SELF",
+            "victoryType": "mostPowerfulPersonality",
+            "duration": "game"
+          }
+        }
+      ]
+    },
+    "rawText": "Both players gain 6 anger. You cannot win by the Most Powerful Personality Victory.",
+    "imageUrl": "/cards/cell-games-saga/1084.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. 'Both players' = user and opponent. Duration of the victory restriction not printed: encoded duration game (alternative: this card only / this combat). preventVictory with new params target SELF / victoryType."
+  },
+  {
+    "id": "CG-109",
+    "name": "Group Attack",
+    "set": "Cell Games Saga",
+    "number": 109,
+    "type": "Energy Combat",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "allyEffect",
+          "params": {
+            "action": "performedByAlly",
+            "requirement": true,
+            "eachAllyOncePerCard": true
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "staysForExtraUse",
+          "params": {
+            "uses": 2
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Energy attack doing 5 life cards of damage. Must be performed by an Ally that has not performed this attack this Combat. This card stays on the table to be used 2 more times this Combat. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/1094.jpg",
+    "verified": false,
+    "needsReview": "Attack performed by an ally: allyEffect with new action performedByAlly (requirement; each ally once per card use). staysForExtraUse uses 2 as SS-25."
+  },
+  {
+    "id": "CG-110",
+    "name": "Orange Focused Attack",
+    "set": "Cell Games Saga",
+    "number": 110,
+    "type": "Energy Combat",
+    "style": "Orange",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_ENERGY",
+    "damage": {
+      "calculation": "FLAT",
+      "stages": 0,
+      "lifeCards": 5
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "focusedAttack"
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "target": "SELF",
+            "attackType": "PHYSICAL",
+            "preventAll": true,
+            "duration": "opponentNextAttackerAttacksPhase"
+          }
+        }
+      ]
+    },
+    "rawText": "Focused energy attack doing 5 life cards of damage. If successful, prevent all damage from any physical attack during your opponent's next \"Attacker Attacks\" phase.",
+    "imageUrl": "/cards/cell-games-saga/1104.jpg",
+    "verified": false,
+    "needsReview": "'Focused' marker handler. damageModifier with new params preventAll / duration opponentNextAttackerAttacksPhase (reads 'your opponent's next phase' = his next attacker phase)."
+  },
+  {
+    "id": "CG-111",
+    "name": "Caught Off Guard Drill",
+    "set": "Cell Games Saga",
+    "number": 111,
+    "type": "Drill",
+    "usableBy": {
+      "alignments": [
+        "Hero"
+      ]
+    },
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "nameChosen": true,
+              "excludeTypes": [
+                "Dragon Ball"
+              ]
+            },
+            "scope": "ALL",
+            "duration": "whileInPlay",
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Heroes only. When this Drill is placed in play, name a non-Dragon Ball card. That card cannot be played or used by either player while this Drill is in play.",
+    "imageUrl": "/cards/cell-games-saga/1114.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. forbidCards with new filter nameChosen / chosenWhen onEnter (as removeNamedCardFromDecks). Cell 2 of 6 in the box is a puzzle name. Blue frame, no style word."
+  },
+  {
+    "id": "CG-112",
+    "name": "Vegeta's Anger Drill",
+    "set": "Cell Games Saga",
+    "number": 112,
+    "type": "Drill",
+    "named": "Vegeta",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "grantEndurance",
+          "params": {
+            "target": "SELF",
+            "zone": "lifeDeck",
+            "cardTypes": [
+              "Non-Combat"
+            ],
+            "onlyIfNone": true,
+            "amount": 1,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "All Non-Combat cards in your Life Deck that do not have Endurance on them are considered to have Endurance 1 while this Drill is in play.",
+    "imageUrl": "/cards/cell-games-saga/1124.jpg",
+    "verified": false,
+    "needsReview": "Type bar prints Non-Combat; typed Drill. New handler grantEndurance (depends on the Endurance rules, unknown)."
+  },
+  {
+    "id": "CG-113",
+    "name": "Who's da Man!",
+    "set": "Cell Games Saga",
+    "number": 113,
+    "type": "Non-Combat",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 3
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "revealHand",
+          "params": {
+            "target": "SELF",
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "PHYSICAL",
+            "stages": 4,
+            "duration": "thisCombat"
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 3. For the remainder of Combat, play with your hand face up on the table. All of your physical attacks do +4 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/1134.jpg",
+    "verified": false,
+    "needsReview": "Endurance marker. revealHand with new params target SELF / duration thisCombat; damageModifier scope OWNER duration thisCombat. Hercule in the box is a puzzle name."
+  },
+  {
+    "id": "CG-114",
+    "name": "Dende Lv2",
+    "set": "Cell Games Saga",
+    "number": 114,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Dende",
+      "level": 2,
+      "powerRatings": [
+        0,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000,
+        2100,
+        2200,
+        2300,
+        2400
+      ],
+      "pur": 3,
+      "alignment": "Hero",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "Whenever you redirect damage to one of your other Allies, prevent 3 power stages from that attack. Dende does not have to take over Combat to use this Constant Combat Power.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "attackType": "ANY",
+                        "preventStages": 3,
+                        "condition": {
+                          "damageRedirectedToOtherAlly": true
+                        },
+                        "protects": [
+                          "Dende"
+                        ],
+                        "worksWithoutTakingOver": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Whenever you redirect damage to one of your other Allies, prevent 3 power stages from that attack. Dende does not have to take over Combat to use this Constant Combat Power.",
+    "imageUrl": "/cards/cell-games-saga/1144.jpg",
+    "verified": false,
+    "needsReview": "damageModifier with new params preventStages / condition damageRedirectedToOtherAlly / worksWithoutTakingOver. Alignment Hero follows FS-48 Dende Lv1. Printed 'Dende' with trademark symbol."
+  },
+  {
+    "id": "CG-115",
+    "name": "Cell Jr. 1 Lv2",
+    "set": "Cell Games Saga",
+    "number": 115,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Cell Jr. 1",
+      "level": 2,
+      "powerRatings": [
+        0,
+        2100000,
+        2200000,
+        2300000,
+        2400000,
+        2500000,
+        2600000,
+        2700000,
+        2800000,
+        2900000,
+        3000000
+      ],
+      "pur": 2,
+      "alignment": "Villain",
+      "power": {
+        "name": "Power",
+        "text": "Energy attack doing +1 life cards of damage for every Cell Jr. you control.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "damageModifier",
+                "params": {
+                  "attackType": "ENERGY",
+                  "lifeCardsPerOwnCharacterWithTitle": {
+                    "titleContains": "Cell Jr.",
+                    "includeMain": true,
+                    "amount": 1
+                  },
+                  "duration": "thisAttack"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Energy attack doing +1 life cards of damage for every Cell Jr. you control.",
+    "imageUrl": "/cards/cell-games-saga/1154.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Cell Jr. 1' (2 of 4 Cell Jr.), level 2, same ratings as CG-94. New character: alignment assumed Villain; see CG-94 for the naming question. damageModifier with new param lifeCardsPerOwnCharacterWithTitle."
+  },
+  {
+    "id": "CG-116",
+    "name": "Goku's Dragon Ball Quest",
+    "set": "Cell Games Saga",
+    "number": 116,
+    "type": "Combat",
+    "named": "Goku",
+    "limitPerDeck": 1,
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Dende Dragon Ball",
+            "to": "play",
+            "excludeInPlay": true
+          }
+        }
+      ]
+    },
+    "rawText": "Search your Life Deck for a Dende Dragon Ball that is not currently in play and place it in play. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/1164.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Named Goku. searchDeck filter 'Dende Dragon Ball' with new param excludeInPlay. Dende Dragon Balls are the third set of 7."
+  },
+  {
+    "id": "CG-117",
+    "name": "Chazke Village",
+    "set": "Cell Games Saga",
+    "number": 117,
+    "type": "Location",
+    "rarity": "Rare",
+    "effects": {
+      "onEnterPlay": [
+        {
+          "action": "CUSTOM",
+          "handler": "triggeredEffect",
+          "params": {
+            "trigger": "combatStart",
+            "role": "attacker",
+            "scope": "ALL",
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "searchDeck",
+                      "params": {
+                        "from": "lifeDeck",
+                        "filter": "Ally",
+                        "to": "play",
+                        "setPowerStage": 3
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "When entering Combat, the attacker may search his Life Deck for an Ally and place it in play at 3 power stages above 0.",
+    "imageUrl": "/cards/cell-games-saga/1174.jpg",
+    "verified": false,
+    "needsReview": "Landscape Location card. triggeredEffect combatStart with role attacker, scope ALL (the attacker, whoever it is); wrapped in optional. Not named (Chazke is a place)."
+  },
+  {
+    "id": "CG-118",
+    "name": "Vegeta's Surprised",
+    "set": "Cell Games Saga",
+    "number": 118,
+    "type": "Combat",
+    "named": "Vegeta",
+    "limitPerDeck": 1,
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attached": true,
+            "attachTo": "choice",
+            "attackType": "PHYSICAL",
+            "maxStages": 5,
+            "until": "attachedPerformsEnergyAttack",
+            "removeWhenDone": true,
+            "ongoing": true
+          }
+        }
+      ],
+      "postResolution": "STAYS"
+    },
+    "rawText": "Attach this card to a Main Personality. Remove it from the game when that personality performs an energy attack. This personality does a maximum of 5 power stages of damage with each physical attack. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/1184.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Attached card: damageModifier with maxStages 5, attached, until attachedPerformsEnergyAttack (then removed from the game). Attaches to any Main Personality (chosen on play, own or opponent's: assumed)."
+  },
+  {
+    "id": "CG-119",
+    "name": "Gohan's Elbow Block",
+    "set": "Cell Games Saga",
+    "number": 119,
+    "type": "Physical Combat",
+    "named": "Gohan",
+    "rarity": "Rare",
+    "combatRole": "DEFENSE_PHYSICAL",
+    "defense": {
+      "mode": "STOP"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "discard",
+            "filter": "Gohan named card",
+            "to": "hand"
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Stops a physical attack. Search your discard pile for a Gohan named card and place it in your hand. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/1194.jpg",
+    "verified": false,
+    "needsReview": "Starburst icon. searchDeck from discard to hand, filter 'Gohan named card' (as AS-P7 style filter)."
+  },
+  {
+    "id": "CG-120",
+    "name": "Straining Destruction Move",
+    "set": "Cell Games Saga",
+    "number": 120,
+    "type": "Combat",
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": 0
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "removeFromGame",
+          "params": {
+            "target": "SELF",
+            "zone": "discard",
+            "amount": "all"
+          }
+        },
+        {
+          "action": "DISCARD_LIFE",
+          "target": "OPPONENT",
+          "amount": 5
+        }
+      ]
+    },
+    "rawText": "Set your Main Personality to 0 power stages and remove your discard pile from the game. Your opponent discards the top 5 cards of his Life Deck.",
+    "imageUrl": "/cards/cell-games-saga/1204.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Straining Move: no style. SET_STAGE value 0 (numeric; the 'MAX' alternative exists)."
+  },
+  {
+    "id": "CG-121",
+    "name": "Cosmic Backlash",
+    "set": "Cell Games Saga",
+    "number": 121,
+    "type": "Physical Combat",
+    "rarity": "Rare",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "DRAW",
+          "target": "OPPONENT",
+          "amount": 5
+        }
+      ],
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifTokuiWaza",
+          "params": {
+            "negate": true,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "winGame",
+                "params": {
+                  "target": "SELF"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack. Your opponent draws 5 cards. If successful, and you did not declare a Tokui-Waza, you win the game.",
+    "imageUrl": "/cards/cell-games-saga/1214.jpg",
+    "verified": false,
+    "needsReview": "New: ifTokuiWaza with param negate:true (not declared) and new handler winGame. Sword icon."
+  },
+  {
+    "id": "CG-122",
+    "name": "Chiaotzu Lv2",
+    "set": "Cell Games Saga",
+    "number": 122,
+    "type": "Personality",
+    "rarity": "Rare",
+    "personality": {
+      "character": "Chiaotzu",
+      "level": 2,
+      "powerRatings": [
+        0,
+        50000,
+        52500,
+        55000,
+        57500,
+        60000,
+        62500,
+        65000,
+        67500,
+        70000,
+        72500
+      ],
+      "pur": 2,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "Focused energy attack.",
+        "strike": {
+          "combatRole": "ATTACK_ENERGY",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "focusedAttack"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "Focused energy attack.",
+    "imageUrl": "/cards/cell-games-saga/1224.jpg",
+    "verified": false,
+    "needsReview": "Printed 'Chiaotzu' with trademark symbol. Alignment Hero as the Saiyan data. 'Focused' keyword (marker handler focusedAttack)."
+  },
+  {
+    "id": "CG-123",
+    "name": "Dragon's Victory",
+    "set": "Cell Games Saga",
+    "number": 123,
+    "type": "Combat",
+    "rarity": "Rare",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "requiresCondition",
+          "params": {
+            "anger": {
+              "target": "SELF",
+              "equals": 4
+            }
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "optional",
+          "params": {
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "OPPONENT",
+                "amount": 1
+              }
+            ]
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "ifAnger",
+          "params": {
+            "target": "OPPONENT",
+            "equals": 4,
+            "then": [
+              {
+                "action": "CUSTOM",
+                "handler": "winGame",
+                "params": {
+                  "target": "SELF"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "rawText": "Your Warrior Sword must read 4 anger to use this card. When you play this card you may raise your opponent's anger 1 level. If your opponent's Warrior Sword reads 4 anger you win the game.",
+    "imageUrl": "/cards/cell-games-saga/1234.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Warrior Sword = anger counter (Trunks rulebook). requiresCondition with new param angerEquals; new handler ifAnger; winGame. The opponent's anger is checked after the optional raise (assumed)."
+  },
+  {
+    "id": "CG-124",
+    "name": "Trunks Lv5",
+    "set": "Cell Games Saga",
+    "number": 124,
+    "type": "Personality",
+    "rarity": "Ultra Rare",
+    "personality": {
+      "character": "Trunks",
+      "level": 4,
+      "powerRatings": [
+        0,
+        4000000,
+        4100000,
+        4200000,
+        4300000,
+        4400000,
+        4500000,
+        4600000,
+        4700000,
+        4800000,
+        4900000
+      ],
+      "pur": 5,
+      "alignment": "Hero",
+      "power": {
+        "name": "Power",
+        "text": "You may draw 0 to 3 cards when entering Combat as the attacker.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "playTiming",
+                "params": {
+                  "when": "combatStart",
+                  "role": "attacker"
+                }
+              },
+              {
+                "action": "CUSTOM",
+                "handler": "optional",
+                "params": {
+                  "then": [
+                    {
+                      "action": "DRAW",
+                      "target": "SELF",
+                      "amount": 3
+                    }
+                  ],
+                  "maxAmount": 3,
+                  "minAmount": 0
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "You may draw 0 to 3 cards when entering Combat as the attacker.",
+    "imageUrl": "/cards/cell-games-saga/1244.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Trunks, the Battler'. PRINTED LEVEL 5, stored as 4 with 'Lv5' in the name. 12 rating boxes (4,900,000 down to 3,800,000): kept 0 plus the top 10 (4,000,000..4,900,000), dropped 3,800,000 and 3,900,000. PUR 5. The power text is blurry (low-res image): second line reads like 'draw 0 to 3' or 'draw 2 or 3'; rawText is my best reading, encoded as optional draw 3. Alignment Hero as the other Trunks data (Trunks assumed Hero). 3 of 3 Trunks is a puzzle box."
+  },
+  {
+    "id": "CG-125",
+    "name": "Piccolo Lv5",
+    "set": "Cell Games Saga",
+    "number": 125,
+    "type": "Personality",
+    "rarity": "Ultra Rare",
+    "personality": {
+      "character": "Piccolo",
+      "level": 4,
+      "powerRatings": [
+        0,
+        3100000,
+        3200000,
+        3300000,
+        3400000,
+        3500000,
+        3600000,
+        3700000,
+        3800000,
+        3900000,
+        4000000
+      ],
+      "pur": 5,
+      "alignment": "Hero",
+      "power": {
+        "name": "Constant Combat Power",
+        "text": "All of your physical attacks do +5 power stages of damage.",
+        "strike": {
+          "combatRole": "COMBAT_EFFECT",
+          "effects": {
+            "onPlaySecondary": [
+              {
+                "action": "CUSTOM",
+                "handler": "constantPower",
+                "params": {
+                  "ongoing": true,
+                  "then": [
+                    {
+                      "action": "CUSTOM",
+                      "handler": "damageModifier",
+                      "params": {
+                        "scope": "OWNER",
+                        "attackType": "PHYSICAL",
+                        "stages": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rawText": "All of your physical attacks do +5 power stages of damage.",
+    "imageUrl": "/cards/cell-games-saga/1254.jpg",
+    "verified": false,
+    "needsReview": "Printed title 'Piccolo, the Defender'. PRINTED LEVEL 5, stored as 4 with 'Lv5' in the name. 12 rating boxes (4,000,000 down to 2,900,000): kept 0 plus the top 10 (3,100,000..4,000,000), dropped 2,900,000 and 3,000,000. PUR 5. Low-res image, power text hard to read: read as 'Constant Combat Power: All of your physical attacks do +5 power stages of damage.' The sign and the first line are uncertain (given the title 'the Defender' it may be '-5' for attacks against Piccolo). Verify against a sharper scan."
+  },
+  {
+    "id": "CG-P2",
+    "name": "A Father Struggles",
+    "set": "Cell Games Saga",
+    "number": 2,
+    "type": "Combat",
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "forbidCards",
+          "params": {
+            "filter": {
+              "cardTypes": [
+                "Non-Combat"
+              ]
+            },
+            "scope": "ALL",
+            "duration": "thisCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Freestyle Drill",
+            "to": "play"
+          }
+        }
+      ]
+    },
+    "rawText": "Non-Combat cards cannot be used for the remainder of Combat. Search your Life Deck for a Freestyle Drill and place it in play.",
+    "imageUrl": "/cards/cell-games-saga/P24.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. forbidCards duration thisCombat. searchDeck filter 'Freestyle Drill' (Drill without a style)."
+  },
+  {
+    "id": "CG-P3",
+    "name": "Vegeta is Lurking",
+    "set": "Cell Games Saga",
+    "number": 3,
+    "type": "Combat",
+    "named": "Vegeta",
+    "limitPerDeck": 1,
+    "usableBy": {
+      "characters": [
+        "Vegeta"
+      ]
+    },
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "searchDeck",
+          "params": {
+            "from": "lifeDeck",
+            "filter": "Vegeta named card",
+            "amount": 3,
+            "to": "hand"
+          }
+        }
+      ]
+    },
+    "rawText": "Vegeta only. Search your Life Deck for 3 Vegeta named cards and place them in your hand. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/P34.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Printed title with registered symbol dropped. Life deck shuffle not printed."
+  },
+  {
+    "id": "CG-P4",
+    "name": "Yamcha's Revenge",
+    "set": "Cell Games Saga",
+    "number": 4,
+    "type": "Physical Combat",
+    "named": "Yamcha",
+    "rarity": "Promo",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT"
+    },
+    "effects": {
+      "onHit": [
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "ALL",
+            "zone": "table",
+            "cardTypes": [
+              "Drill"
+            ],
+            "amount": "all",
+            "toOwner": true
+          }
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack. If successful, shuffle all Drills in play back into their owner's Life Deck. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/P44.jpg",
+    "verified": false,
+    "needsReview": "shuffleIntoLifeDeck target ALL zone table, Drills, toOwner (as CS-40 style)."
+  },
+  {
+    "id": "CG-P5",
+    "name": "Goku Charges",
+    "set": "Cell Games Saga",
+    "number": 5,
+    "type": "Physical Combat",
+    "named": "Goku",
+    "rarity": "Promo",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 4,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Physical attack doing +4 power stages of damage. Raise your anger 1 level. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/P54.jpg",
+    "verified": false
+  },
+  {
+    "id": "CG-P6",
+    "name": "Vegeta At Full Power!",
+    "set": "Cell Games Saga",
+    "number": 6,
+    "type": "Combat",
+    "named": "Vegeta",
+    "usableBy": {
+      "characters": [
+        "Vegeta"
+      ]
+    },
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "SET_STAGE",
+          "target": "SELF",
+          "value": "MAX"
+        },
+        {
+          "action": "MODIFY_ANGER",
+          "target": "SELF",
+          "amount": 1
+        }
+      ],
+      "postResolution": "REMOVE"
+    },
+    "rawText": "Vegeta only. Raise Vegeta to his highest power stage. Raise your anger 1 level. Remove from the game after use.",
+    "imageUrl": "/cards/cell-games-saga/P64.jpg",
+    "verified": false,
+    "needsReview": "Sword icon."
+  },
+  {
+    "id": "CG-P7",
+    "name": "Can He Do That?",
+    "set": "Cell Games Saga",
+    "number": 7,
+    "type": "Combat",
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "disablePersonalityPower",
+          "params": {
+            "target": "ANY",
+            "choice": true,
+            "cardTypes": [
+              "Personality",
+              "Non-Combat"
+            ],
+            "duration": "thisCombat",
+            "ifAlly": {
+              "cannotTakeControl": true
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Choose a personality or Non-Combat card in play. The chosen card's power cannot be used for the remainder of Combat. If an Ally was chosen, the personality cannot take control of Combat for the remainder of Combat.",
+    "imageUrl": "/cards/cell-games-saga/P74.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. disablePersonalityPower with new params cardTypes / duration thisCombat / ifAlly.cannotTakeControl (new rule: ally takeover blocked). 'the personality' = the chosen Ally."
+  },
+  {
+    "id": "CG-P8",
+    "name": "Massive Technology",
+    "set": "Cell Games Saga",
+    "number": 8,
+    "type": "Combat",
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "endurance",
+          "params": {
+            "amount": 2
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "scope": "OWNER",
+            "attackType": "PHYSICAL",
+            "stages": 2,
+            "duration": "thisCombat",
+            "replaceIf": {
+              "userTitleContains": "Android",
+              "attackType": "ANY",
+              "stages": 0,
+              "lifeCards": 2
+            }
+          }
+        }
+      ]
+    },
+    "rawText": "Endurance 2. For the remainder of Combat, all of your physical attacks do +2 power stages of damage. If used by a personality with \"Android\" in the card title, all of your attacks deal +2 life cards of damage instead.",
+    "imageUrl": "/cards/cell-games-saga/P84.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. Endurance marker. damageModifier with new param replaceIf {userTitleContains Android}: the +2 stages (physical) are replaced by +2 life cards on all attacks."
+  },
+  {
+    "id": "CG-P9",
+    "name": "A Raditz Memory",
+    "set": "Cell Games Saga",
+    "number": 9,
+    "type": "Combat",
+    "named": "Raditz",
+    "limitPerDeck": 1,
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "angerLock",
+          "params": {
+            "target": "ALL",
+            "direction": "raise",
+            "until": "endOfCombat"
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "shuffleIntoLifeDeck",
+          "params": {
+            "target": "SELF",
+            "zone": "thisCard",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    "rawText": "No player may gain anger for the remainder of Combat. Shuffle this card back into your Life Deck after use. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/P94.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. angerLock with new values target ALL / until endOfCombat; shuffleIntoLifeDeck with new param zone thisCard. Printed title with trademark symbol dropped. Raditz in the title: named."
+  },
+  {
+    "id": "CG-P10",
+    "name": "Krillin's Surprise!",
+    "set": "Cell Games Saga",
+    "number": 10,
+    "type": "Combat",
+    "named": "Krillin",
+    "rarity": "Promo",
+    "combatRole": "COMBAT_EFFECT",
+    "usePhase": "ATTACK",
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "ifMainPersonality",
+          "params": {
+            "character": "Krillin",
+            "level": 1,
+            "then": [
+              {
+                "action": "MODIFY_ANGER",
+                "target": "SELF",
+                "amount": 6
+              }
+            ]
+          }
+        },
+        {
+          "action": "CUSTOM",
+          "handler": "preventVictory",
+          "params": {
+            "target": "SELF",
+            "victoryType": "mostPowerfulPersonality",
+            "duration": "game"
+          }
+        }
+      ]
+    },
+    "rawText": "If your Main Personality is Krillin and he is currently at level 1, gain 6 anger. You cannot win by the Most Powerful Personality Victory for the remainder of the game.",
+    "imageUrl": "/cards/cell-games-saga/P104.jpg",
+    "verified": false,
+    "needsReview": "Sword icon. New handler ifMainPersonality. Only the anger is conditional; the victory restriction is read as unconditional (the second sentence has no 'if')."
+  },
+  {
+    "id": "CG-P11",
+    "name": "Cell Jr.'s Flight",
+    "set": "Cell Games Saga",
+    "number": 11,
+    "type": "Physical Combat",
+    "named": "Cell Jr.",
+    "limitPerDeck": 1,
+    "rarity": "Promo",
+    "combatRole": "ATTACK_PHYSICAL",
+    "damage": {
+      "calculation": "PAT",
+      "modifierStages": 2,
+      "modifierLifeCards": 0
+    },
+    "effects": {
+      "onPlaySecondary": [
+        {
+          "action": "CUSTOM",
+          "handler": "damageModifier",
+          "params": {
+            "attackType": "PHYSICAL",
+            "lifeCardsPerOwnCharacterWithTitle": {
+              "titleContains": "Cell Jr.",
+              "includeMain": true,
+              "amount": 1
+            },
+            "duration": "thisAttack"
+          }
+        }
+      ]
+    },
+    "rawText": "Physical attack doing +2 power stages of damage and +1 life card of damage for each Cell Jr. you have in play. Limit 1 per deck.",
+    "imageUrl": "/cards/cell-games-saga/P112.jpg",
+    "verified": false,
+    "needsReview": "Number box prints P1 (cut off), index says P11, file P112. damageModifier with new param lifeCardsPerOwnCharacterWithTitle. Named Cell Jr."
+  }
+]

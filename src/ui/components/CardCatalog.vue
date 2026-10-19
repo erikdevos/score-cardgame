@@ -38,18 +38,19 @@ const fmt = (v: unknown): string => {
 const rows = computed<[string, string][]>(() => {
   const c = open.value as (CardDef & Record<string, any>) | null
   if (!c) return []
-  const out: [string, unknown][] = [
-    ['Card', c.id], ['Set', `${c.set} · #${c.number}`], ['Type', c.type], ['Style', c.style], ['Rarity', c.rarity],
-    ['Combat role', c.combatRole], ['Damage', c.damage], ['Defense', c.defense], ['Cost', c.cost],
-    ['Usable by', c.usableBy], ['Use phase', c.usePhase], ['Limit per deck', c.limitPerDeck],
-    ['Dragon Ball', c.dragonBallNumber], ['Named', c.named],
-  ]
+  const out: [string, unknown][] = [['Card text', c.rawText], ['Type', c.type], ['Style', c.style], ['Rarity', c.rarity]]
   const p = c.personality
   if (p) {
     out.push(['Character', p.character], ['Level', p.level], ['Alignment', p.alignment], ['PUR', p.pur], ['Power rating', p.powerRatings?.join(' / ')])
     if (p.power) out.push(['Power', `${p.power.name}: ${p.power.text}`])
   }
-  out.push(['Passives', c.passives], ['Verified', c.verified ? 'Yes' : 'No'], ['Needs review', c.needsReview])
+  out.push(
+    ['Cost', c.cost], ['Damage', c.damage], ['Defense', c.defense], ['Combat role', c.combatRole], ['Usable by', c.usableBy], ['Use phase', c.usePhase],
+    ['Limit per deck', c.limitPerDeck], ['Dragon Ball', c.dragonBallNumber], ['Named', c.named], ['Passives', c.passives],
+    ['Card', c.id], ['Set', `${c.set} · #${c.number}`],
+    // debugging only, not relevant for players
+    ['Needs review', c.needsReview], ['Verified', c.verified ? 'Yes' : 'No'],
+  )
   return out.map(([k, v]): [string, string] => [k, fmt(v)]).filter(([, v]) => v !== '' && v !== 'undefined' && v !== 'null')
 })
 
@@ -99,8 +100,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <h3>{{ open.name }}</h3>
           <table>
             <tbody>
-              <tr v-for="[k, v] in rows" :key="k"><th>{{ k }}</th><td>{{ v }}</td></tr>
-              <tr><th>Card text</th><td class="raw">{{ open.rawText }}</td></tr>
+              <tr v-for="[k, v] in rows" :key="k" :class="{ text: k === 'Card text', debug: k === 'Needs review' || k === 'Verified' }"><th>{{ k }}</th><td>{{ v }}</td></tr>
             </tbody>
           </table>
         </div>

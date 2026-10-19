@@ -1,6 +1,8 @@
-import type { Rules } from '../engine'
+import { computed } from 'vue'
+import type { CardDef, Rules } from '../engine'
 import patTrunks from '../engine/config/pat-trunks.json'
 import { realCards, type SetName } from './cardDb'
+import { settings } from './settings'
 
 const TRUNKS_CORE = { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, allyRules: true, dragonBalls: true, tokuiWaza: true }
 
@@ -28,6 +30,10 @@ export const FORMATS = {
     label: 'Saiyan + Frieza + Trunks + Androids + Cell', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga'] as SetName[],
     rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
   },
+  ALL_SETS: {
+    label: 'Saiyan + Frieza + Trunks + Androids + Cell + Cell Games', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga'] as SetName[],
+    rules: { pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
+  },
 } as const
 export type FormatKey = keyof typeof FORMATS
 
@@ -35,3 +41,16 @@ export const formatCards = (f: FormatKey) => realCards.filter(c => (FORMATS[f].s
 /** A format is playable once all of its sets have cards transcribed. */
 export const formatReady = (f: FormatKey) => FORMATS[f].sets.every(s => realCards.some(c => c.set === s))
 export const unverifiedIn = (f: FormatKey) => formatCards(f).filter(c => !c.verified).length
+
+/** Highest personality level per character in the chosen card pool (the same stack the decks are built from). */
+const topLevels = computed(() => {
+  const cap = settings.format === 'SAIYAN' ? 3 : 4
+  const m = new Map<string, number>()
+  for (const c of formatCards(settings.format)) {
+    const p = c.type === 'Personality' ? c.personality : undefined
+    if (p && c.rarity !== 'Promo' && p.level <= cap) m.set(p.character, Math.max(m.get(p.character) ?? 0, p.level))
+  }
+  return m
+})
+/** True for the highest-level Personality of a character in the current pool (shiny/aura treatment). */
+export const isTopLevel = (c?: CardDef) => !!c && c.type === 'Personality' && !!c.personality && topLevels.value.get(c.personality.character) === c.personality.level

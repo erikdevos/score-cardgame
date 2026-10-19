@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isTopLevel } from '../cardDb'
+import { isTopLevel } from '../formats'
+import CardAura from './CardAura.vue'
 import { closePreview, previewCard, previewPinned } from '../preview'
 </script>
 
@@ -9,6 +10,7 @@ import { closePreview, previewCard, previewPinned } from '../preview'
       <div v-if="previewCard.imageUrl" :key="previewCard.id" class="preview-art" :class="{ foil: /Rare|Promo/.test(previewCard.rarity), holo: isTopLevel(previewCard) }">
         <img :src="previewCard.imageUrl" :alt="previewCard.name" />
         <span class="shine" aria-hidden="true" />
+        <CardAura v-if="isTopLevel(previewCard)" :card="previewCard" :count="70" />
       </div>
       <div class="preview-text">
         <h4>{{ previewCard.name }}</h4>
