@@ -226,3 +226,16 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 **Implemented later the same day**: `loseStagesForAnger` (OPTION choice, AS-13), `disableDrillPower` (`GameState.disabledDrills`, read by `tableEffects` and `permanentSources`, AS-21), `disablePersonalityPower` (`GameState.powerLocks`, read by `powerOptions` and `constantParams`; released by an own energy attack in `beginStrike`, or by a Dragon Ball placed in `playNonCombat`, which also discards the attached card, AS-24, AS-36), `playCostModifier` (extra life cards for named cards, `extraPlayCost` in the sequencer, AS-44), `discardNamedCardFromDeck` (names offered from the whole card pool, AS-52), `playLimit` (`nonCombatLimitReached` in `legal.ts`, counted from the log like the Dragon Ball limit, AS-55), `removeInsteadOfDiscard` (`sweepDiscards` after every action: new non-Dragon Ball cards in a discard pile are removed, AS-96), `useNonCombatInPlay` (pick destination `USE_NONCOMBAT`, runs from the combat-start auto power, AS-120), `playNonCombatInsteadOfAttack` (extra `PLAY_CARD` in combat, once per combat, AS-125).
 
 **Still open**: AS-44 adds its life-card cost next to a stage cost instead of replacing it; the removal in AS-96 happens after the action, so cards discarded and recovered within one action are missed; params some existing handlers gained that the engine does not read yet (see `needsReview`), e.g. the Battleground start-of-turn discard (AS-7), Namekian Teamwork (AS-103), the additive `conditionalPassive` (AS-65) and Tien's Flight (AS-113).
+
+## Cell Saga
+
+210 cards (CS-1 to CS-200, CS-P2 to CS-P11; no P1), transcribed in four parts, all `verified: false`; 141 carry `needsReview`. Pool "Saiyan + Frieza + Trunks + Androids + Cell", same Trunks Saga rules. Images are in `public/cards/cell-saga/` (gitignored).
+
+**Rulings and schema limits**
+- **Dende Dragon Balls** (CS-39, 40, 73-75, 121, 122; "x of 7 Dende") are a third set of 7, next to Earth and Namek: `dragonBallKind` returns Dende, a deck holds one kind, and 7 Dende balls win like the others. Assumption: no Cell Saga rulebook.
+- **Level 5 personalities** (CS-134, 136, 159, 160) print level 5 but the schema caps the level at 4: stored as level 4, "Lv5" kept in the name. 26 Lv2-Lv5 cards print 12-13 rating boxes where the schema takes exactly 11: the lowest values are dropped and listed in `needsReview`. The engine's maximum stage may need to go above 10.
+- "The Car" is referenced by seven personalities but is not in any data set. CS-P11's "unless your Main Personality is Cell" exemption is not in the schema. CS-109 Bulma Lv3 prints 2,100 (probably 3,100), stored as printed.
+
+**Implemented**: `ifOpponentNameContains`, `ifOpponentMoreStages`, `ifTopDiscardNotAttack`, `discardHand`, `setStages`, `loseGameIfOpponentSurvives`, `modifyCombatDraw` (read in `defenderDraw`).
+
+**Not implemented yet** (WARN, the clause does nothing): `lookAtTopCards` (CS-100), `placeSelfInLifeDeck` (CS-107), `discardToStopAttack` and `inPlaceOfAttackDiscard` (Mastery CS-126, CS-129). The new params many cards gained (see `needsReview`) are not read yet either; the sim logs "damage modifier not implemented for these parameters" most often.

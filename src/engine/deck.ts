@@ -1,5 +1,5 @@
 import type { CardDB } from './cards'
-import { tokuiWazaStyle, trunksAllyAllowed } from './state'
+import { dragonBallKind, tokuiWazaStyle, trunksAllyAllowed } from './state'
 import type { DeckList, Rules } from './types'
 
 export function validateDeck(db: CardDB, deck: DeckList, rules: Rules): string[] {
@@ -45,13 +45,13 @@ function trunksDeckErrors(db: CardDB, deck: DeckList): string[] {
   for (const id of deck.life) {
     const d = db[id]
     if (!d) continue
-    if (d.type === 'Dragon Ball') kinds.add(/Namek/i.test(d.name) ? 'Namek' : 'Earth')
+    if (d.type === 'Dragon Ball') kinds.add(dragonBallKind(d.name))
     if (d.type !== 'Personality' || !d.personality) continue
     const key = `${d.personality.character} Lv${d.personality.level}`
     perLevel.set(key, (perLevel.get(key) ?? 0) + 1)
     if (!trunksAllyAllowed(mpCards, undefined, d)) errors.push(`${d.name} cannot be an ally of this main personality`)
   }
   for (const [key, n] of perLevel) if (n > (key.startsWith('Saibaimen') ? 3 : 1)) errors.push(`${key}: ${n} copies (max ${key.startsWith('Saibaimen') ? 3 : 1})`)
-  if (kinds.size > 1) errors.push('A deck may contain Earth or Namek Dragon Balls, not both')
+  if (kinds.size > 1) errors.push('A deck may contain Earth, Namek or Dende Dragon Balls, one kind only')
   return [...new Set(errors)]
 }

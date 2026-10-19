@@ -1,4 +1,4 @@
-import { isAttackRole, isDefenseRole, isSaiyanHeritage, nextRandomForTests as nextRandom, trunksAllyAllowed, type CardDB, type DeckList } from '../engine'
+import { dragonBallKind, isAttackRole, isDefenseRole, isSaiyanHeritage, nextRandomForTests as nextRandom, trunksAllyAllowed, type CardDB, type DeckList } from '../engine'
 import { heroMP, testDeck, villainMP } from '../data/test-cards'
 import { db, setOrder } from './cardDb'
 import { FORMATS, formatCards, type FormatKey } from './formats'
@@ -46,12 +46,13 @@ function autoDeck(cards: CardDef[], mp: string[], character: string, seed: numbe
   const mine = mpCards[0].personality!
   const usable = (c: CardDef) => !c.usableBy || !!(c.usableBy.characters?.includes(character) || c.usableBy.alignments?.includes(mine.alignment as 'Hero' | 'Villain'))
   // Trunks Saga: Earth or Namek Dragon Balls, not both
-  let namek: boolean | undefined
+  let ballKind: string | undefined
   if (trunks) {
     const [r, ns] = nextRandom(s); s = ns
-    namek = r < 0.3 && cards.some(c => c.type === 'Dragon Ball' && /Namek/i.test(c.name))
+    const kinds = [...new Set(cards.filter(c => c.type === 'Dragon Ball').map(c => dragonBallKind(c.name)))].filter(k => k !== 'Earth')
+    ballKind = r < 0.3 && kinds.length ? kinds[Math.floor(r / 0.3 * kinds.length)] : 'Earth'
   }
-  const pool = cards.filter(c => (c.type !== 'Dragon Ball' || namek === undefined || /Namek/i.test(c.name) === namek) && c.type !== 'Mastery' && usable(c) && (c.type !== 'Personality' || allyOk(c)) && (!style || !c.style || c.style === style))
+  const pool = cards.filter(c => (c.type !== 'Dragon Ball' || ballKind === undefined || dragonBallKind(c.name) === ballKind) && c.type !== 'Mastery' && usable(c) && (c.type !== 'Personality' || allyOk(c)) && (!style || !c.style || c.style === style))
   // the Mastery card of the deck's style, when the pool has one
   const mastery = style ? cards.find(c => c.type === 'Mastery' && c.style === style)?.id : undefined
   const combat = pool.filter(c => isAttackRole(c.combatRole) || isDefenseRole(c.combatRole))

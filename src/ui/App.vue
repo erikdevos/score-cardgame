@@ -6,12 +6,13 @@ import { deckChoices } from './decks'
 import { FORMATS, formatCards, formatReady, unverifiedIn, type FormatKey } from './formats'
 import { settings } from './settings'
 import { useGame, type Mode } from './useGame'
+import CardCatalog from './components/CardCatalog.vue'
 import CardReview from './components/CardReview.vue'
 import CardView from './components/CardView.vue'
 import GameBoard from './components/GameBoard.vue'
 
 const game = useGame()
-const screen = ref<'menu' | 'game' | 'review'>('menu')
+const screen = ref<'menu' | 'game' | 'review' | 'catalog'>('menu')
 if (!formatReady(settings.format)) settings.format = 'SAIYAN'
 const choices = computed(() => deckChoices(settings.format))
 const formatKeys = Object.keys(FORMATS) as FormatKey[]
@@ -38,6 +39,7 @@ function start(mode: Mode) {
 
 <template>
   <GameBoard v-if="screen === 'game' && game.state.value" :game="game" @quit="game.quit(); screen = 'menu'" />
+  <CardCatalog v-else-if="screen === 'catalog'" @back="screen = 'menu'" />
   <CardReview v-else-if="screen === 'review'" @back="screen = 'menu'" />
   <main v-else class="menu">
     <header class="logo">
@@ -104,6 +106,7 @@ function start(mode: Mode) {
 
     <nav class="menu-links">
       <button class="link-btn" @click="showSettings = !showSettings">Settings</button>
+      <button class="link-btn" @click="screen = 'catalog'">Card catalog</button>
       <button class="link-btn" @click="screen = 'review'">Card review</button>
     </nav>
 

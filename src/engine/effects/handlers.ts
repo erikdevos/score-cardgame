@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef } from '../state'
+import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -172,6 +172,47 @@ export const handlers: Record<string, CustomHandler> = {
   playCostModifier: noop, // sequencer extraPlayCost (AS-44)
   removeInsteadOfDiscard: noop, // engine.ts sweepDiscards (AS-96)
   playNonCombatInsteadOfAttack: noop, // legal.ts, turn.ts (AS-125)
+
+  modifyCombatDraw: noop, // turn.ts defenderDraw (CS-176)
+
+  ifOpponentNameContains(ctx, p) {
+    if (mpDef(ctx.s, ctx.db, other(ctx.user)).name.includes(String(p.text))) resolveEffects(ctx, then(p))
+  },
+
+  ifOpponentMoreStages(ctx, p) {
+    if (fighterStage(ctx.s, other(ctx.user)) > fighterStage(ctx.s, ctx.user)) resolveEffects(ctx, then(p))
+  },
+
+  ifTopDiscardNotAttack(ctx, p) {
+    // CS-143: the top card of the target's discard pile is not a physical attack
+    const pile = ctx.s.players[targetOf(ctx, p.target)].discard
+    const top = pile[pile.length - 1]
+    if (!top || def(ctx.db, top).combatRole !== 'ATTACK_PHYSICAL') resolveEffects(ctx, then(p))
+  },
+
+  discardHand(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const pl = ctx.s.players[who]
+    log(ctx.s, 'DISCARD', `${ctx.source}: player ${who + 1} discards their hand (${pl.hand.length})`, who)
+    pl.discard.push(...pl.hand.splice(0))
+  },
+
+  setStages(ctx, p) {
+    // CS-121, CS-128: every personality (main and allies) of the target goes to a fixed number of stages
+    const { s, db } = ctx
+    const players = p.target === 'ANY' ? s.players.map(x => x.id) : [targetOf(ctx, p.target)]
+    for (const who of players) {
+      if (p.titleContains && !mpDef(s, db, who).name.includes(String(p.titleContains))) continue
+      changeStages(s, who, num(p.value, 0) - s.players[who].mp.stage)
+      if (p.allPersonalities) for (const a of s.players[who].allies) if (!p.titleContains || def(db, a.card).name.includes(String(p.titleContains))) a.stage = num(p.value, 0)
+      log(s, 'STAGES', `${ctx.source}: player ${who + 1}'s personalities are set to ${num(p.value, 0)} power stage(s)`, who)
+    }
+  },
+
+  loseGameIfOpponentSurvives(ctx) {
+    // CS-P11: runs after the damage
+    if (ctx.s.winner === null) win(ctx.s, other(ctx.user), 'SURVIVAL')
+  },
 
   disablePersonalityPower(ctx, p) {
     const who = targetOf(ctx, p.target)

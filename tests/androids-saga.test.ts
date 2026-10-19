@@ -46,3 +46,26 @@ describe('Androids Saga pool', () => {
     expect(tableEffects(s, db, 1, 'playLimit')).toHaveLength(0)
   })
 })
+
+describe('Cell Saga pool', () => {
+  const CELL = 'SAIYAN_FRIEZA_TRUNKS_ANDROIDS_CELL'
+  it('loads 210 cards', () => {
+    expect(realCards.filter(c => c.set === 'Cell Saga')).toHaveLength(210)
+  })
+
+  it('AI games finish and conserve cards', () => {
+    const choices = deckChoices(CELL).filter(c => c.key.startsWith('auto-'))
+    const warns = new Map<string, number>()
+    for (let seed = 1; seed <= 30; seed++) {
+      const a = choices[seed % choices.length]
+      const b = choices[(seed * 7 + 1) % choices.length]
+      let s: GameState = createGame(db, [a.build(seed), b.build(seed + 1)], { seed, rules: FORMATS[CELL].rules })
+      const total = [allCardsOf(s, 0).length, allCardsOf(s, 1).length]
+      for (let i = 0; i < 5000 && s.winner === null; i++) s = applyAction(s, db, chooseAction(s, db)!).state
+      expect(s.winner, `seed ${seed} (${a.label} vs ${b.label}) did not finish`).not.toBeNull()
+      expect([allCardsOf(s, 0).length, allCardsOf(s, 1).length]).toEqual(total)
+      for (const e of s.log) if (e.t === 'WARN') { const k = e.msg.replace(/^.*custom effect /, ''); warns.set(k, (warns.get(k) ?? 0) + 1) }
+    }
+    console.log('unimplemented in play:', [...warns].sort((x, y) => y[1] - x[1]).slice(0, 8))
+  })
+})

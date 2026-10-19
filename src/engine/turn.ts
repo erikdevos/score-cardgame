@@ -191,6 +191,10 @@ export function declareCombat(s: GameState, db: CardDB) {
 /** The defender's combat draw; Honor Duel (draw mode) takes it from the bottom of the discard pile. */
 function defenderDraw(s: GameState, db: CardDB, defender: PlayerId) {
   let n = s.rules.defenderCombatDraw
+  // CS-176: "when you enter Combat as the attacker, your opponent draws 1 less card"
+  if (!s.powerLocks.some(l => l.player === s.attacker)) {
+    for (const m of findCustom(mpDef(s, db, s.attacker).personality!.power?.strike.effects.onPlaySecondary ?? [], 'modifyCombatDraw')) n = Math.max(0, n + Number(m.amount ?? 0))
+  }
   const sub = s.discardAsLife.find(x => x.player === defender && x.armed && x.mode === 'DRAW' && x.remaining > 0)
   if (sub) {
     const pl = s.players[defender]

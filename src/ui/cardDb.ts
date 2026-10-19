@@ -8,6 +8,8 @@ import trunksRaw from '../data/trunks-saga/cards.json'
 import trunksIndex from '../data/trunks-saga/index.json'
 import androidsRaw from '../data/androids-saga/cards.json'
 import androidsIndex from '../data/androids-saga/index.json'
+import cellRaw from '../data/cell-saga/cards.json'
+import cellIndex from '../data/cell-saga/index.json'
 
 /** The transcribed sets, in release order. */
 export const SETS = [
@@ -15,6 +17,7 @@ export const SETS = [
   { key: 'frieza-saga', name: 'Frieza Saga', raw: friezaRaw as unknown[], index: friezaIndex, imageDir: '/cards/frieza-saga/' },
   { key: 'trunks-saga', name: 'Trunks Saga', raw: trunksRaw as unknown[], index: trunksIndex, imageDir: '/cards/trunks-saga/' },
   { key: 'androids-saga', name: 'Androids Saga', raw: androidsRaw as unknown[], index: androidsIndex, imageDir: '/cards/androids-saga/' },
+  { key: 'cell-saga', name: 'Cell Saga', raw: cellRaw as unknown[], index: cellIndex, imageDir: '/cards/cell-saga/' },
 ] as const
 export type SetName = (typeof SETS)[number]['name']
 

@@ -176,7 +176,8 @@ export function drawCards(s: GameState, p: PlayerId, n: number) {
 }
 
 /** Life cards of damage / mill: top of life deck to discard. Returns cards actually discarded. */
-export const dragonBallKind = (name: string) => (/Namek/i.test(name) ? 'Namek' : 'Earth')
+/** Earth, Namek and (Cell Saga) Dende Dragon Balls are separate sets of 7, told apart by name. */
+export const dragonBallKind = (name: string) => (/Namek/i.test(name) ? 'Namek' : /Dende/i.test(name) ? 'Dende' : 'Earth')
 
 export function millCards(s: GameState, p: PlayerId, n: number, db?: CardDB): number {
   const pl = s.players[p]
@@ -300,7 +301,7 @@ export function checkDragonBallVictory(s: GameState, db: CardDB, how: 'play' | '
   const trunks = s.rules.trunks.dragonBalls
   for (const pl of s.players) {
     if (how === 'turnStart' && pl.id !== s.attacker) continue
-    const kinds = trunks ? ['Earth', 'Namek'] : ['']
+    const kinds = trunks ? ['Earth', 'Namek', 'Dende'] : ['']
     const complete = kinds.some(kind => {
       const nums = new Set(pl.dragonBalls.filter(c => !kind || dragonBallKind(def(db, c).name) === kind).map(c => def(db, c).dragonBallNumber))
       return [1, 2, 3, 4, 5, 6, 7].every(n => nums.has(n))
