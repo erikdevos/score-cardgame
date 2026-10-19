@@ -173,11 +173,11 @@ export const handlers: Record<string, CustomHandler> = {
   removeInsteadOfDiscard: noop, // engine.ts sweepDiscards (AS-96)
   playNonCombatInsteadOfAttack: noop, // legal.ts, turn.ts (AS-125)
 
-  // Cell Games Saga keywords whose meaning is unknown (no rulebook): carried as data, no effect yet
-  endurance: noop,
-  grantEndurance: noop,
-  focused: noop,
-  focusedAttack: noop,
+  // Cell Games Saga keywords, explained by the Buu Saga rulebook
+  endurance: noop, // read in damage.ts / abilities.ts
+  grantEndurance: noop, // read in damage.ts / abilities.ts
+  focused: noop, // read in damage.ts / abilities.ts
+  focusedAttack: noop, // read in damage.ts / abilities.ts
   temporaryPurModifier: noop, // CG-5, not applied yet
   discardAttached: noop, // CG-44: the engine has no attached cards except AS-36
 
@@ -588,6 +588,14 @@ export const handlers: Record<string, CustomHandler> = {
     c.bonusAttack = { player: ctx.user, attackType: (p.attackType ?? 'ANY') as AttackType, remaining: num(p.count, 1), active: false }
   },
   autoStopAttack: noop,
+
+  skipFightBack(ctx, p) {
+    // CG-77: no Fight Back phase, the same player gets another "Attacker Attacks" phase (an attack of that type, or pass)
+    const c = ctx.s.combat
+    if (!c) return
+    c.bonusAttack = { player: ctx.user, attackType: (p.requireAttackType ?? 'ANY') as AttackType, remaining: 1, active: false }
+    log(ctx.s, 'EXTRA_ATTACK', `${ctx.source}: the Fight Back phase is skipped`, ctx.user)
+  },
 
   removeFromGame(ctx, p) {
     const { s, db, user } = ctx

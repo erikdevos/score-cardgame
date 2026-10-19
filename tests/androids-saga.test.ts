@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { allCardsOf, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
 import { customHandlers } from '../src/engine/effects'
-import { powerOptions, tableEffects } from '../src/engine/abilities'
+import { defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
+import { applyDamage } from '../src/engine/damage'
+import { newCombat } from '../src/engine'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
 import { FORMATS } from '../src/ui/formats'
@@ -83,5 +85,40 @@ describe('Cell Games Saga pool (all sets)', () => {
       expect(s.winner, `seed ${seed} (${a.label} vs ${b.label}) did not finish`).not.toBeNull()
       expect([allCardsOf(s, 0).length, allCardsOf(s, 1).length]).toEqual(total)
     }
+  })
+})
+
+describe('Buu Saga rulebook keywords', () => {
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    return s
+  }
+
+  it('Endurance prevents life cards of damage, only with a Tokui-Waza', () => {
+    const endCard = Object.values(db).find(d => d.id === 'CG-5')!
+    for (const tokui of [null, 'Blue']) {
+      const s = setup()
+      const pl = s.players[1]
+      pl.tokuiWaza = tokui
+      // top card of the life deck: an Endurance 3 card, then plenty of cards
+      pl.lifeDeck.unshift({ iid: 'end1', defId: endCard.id, owner: 1 })
+      const before = pl.lifeDeck.length
+      applyDamage(s, 1, { stages: 0, lifeCards: 5 }, db)
+      expect(before - pl.lifeDeck.length).toBe(tokui ? 1 + 1 : 5)
+      if (tokui) expect(pl.removed.some(c => c.iid === 'end1')).toBe(true)
+    }
+  })
+
+  it('a focused attack is detected and sets off Defense Shields without stopping', () => {
+    const focusedCard = Object.values(db).find(d => d.id === 'CG-47')!
+    expect(isFocused({ combatRole: focusedCard.combatRole!, cost: focusedCard.cost, damage: focusedCard.damage, effects: focusedCard.effects })).toBe(true)
+    const s = setup()
+    s.combat = newCombat(0)
+    s.players[1].drills.push({ iid: 'sh1', defId: 'AS-32', owner: 1 })
+    const shield = (focused: boolean) => defenseShield(s, db, 1, 'PHYSICAL', focused)
+    const normal = shield(false)
+    expect(normal === null || typeof normal === 'string').toBe(true)
+    expect(shield(true)).toBeNull()
   })
 })

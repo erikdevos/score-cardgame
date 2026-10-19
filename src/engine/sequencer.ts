@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { resolveEffects } from './effects'
@@ -35,6 +35,8 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
   if (!attack) return null
   const d = def(db, c)
   const opt = cardDefense(d, attack) ?? attackAsDefense(s, db, defender, d, attack)
+  // focused attacks cannot be stopped by cards that stop both attack types
+  if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike)) return null
   if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, db, defender, opt.strike)) return null
   if (d.noStacking && s.combat!.usedCardIds.includes(d.id)) return null
   const effects = opt.strike.effects.onPlaySecondary
@@ -78,6 +80,7 @@ export function legalDefenses(s: GameState, db: CardDB, defender: PlayerId): Car
 export function legalPowerDefense(s: GameState, db: CardDB, defender: PlayerId): DefenseOption | null {
   if (currentStrikeBlock(s, db).power || defensesNeeded(s) > 1 || s.combat?.lockdown) return null
   const opt = powerDefense(s, db, defender)
+  if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike)) return null
   return opt && canPayCost(s, db, defender, opt.strike) ? opt : null
 }
 
@@ -178,7 +181,7 @@ export function strikeAfterSecondaries(s: GameState, db: CardDB) {
   const st = s.combat!.strike!
   if (!isAttackRole(st.strike.combatRole)) return cleanup(s, db)
   const defender = other(st.initiator)
-  const stopper = autoStop(s, db, defender, attackTypeOf(st.strike.combatRole)!)
+  const stopper = autoStop(s, db, defender, attackTypeOf(st.strike.combatRole)!, isFocused(st.strike))
   if (stopper) {
     log(s, 'AUTO_STOP', `${stopper} stops ${st.label} automatically`, defender)
     st.defense = { mode: 'STOP', stages: 0, lifeCards: 0 }
@@ -271,7 +274,7 @@ export function resolveHit(s: GameState, db: CardDB) {
     return cleanup(s, db)
   }
   // Step 6 (Trunks Saga): the defender's Defense Shields answer an attack that was not stopped
-  const ds = defenseShield(s, db, defender, type)
+  const ds = defenseShield(s, db, defender, type, isFocused(st.strike))
   if (ds) {
     log(s, 'STOPPED', `${ds} stops ${st.label}`, defender)
     s.combat!.lastAttack[st.initiator] = { type, success: false }

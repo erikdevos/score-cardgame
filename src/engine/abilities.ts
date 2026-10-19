@@ -186,8 +186,14 @@ export function activeCustom(s: GameState, db: CardDB, effects: Effect[], handle
   return out
 }
 
-/** Trunks Saga Defense Shield (TS-106, TS-166, TS-171): stops the first N unstopped attacks of a type each combat. */
-export function defenseShield(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY'): string | null {
+/** Buu Saga rulebook (p. 50): a "Focused" attack cannot be stopped by Defense Shields, Masteries or cards that stop both attack types. */
+export const isFocused = (strike?: StrikeDef) => !!strike && ['focused', 'focusedAttack'].some(h => findCustom(strike.effects.onPlaySecondary, h).length)
+
+/**
+ * Trunks Saga Defense Shield (TS-106, TS-166, TS-171): stops the first N unstopped attacks of a type each combat.
+ * A focused attack sets off every matching shield and is still successful.
+ */
+export function defenseShield(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY', focused = false): string | null {
   const c = s.combat!
   for (const src of permanentSources(s, db, defender)) {
     for (const sh of activeCustom(s, db, src.effects, 'defenseShield')) {
@@ -195,6 +201,10 @@ export function defenseShield(s: GameState, db: CardDB, defender: PlayerId, atta
       const key = `shield:${defender}:${src.name}:${String(sh.attackType)}`
       if (c.onceKeys.filter(k => k === key).length >= Number(sh.count ?? 1)) continue
       c.onceKeys.push(key)
+      if (focused) {
+        log(s, 'SHIELD', `${src.name} (Defense Shield) is set off by the focused attack but cannot stop it`, defender)
+        continue
+      }
       return `${src.name} (Defense Shield)`
     }
   }
@@ -262,12 +272,13 @@ export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NO
 }
 
 /** Drill "stop the first physical attack made on you in a combat": the drill that stops this one. */
-export function autoStop(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY'): string | null {
+export function autoStop(s: GameState, db: CardDB, defender: PlayerId, attack: 'PHYSICAL' | 'ENERGY', focused = false): string | null {
   const c = s.combat!
   for (const drill of s.players[defender].drills) {
     const d = def(db, drill)
     for (const a of findCustom(d.effects.onEnterPlay, 'autoStopAttack')) {
       if (!typeMatches(a.attackType, attack)) continue
+      if (focused && a.attackType === 'ANY') continue
       const key = `${drill.iid}:autoStop`
       const used = c.onceKeys.filter(k => k === key).length
       if (used >= Number(a.count ?? 1)) continue

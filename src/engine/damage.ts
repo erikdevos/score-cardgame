@@ -1,5 +1,6 @@
 import type { CardDB, StrikeDef } from './cards'
-import { activePassives, log, millCards, powerRating } from './state'
+import { tableEffects } from './abilities'
+import { activePassives, def, findCustom, log, millCards, powerRating } from './state'
 import type { GameState, PlayerId, Rules } from './types'
 
 export function bracketOf(rating: number, rules: Rules): number {
@@ -78,7 +79,41 @@ export function applyDamage(s: GameState, target: PlayerId, d: Damage, db?: Card
     totalLife -= absorbed
     if (absorbed) log(s, 'PROTECT', `${sub.source}: ${absorbed} life card(s) of damage taken from the discard pile`, target)
   }
-  const milled = absorbed + (totalLife > 0 ? millCards(s, target, totalLife, db) : 0)
+  const milled = absorbed + (totalLife > 0 ? millWithEndurance(s, target, totalLife, db) : 0)
   log(s, 'DAMAGE', `Player ${target + 1} takes ${paid} stage(s)${overflow ? ` (+${overflow} overflow)` : ''} and ${milled} life card(s)`, target)
   return milled
+}
+
+/** Endurance N of a card: the first Endurance effect of the card, or 1 for Non-Combat cards while a grantEndurance drill is in play (CG-112). */
+function enduranceOf(s: GameState, db: CardDB, owner: PlayerId, card: { defId: string }): number {
+  const d = def(db, card as never)
+  const own = Object.values(d.effects).flatMap(v => (Array.isArray(v) ? findCustom(v as never[], 'endurance') : [])).map(p => Number(p.amount ?? 0))
+  if (own.length) return Math.max(...own)
+  const grant = tableEffects(s, db, owner, 'grantEndurance').find(g => g.params.onlyIfNone && (g.params.cardTypes as string[] | undefined)?.includes(d.type))
+  return grant ? Number(grant.params.amount ?? 1) : 0
+}
+
+/**
+ * Life cards of damage from an attack, one card at a time. Buu Saga rulebook (p. 50): a discarded life card with
+ * Endurance N may be removed from the game to prevent N more life cards of damage; only in a deck that declared
+ * a Tokui-Waza. The engine always uses it (it is nearly always better than keeping the card).
+ */
+function millWithEndurance(s: GameState, target: PlayerId, n: number, db?: CardDB): number {
+  if (!db || !s.players[target].tokuiWaza) return millCards(s, target, n, db)
+  const pl = s.players[target]
+  let remaining = n
+  let done = 0
+  while (remaining > 0 && s.winner === null) {
+    if (!millCards(s, target, 1, db)) break
+    remaining--
+    done++
+    const card = pl.discard[pl.discard.length - 1]
+    const endurance = card ? enduranceOf(s, db, target, card) : 0
+    if (endurance > 0 && remaining > 0) {
+      pl.removed.push(pl.discard.pop()!)
+      log(s, 'ENDURANCE', `${def(db, card).name} is removed from the game: Endurance ${endurance} prevents ${Math.min(endurance, remaining)} life card(s) of damage`, target)
+      remaining = Math.max(0, remaining - endurance)
+    }
+  }
+  return done
 }
