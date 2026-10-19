@@ -249,3 +249,15 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 **Implemented**: `ifOwnStages`, `ifPowerRatingGreater`, `ifAnger`, `ifMainPersonality`, `winGame`, `discardLifeBoth` (always the maximum, no choice yet), `modifyStagesByAlignment`.
 
 **Not implemented yet** (WARN or no effect): `temporaryPurModifier` (CG-5), `discardAttached` and `discardAttachedCards` (CG-44, CG-67), `rearrangeDiscard` (CG-62), `removeAndShuffleFromDiscard` (CG-65), `lookAtTopCards` (CG-68), `skipFightBack` (CG-77), `loseGameAtAnger` (CG-99), `placeAllyInsteadOfAttack` (CG-100). Defense Shield drills put `defenseShield` directly in `onEnterPlay` (9 cards): the engine reads it from personality powers only. `forbidCards` ignores the card-type filter of CG-8. Low-resolution scans: CG-124 and CG-125 may misread ("0 to 3" vs "2 or 3" cards, "+5" vs "-5").
+
+## Cell Saga rulebook findings (Erik's copy, 2001; ~/Downloads, 64 pages, a scan without text layer)
+
+The rulebook has no text on **Endurance**, **Focused attacks** or the **Fight Back** phase: those keywords come after the Cell Saga (look in the Cell Games Saga rulebook). What it does settle (printed pp. 44-50 = PDF pages 46-52):
+- **Physical Attack Table** (p. 37): 9 brackets up to 4,000,000, now `src/engine/config/pat-cell.json`, used by the Cell and all-sets pools. The scan is blurry; the matrix follows the same pattern as the Trunks table (8 base damage cap), brackets read as 0, 100, 10,000, 300,000, 700,000, 1M, 2M, 3M, 4M.
+- **Level 5 main personalities** are legal ("up to level 5"): they allow level 3 allies and count for the Most Powerful Personality Victory. The schema still caps `level` at 4 (open).
+- **Allies**: level 2 and 3 allies may go directly into play when the MP level allows it (MP at level 3, 4 or 5). Allies must be at least 2 levels below the MP's highest level (level 3 allies with a level 5 MP). Garlic Jr., Guldo and Frieza may capture Dragon Balls instead of doing damage (not implemented).
+- **Deck**: 50 to 75 cards including the main personalities (80 for Piccolo, Nail or Cell with a Namekian Tokui-Waza); only one Dragon Ball type (Earth, Namek or Dende, no duplicates), which confirms Dende as a third set; Mastery cards are untouchable and count toward deck size.
+- **Cell** may declare a Namekian or Saiyan Tokui-Waza and uses both Saiyan Heritage and Namekian Heritage cards. "Villains, Goku and Gohan only" = Saiyan Heritage; "Piccolo and Nail only" = Namekian Heritage.
+- **Mandatory rules now**: Double Power Rule (if one MP starts at half the other's beginning stage, the lower one sets its Scouter to the top and the higher one to 2 stages above 0, the lower goes first) and the Tournament Dragon Ball rule (a captured Dragon Ball's power may be used at once, even if used this turn). Neither is implemented.
+- **Nowhere to Hide**: cards that stop Step 4 Combat can only be played as an attack, never as a defense.
+- **Cherry Picking**: after choosing cards from your Life Deck, reshuffle it and show the cards to the opponent. Only one Battleground or Location in play at a time (already so).

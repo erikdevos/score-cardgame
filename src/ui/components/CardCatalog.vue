@@ -34,6 +34,55 @@ const fmt = (v: unknown): string => {
   return String(v)
 }
 
+
+const n = (v: number, one: string, many = `${one}s`) => `${v} ${Math.abs(v) === 1 ? one : many}`
+const signed = (v: number) => (v > 0 ? `+${v}` : String(v))
+const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+const ROLES: Record<string, string> = {
+  ATTACK_PHYSICAL: 'Physical attack', ATTACK_ENERGY: 'Energy attack', COMBAT_EFFECT: 'Combat effect',
+  DEFENSE_PHYSICAL: 'Defense against physical attacks', DEFENSE_ENERGY: 'Defense against energy attacks', DEFENSE_ANY: 'Defense against any attack',
+}
+const alignmentLabel = (a: string) => `${a}${a.endsWith('s') ? '' : 's'}`
+
+function damageText(d: any): string {
+  if (d.calculation === 'NONE') return ''
+  const parts: string[] = []
+  if (d.calculation === 'PAT') {
+    parts.push('Per the PAT')
+    if (d.modifierStages) parts.push(`${signed(d.modifierStages)} ${Math.abs(d.modifierStages) === 1 ? 'stage' : 'stages'}`)
+    if (d.modifierLifeCards) parts.push(`${signed(d.modifierLifeCards)} life ${Math.abs(d.modifierLifeCards) === 1 ? 'card' : 'cards'}`)
+  } else {
+    if (d.lifeCards) parts.push(n(d.lifeCards, 'life card'))
+    if (d.stages) parts.push(n(d.stages, 'stage'))
+    if (!parts.length) parts.push('0')
+  }
+  return parts.join(', ')
+}
+function defenseText(d: any): string {
+  if (d.mode === 'STOP') return 'Stops the attack'
+  if (d.mode === 'CAP') return `Damage capped at ${n(d.maxLifeCards ?? 0, 'life card')}`
+  const parts = [d.lifeCards && n(d.lifeCards, 'life card'), d.stages && n(d.stages, 'stage')].filter(Boolean)
+  return parts.length ? `Reduces damage by ${parts.join(' and ')}` : 'Reduces damage'
+}
+function costText(c: any): string {
+  if (c.type === 'NONE' || !c.amount) return ''
+  return c.type === 'POWER_STAGES' ? n(c.amount, 'power stage') : n(c.amount, 'life card')
+}
+function usableByText(u: any): string {
+  return [...(u.alignments ?? []).map(alignmentLabel), ...(u.characters ?? [])].join(', ') + ' only'
+}
+function passiveText(p: any): string {
+  const who = ({ OWNER: 'you', OPPONENT: 'your opponent', ALL: 'every player' } as Record<string, string>)[p.scope] ?? p.scope
+  if (p.kind === 'PUR_MOD') return `${cap(who)} ${p.scope === 'ALL' ? 'get' : 'gets'} ${signed(p.amount)} PUR`
+  if (p.kind === 'HAND_LIMIT') return `${signed(p.amount)} hand size for ${who}`
+  if (p.kind === 'DAMAGE_MOD') {
+    const atk = p.attackType === 'ANY' ? 'any' : p.attackType.toLowerCase()
+    const mods = [p.lifeCards && `${signed(p.lifeCards)} life ${Math.abs(p.lifeCards) === 1 ? 'card' : 'cards'}`, p.stages && `${signed(p.stages)} ${Math.abs(p.stages) === 1 ? 'stage' : 'stages'}`].filter(Boolean)
+    return `${mods.join(' and ') || 'No change'} damage on ${atk} attacks by ${who}`
+  }
+  return fmt(p)
+}
+
 /** Transcribed fields as label/value rows; empty fields are left out. */
 const rows = computed<[string, string][]>(() => {
   const c = open.value as (CardDef & Record<string, any>) | null
@@ -45,8 +94,9 @@ const rows = computed<[string, string][]>(() => {
     if (p.power) out.push(['Power', `${p.power.name}: ${p.power.text}`])
   }
   out.push(
-    ['Cost', c.cost], ['Damage', c.damage], ['Defense', c.defense], ['Combat role', c.combatRole], ['Usable by', c.usableBy], ['Use phase', c.usePhase],
-    ['Limit per deck', c.limitPerDeck], ['Dragon Ball', c.dragonBallNumber], ['Named', c.named], ['Passives', c.passives],
+    ['Combat role', c.combatRole && (ROLES[c.combatRole] ?? c.combatRole)], ['Cost', c.cost && costText(c.cost)], ['Damage', c.damage && damageText(c.damage)], ['Defense', c.defense && defenseText(c.defense)],
+    ['Usable by', c.usableBy && usableByText(c.usableBy)], ['Use phase', c.usePhase && `${cap(c.usePhase)} phase`],
+    ['Limit per deck', c.limitPerDeck && `Max ${c.limitPerDeck}`], ['Dragon Ball', c.dragonBallNumber], ['Named', c.named], ['Passives', c.passives?.map(passiveText).join('; ')],
     ['Card', c.id], ['Set', `${c.set} · #${c.number}`],
     // debugging only, not relevant for players
     ['Needs review', c.needsReview], ['Verified', c.verified ? 'Yes' : 'No'],
