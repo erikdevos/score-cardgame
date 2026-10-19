@@ -98,7 +98,9 @@ export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): b
   const u = d.usableBy
   if (!u) return true
   const mp = mpDef(s, db, p).personality!
-  return !!(u.alignments?.includes(mp.alignment as 'Hero' | 'Villain') || u.characters?.includes(mp.character))
+  // "Majin only": every Majin personality (Majin Buu, Majin Vegeta, ...)
+  const majin = !!u.characters?.includes('Majin') && mp.character.startsWith('Majin')
+  return !!(u.alignments?.includes(mp.alignment as 'Hero' | 'Villain') || u.characters?.includes(mp.character) || majin)
 }
 
 export function handLimit(s: GameState, db: CardDB, p: PlayerId): number {
