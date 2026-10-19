@@ -1,4 +1,11 @@
 /* DBZ CCG: dark "arena" app theme. Orange/gold ki, energy blue, scouter green. */
+/* Serpentine: the official card-game typeface (headings and titles) */
+@font-face { font-family: 'Serpentine'; font-weight: 400; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-regular.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 500; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-medium.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 700; font-style: normal; font-display: swap; src: url('./fonts/web/serpentine-bold.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 500; font-style: italic; font-display: swap; src: url('./fonts/web/serpentine-medium-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Serpentine'; font-weight: 700; font-style: italic; font-display: swap; src: url('./fonts/web/serpentine-bold-italic.woff2') format('woff2'); }
+
 :root {
   --bg-0: #070a18;
   --bg-1: #0d1430;
@@ -23,7 +30,7 @@
   --aura: 0 0 0 2px rgba(255, 194, 26, 0.95), 0 0 22px 4px rgba(255, 150, 0, 0.55);
   --radius: 18px;
   --radius-sm: 12px;
-  --font-display: 'Bangers', 'Impact', system-ui, sans-serif;
+  --font-display: 'Serpentine', 'Bangers', 'Impact', system-ui, sans-serif;
   --font-ui: 'Exo 2', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-digits: 'Orbitron', 'Exo 2', monospace;
   /* card sizes: cards are the focal point */

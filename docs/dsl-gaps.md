@@ -252,7 +252,7 @@ Transcribed 2026-10-18: 142 cards in `src/data/frieza-saga/cards.json`, all unve
 
 ## Cell Saga rulebook findings (Erik's copy, 2001; ~/Downloads, 64 pages, a scan without text layer)
 
-The rulebook has no text on **Endurance**, **Focused attacks** or the **Fight Back** phase: those keywords come after the Cell Saga (look in the Cell Games Saga rulebook). What it does settle (printed pp. 44-50 = PDF pages 46-52):
+The rulebook pages on card types, drills, Dragon Balls and the Cell Saga changes (printed pp. 36-50) say nothing about **Endurance**, **Focused attacks** or the **Fight Back** phase, and Erik confirms the Cell Saga book is the last Cell-era rulebook he has: those keywords are most likely explained in the Buu Saga rulebook (next series). The basic-rules pages (printed pp. 3-35) were not read. What it does settle (printed pp. 44-50 = PDF pages 46-52):
 - **Physical Attack Table** (p. 37): 9 brackets up to 4,000,000, now `src/engine/config/pat-cell.json`, used by the Cell and all-sets pools. The scan is blurry; the matrix follows the same pattern as the Trunks table (8 base damage cap), brackets read as 0, 100, 10,000, 300,000, 700,000, 1M, 2M, 3M, 4M.
 - **Level 5 main personalities** are legal ("up to level 5"): they allow level 3 allies and count for the Most Powerful Personality Victory. The schema still caps `level` at 4 (open).
 - **Allies**: level 2 and 3 allies may go directly into play when the MP level allows it (MP at level 3, 4 or 5). Allies must be at least 2 levels below the MP's highest level (level 3 allies with a level 5 MP). Garlic Jr., Guldo and Frieza may capture Dragon Balls instead of doing damage (not implemented).
