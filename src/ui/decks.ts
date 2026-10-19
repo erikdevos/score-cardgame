@@ -7,7 +7,7 @@ import type { CardDef } from '../engine'
 export interface DeckChoice {
   key: string
   label: string
-  /** Level 1 Main Personality, for the menu preview */
+  /** Highest-level Main Personality, for the menu preview */
   mpId: string
   build: (seed: number) => DeckList
 }
@@ -84,7 +84,7 @@ export function deckChoices(format: FormatKey = 'SAIYAN'): DeckChoice[] {
   const cards = formatCards(format)
   // the Saiyan Saga format keeps the original 3-level stacks
   const out: DeckChoice[] = realCharacters(cards, format === 'SAIYAN' ? 3 : 4).map(({ character, mp }) => (
-    { key: `auto-${character}`, label: character, mpId: mp[0], build: (seed: number) => autoDeck(cards, mp, character, seed, !!FORMATS[format].rules.trunks?.allyRules) }))
+    { key: `auto-${character}`, label: character, mpId: mp[mp.length - 1], build: (seed: number) => autoDeck(cards, mp, character, seed, !!FORMATS[format].rules.trunks?.allyRules) }))
   out.push(
     { key: 'demo-hero', label: 'Test deck: Hero (fictional, no images)', mpId: heroMP[0], build: () => testDeck(heroMP) },
     { key: 'demo-villain', label: 'Test deck: Villain (fictional, no images)', mpId: villainMP[0], build: () => testDeck(villainMP) },

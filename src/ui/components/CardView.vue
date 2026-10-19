@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { CardDef } from '../../engine'
+import { isTopLevel } from '../cardDb'
 import { hidePreview, showPreview } from '../preview'
 import { vTilt } from '../tilt'
 
@@ -65,7 +66,7 @@ function onClick() {
   <button
     class="card"
     v-tilt="size === 'xs' || size === 'sm' ? 0 : undefined"
-    :class="[`size-${size ?? 'md'}`, { playable, back: !faceUp, foil: faceUp && /Rare|Promo/.test(card!.rarity), [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: faceUp }]"
+    :class="[`size-${size ?? 'md'}`, { playable, back: !faceUp, foil: faceUp && /Rare|Promo/.test(card!.rarity), holo: faceUp && isTopLevel(card), [`t-${card?.type.replace(/\W/g, '').toLowerCase()}`]: faceUp }]"
     :aria-label="faceUp ? `${card!.name}, ${card!.type}` : (label ?? 'Face-down card')"
     @click="onClick"
     @mouseenter="faceUp && showPreview(card)"

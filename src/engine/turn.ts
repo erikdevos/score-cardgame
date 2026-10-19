@@ -89,6 +89,14 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
       break
     case 'Dragon Ball':
       pl.dragonBalls.push(card)
+      // AS-36: the card attached to this player's main personality is discarded
+      for (const l of s.powerLocks.filter(x => x.player === p && x.until === 'opponentPlaysDragonBall')) {
+        const holder = s.players[other(p)]
+        const i = holder.nonCombat.findIndex(c => c.iid === l.cardIid)
+        if (i >= 0) holder.discard.push(...holder.nonCombat.splice(i, 1))
+        log(s, 'DISCARD', `Player ${p + 1} places a Dragon Ball: the attached card is discarded and the power works again`, p)
+      }
+      s.powerLocks = s.powerLocks.filter(x => !(x.player === p && x.until === 'opponentPlaysDragonBall'))
       break
     case 'Location':
     case 'Battleground':
@@ -124,6 +132,12 @@ export function checkDragonBalls(s: GameState, db: CardDB) {
 export function playCard(s: GameState, db: CardDB, p: PlayerId, iid: string) {
   const onTable = isOnTable(s, p, iid)
   const role = def(db, (onTable ? s.players[p].nonCombat : s.players[p].hand).find(c => c.iid === iid)!).combatRole
+  if (s.step === 'COMBAT' && !onTable && def(db, s.players[p].hand.find(c => c.iid === iid)!).type === 'Non-Combat') {
+    // AS-125: once per combat, a Non-Combat card is placed in place of an attack
+    s.combat!.onceKeys.push(`instead:${p}`)
+    s.combat!.consecutivePasses = 0
+    return playNonCombat(s, db, p, iid)
+  }
   if (s.step === 'COMBAT') return onTable && !role ? useNonCombat(s, db, p, iid) : playCombatCard(s, db, p, iid)
   return onTable ? useNonCombat(s, db, p, iid) : playNonCombat(s, db, p, iid)
 }

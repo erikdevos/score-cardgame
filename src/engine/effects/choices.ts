@@ -1,7 +1,7 @@
 // Player choices raised by card effects ("2 cards of your choice", "if you wish").
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
-import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards, schedule } from '../state'
+import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards, schedule, step } from '../state'
 import type { CardDB, Effect } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
@@ -113,6 +113,29 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     const who = (index === 0 ? q.data.first : q.data.second) as PlayerId
     return changeAnger(s, db, who, Number(q.data.amount))
   }
+  if (q.purpose === 'disableDrill') {
+    s.disabledDrills.push(String(q.data[String(index)]))
+    return log(s, 'RESTRICT', `${q.source}: ${q.options[index]} can no longer be used`, q.player)
+  }
+  if (q.purpose === 'loseStages') {
+    // AS-13: lose `index` stages, lower the foe's anger 1 level per `per` stages lost
+    changeStages(s, q.player, -index)
+    const levels = Math.floor(index / Number(q.data.per ?? 2))
+    log(s, 'STAGES', `${q.source}: player ${q.player + 1} loses ${index} power stage(s)`, q.player)
+    if (levels) changeAnger(s, db, (1 - q.player) as PlayerId, -levels)
+    return
+  }
+  if (q.purpose === 'nameCardDiscard') {
+    // AS-52: one copy of the named card leaves the opponent's life deck for the discard pile
+    const foe = (1 - q.player) as PlayerId
+    const name = q.options[index]
+    const deck = s.players[foe].lifeDeck
+    const hit = deck.findIndex(c => def(db, c).name === name)
+    if (hit < 0) return log(s, 'NO_EFFECT', `${q.source}: no ${name} in player ${foe + 1}'s life deck`, foe)
+    s.players[foe].discard.push(...deck.splice(hit, 1))
+    s.rngSeed = shuffleInPlace(deck, s.rngSeed)
+    return log(s, 'DISCARD', `${q.source}: player ${foe + 1} discards ${name} from their life deck`, foe)
+  }
   if (q.purpose === 'nameCard') {
     const foe = (1 - q.player) as PlayerId
     const name = q.options[index]
@@ -168,7 +191,7 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
   const card = takeFrom(s, q.owner, found.zone, iid)
   const where: Record<Exclude<PickDest, 'ALLY_TO_MP_STAGES' | 'MARK_ALLY_SHIELD'>, string> = {
     HAND: 'into their hand', LIFE_TOP: 'on top of the life deck', LIFE_BOTTOM: 'at the bottom of the life deck',
-    OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, PICKER_DRAGON_BALLS: 'and captures it',
+    OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, USE_NONCOMBAT: 'and uses it', PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',
     LIFE_SHUFFLE: `and shuffles it into player ${q.owner + 1}'s life deck`,
   }
@@ -183,6 +206,10 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     case 'LIFE_SHUFFLE':
       owner.lifeDeck.push(card)
       s.rngSeed = shuffleInPlace(owner.lifeDeck, s.rngSeed)
+      break
+    case 'USE_NONCOMBAT':
+      s.resolving.push(card)
+      schedule(s, { k: 'effects', user: q.player, source: d.name, card, effects: [...d.effects.onEnterPlay] }, step('retire', { iid }))
       break
     case 'PLAY':
       if (d.type === 'Dragon Ball') picker.dragonBalls.push(card)

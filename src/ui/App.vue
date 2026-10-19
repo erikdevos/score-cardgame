@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { defaultRulesConfig, validateDeck } from '../engine'
-import { db, realCards } from './cardDb'
+import { db, isTopLevel, realCards } from './cardDb'
 import { deckChoices } from './decks'
 import { FORMATS, formatCards, formatReady, unverifiedIn, type FormatKey } from './formats'
 import { settings } from './settings'
@@ -81,7 +81,7 @@ function start(mode: Mode) {
             v-for="c in choices"
             :key="c.key"
             class="portrait"
-            :class="{ on: c.key === k, test: c.key.startsWith('demo') }"
+            :class="{ on: c.key === k, test: c.key.startsWith('demo'), holo: isTopLevel(db[c.mpId]) }"
             role="radio"
             :aria-checked="c.key === k"
             :title="c.label"

@@ -155,12 +155,14 @@ export type PickDest =
   | 'ALLY_TO_MP_STAGES'
   /** the chosen ally will absorb this combat's damage (Ally's Sacrifice); the card stays */
   | 'MARK_ALLY_SHIELD'
+  /** use the Non-Combat card's power right away (AS-120); the card then retires as usual */
+  | 'USE_NONCOMBAT'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -223,6 +225,12 @@ export interface GameState {
   endNextCombat: PlayerId[]
   /** anger cannot rise until this player forces a life card discard */
   angerLock: PlayerId[]
+  /** AS-24, AS-36: this player's main personality cannot use its power until the condition is met */
+  powerLocks: { player: PlayerId; until: string; cardIid?: string }[]
+  /** AS-21: drills (by iid) whose power cannot be used any more */
+  disabledDrills: string[]
+  /** AS-96: length of each discard pile after the last sweep (cards above it are new) */
+  discardMark: number[]
   /** may keep extra cards in the discard step of this turn */
   keepHand: { player: PlayerId; turn: number }[]
   /** FS-P1: this player cannot win by Dragon Balls or Most Powerful Personality before `untilTurn` */

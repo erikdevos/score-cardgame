@@ -82,6 +82,10 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         // unused Non-Combat cards on the table: as an attack, or their power in place of an attack
         ...pl.nonCombat.filter(c => !def(db, c).combatRole ? usableNow(s, db, p, c, 'ATTACK') : usableAsAttack(c)),
       ].map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid }))
+      // AS-125: once per combat, place a Non-Combat card from hand in place of an attack
+      if (tableEffects(s, db, p, 'playNonCombatInsteadOfAttack').length && !s.combat!.onceKeys.includes(`instead:${p}`) && !attackRestriction(s, p, 'COMBAT_EFFECT', false)) {
+        out.push(...pl.hand.filter(c => def(db, c).type === 'Non-Combat' && canUseCard(s, db, p, def(db, c))).map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid })))
+      }
       const mp = mpDef(s, db, p)
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
@@ -149,6 +153,7 @@ function canPlayNonCombat(s: GameState, db: CardDB, iid: string): boolean {
     return true
   }
   if (d.type === 'Dragon Ball' && dragonBallLimitReached(s, db, s.attacker)) return false
+  if (d.type === 'Non-Combat' && nonCombatLimitReached(s, db, s.attacker)) return false
   if (d.type === 'Dragon Ball' && s.rules.uniqueDragonBallNumbers) {
     return !s.players.some(p => p.dragonBalls.some(c => def(db, c).dragonBallNumber === d.dragonBallNumber))
   }
@@ -163,6 +168,15 @@ function dragonBallLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean 
   let played = 0
   for (let i = s.log.length - 1; i >= 0 && s.log[i].t !== 'TURN'; i--) if (s.log[i].t === 'PLAY' && balls.has(s.log[i].msg)) played++
   return played >= Math.min(...limits)
+}
+
+/** AS-55 "Opponents may only place 1 Non-Combat card in play during their turn": counted from this turn's log. */
+function nonCombatLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean {
+  const limits = tableEffects(s, db, other(p), 'playLimit').filter(e => e.params.cardType === 'Non-Combat').map(e => Number(e.params.perTurn ?? 1))
+  if (!limits.length) return false
+  let placed = 0
+  for (let i = s.log.length - 1; i >= 0 && s.log[i].t !== 'TURN'; i--) if (s.log[i].t === 'PLACE' && s.log[i].msg.startsWith(`Player ${p + 1} places `)) placed++
+  return placed >= Math.min(...limits)
 }
 
 /** Trunks Saga: allies that can take over the combat for p right now. */

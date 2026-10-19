@@ -6,7 +6,7 @@ import {
   cleanup, copyAttack, dealDamage, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
-import { clone, schedule } from './state'
+import { clone, def, log, schedule } from './state'
 import {
   advanceCombat, checkDragonBalls, declareCombat, discardFromHand, endNonCombat, endOfTurnWindow, endTurn,
   allyTakeover, finalPhysicalAttack, passCombat, playCard, rejuvenate, respond, skipCombat, useNonCombat, usePower,
@@ -60,6 +60,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     advanceCombat(s, db)
     run(s, db)
   }
+  sweepDiscards(s, db)
   return { state: s, events: s.log.slice(before) }
 }
 
@@ -96,4 +97,20 @@ function runFrame(s: GameState, db: CardDB, f: Exclude<Frame, { k: 'effects' } |
     case 'endOfTurnWindow': return endOfTurnWindow(s, db, f.player!)
     case 'endTurn': return endTurn(s, db)
   }
+}
+
+/** AS-96: while that Battleground is in play, new non-Dragon Ball cards in a discard pile leave the game instead. */
+function sweepDiscards(s: GameState, db: CardDB) {
+  const active = !!s.location && def(db, s.location).effects.onEnterPlay.some(e => e.action === 'CUSTOM' && e.handler === 'removeInsteadOfDiscard')
+  s.players.forEach((pl, i) => {
+    const mark = Math.min(s.discardMark[i], pl.discard.length)
+    if (active) {
+      const fresh = pl.discard.splice(mark)
+      const gone = fresh.filter(c => def(db, c).type !== 'Dragon Ball')
+      pl.discard.push(...fresh.filter(c => !gone.includes(c)))
+      pl.removed.push(...gone)
+      if (gone.length) log(s, 'REMOVE', `${gone.length} card(s) are removed from the game instead of the discard pile`, pl.id)
+    }
+    s.discardMark[i] = pl.discard.length
+  })
 }

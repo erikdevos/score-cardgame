@@ -168,6 +168,45 @@ export const handlers: Record<string, CustomHandler> = {
   },
 
   angerRaiseLimit: noop, // changeAnger (AS-93)
+  playLimit: noop, // legal.ts canPlayNonCombat (AS-55)
+  playCostModifier: noop, // sequencer extraPlayCost (AS-44)
+  removeInsteadOfDiscard: noop, // engine.ts sweepDiscards (AS-96)
+  playNonCombatInsteadOfAttack: noop, // legal.ts, turn.ts (AS-125)
+
+  disablePersonalityPower(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    ctx.s.powerLocks.push({ player: who, until: String(p.until), cardIid: p.attached ? ctx.card?.iid : undefined })
+    log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1}'s main personality cannot use its power until ${String(p.until)}`, who)
+  },
+
+  disableDrillPower(ctx, p) {
+    const foe = targetOf(ctx, p.target ?? 'OPPONENT')
+    const drills = ctx.s.players[foe].drills.filter(c => !ctx.s.disabledDrills.includes(c.iid))
+    if (!drills.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: player ${foe + 1} has no drills in play`)
+    queueChoice(ctx.s, {
+      kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Choose a drill of your opponent', purpose: 'disableDrill',
+      options: drills.map(c => def(ctx.db, c).name), data: Object.fromEntries(drills.map((c, i) => [String(i), c.iid])),
+    })
+  },
+
+  loseStagesForAnger(ctx, p) {
+    const max = fighterStage(ctx.s, ctx.user)
+    queueChoice(ctx.s, {
+      kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'How many power stages do you lose?', purpose: 'loseStages',
+      options: Array.from({ length: max + 1 }, (_, i) => `${i} stage${i === 1 ? '' : 's'}`), data: { per: num(p.stagesPerAngerLevel, 2) },
+    })
+  },
+
+  discardNamedCardFromDeck(ctx) {
+    const names = [...new Set(Object.values(ctx.db).filter(d => d.type !== 'Dragon Ball' && !d.id.startsWith('TEST')).map(d => d.name))].sort()
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: {} })
+  },
+
+  useNonCombatInPlay(ctx, p) {
+    const cards = ctx.s.players[ctx.user].nonCombat.filter(c => !def(ctx.db, c).combatRole)
+    if (!cards.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no Non-Combat card in play`)
+    queueChoice(ctx.s, pickRequest(ctx.user, ctx.user, 'nonCombat', cards, num(p.amount, 1), 'USE_NONCOMBAT', ctx.source))
+  },
 
   drawUntilHandSize(ctx, p) {
     const who = targetOf(ctx, p.target)

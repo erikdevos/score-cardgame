@@ -7,8 +7,18 @@ import { triggerFrames } from './effects/triggers'
 import { canUseCard, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from './types'
 
+/** AS-44: named cards cost extra life cards while such a Location is in play. */
+function extraPlayCost(s: GameState, db: CardDB, strike: StrikeDef): number {
+  if (!(strike as { named?: string }).named || !s.location) return 0
+  return findCustom(def(db, s.location).effects.onEnterPlay, 'playCostModifier')
+    .filter(m => m.cardFilter === 'named')
+    .reduce((n, m) => n + Number((m.cost as { amount?: number } | undefined)?.amount ?? 0), 0)
+}
+
 export function canPayCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef, style?: string): boolean {
   const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole, style)
+  const extra = extraPlayCost(s, db, strike)
+  if (extra && s.players[p].lifeDeck.length <= extra + (cost.type === 'LIFE_CARDS' ? cost.amount : 0)) return false
   if (cost.type === 'POWER_STAGES') return fighterStage(s, p) >= cost.amount
   if (cost.type === 'LIFE_CARDS') return s.players[p].lifeDeck.length >= cost.amount
   return true
@@ -16,7 +26,7 @@ export function canPayCost(s: GameState, db: CardDB, p: PlayerId, strike: Strike
 
 export function strikeOf(db: CardDB, c: CardInstance): StrikeDef {
   const d = def(db, c)
-  return { combatRole: d.combatRole!, cost: d.cost, damage: d.damage, effects: d.effects }
+  return { combatRole: d.combatRole!, cost: d.cost, damage: d.damage, effects: d.effects, ...(d.named ? { named: d.named } : {}) } as StrikeDef
 }
 
 /** How a card in hand or on the table would answer the current strike, if it can. */
@@ -88,6 +98,11 @@ export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
 /** Pays the cost; returns the power stages paid. */
 function payCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef, style?: string): number {
   const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole, style)
+  const extra = extraPlayCost(s, db, strike)
+  if (extra) {
+    millCards(s, p, extra, db)
+    log(s, 'COST', `Player ${p + 1} pays ${extra} extra life card(s) for a named card`, p)
+  }
   if (cost.type === 'POWER_STAGES') {
     changeStages(s, p, -cost.amount)
     return cost.amount
@@ -135,6 +150,8 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   combat.strike.paidStages = payCost(s, db, initiator, strike, card ? def(db, card).style : undefined)
+  // AS-24: a personality power that was switched off until its owner performs an energy attack
+  if (attackTypeOf(strike.combatRole) === 'ENERGY') s.powerLocks = s.powerLocks.filter(l => !(l.player === initiator && l.until === 'performsEnergyAttack'))
   if (over(s)) return
   schedule(s,
     step('strike.react'),

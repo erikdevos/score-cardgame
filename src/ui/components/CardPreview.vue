@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { isTopLevel } from '../cardDb'
 import { closePreview, previewCard, previewPinned } from '../preview'
 </script>
 
 <template>
   <div class="preview panel" :class="{ pinned: previewPinned, empty: !previewCard }" @click.self="closePreview">
     <div v-if="previewCard" class="preview-inner">
-      <div v-if="previewCard.imageUrl" :key="previewCard.id" class="preview-art" :class="{ foil: /Rare|Promo/.test(previewCard.rarity) }">
+      <div v-if="previewCard.imageUrl" :key="previewCard.id" class="preview-art" :class="{ foil: /Rare|Promo/.test(previewCard.rarity), holo: isTopLevel(previewCard) }">
         <img :src="previewCard.imageUrl" :alt="previewCard.name" />
         <span class="shine" aria-hidden="true" />
       </div>

@@ -128,7 +128,7 @@ export function findCustom(effects: Effect[], handler: string): Record<string, u
 /** Constant Combat Powers: always-on effects of the main personality's power (off while a card stops them this combat). */
 export function constantParams(s: GameState, db: CardDB, p: PlayerId, handler: string): Record<string, unknown>[] {
   const power = mpDef(s, db, p).personality!.power
-  if (!power || s.combat?.noConstantPowers) return []
+  if (!power || s.combat?.noConstantPowers || s.powerLocks.some(l => l.player === p)) return []
   return findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
 }
 

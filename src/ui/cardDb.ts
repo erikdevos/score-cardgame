@@ -32,3 +32,12 @@ for (const set of SETS) {
 export const setOrder = (name: string) => SETS.findIndex(s => s.name === name)
 
 export const db: CardDB = { ...buildCardDB(testCards), ...Object.fromEntries(realCards.map(c => [c.id, c])) }
+
+/** Highest personality level per character across all sets: those cards are the unique, shiny versions. */
+const topLevel = new Map<string, number>()
+for (const c of realCards) {
+  const p = c.type === 'Personality' ? c.personality : undefined
+  if (p && c.rarity !== 'Promo') topLevel.set(p.character, Math.max(topLevel.get(p.character) ?? 0, p.level))
+}
+/** True for the highest-level Personality of a character (metallic/holo treatment). */
+export const isTopLevel = (c?: CardDef) => !!c && c.type === 'Personality' && !!c.personality && topLevel.get(c.personality.character) === c.personality.level

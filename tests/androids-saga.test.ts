@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { allCardsOf, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
+import { customHandlers } from '../src/engine/effects'
+import { powerOptions, tableEffects } from '../src/engine/abilities'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
 import { FORMATS } from '../src/ui/formats'
@@ -26,5 +28,21 @@ describe('Androids Saga pool', () => {
       for (const e of s.log) if (e.t === 'WARN') warns.set(e.msg.replace(/^.*custom effect /, ''), (warns.get(e.msg.replace(/^.*custom effect /, '')) ?? 0) + 1)
     }
     console.log('unimplemented in play:', [...warns].sort((x, y) => y[1] - x[1]).slice(0, 10))
+  })
+
+  it('locks and disabled drills switch powers off', () => {
+    const choices = deckChoices(FORMAT).filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS[FORMAT].rules })
+    const ctx = { s, db, user: 0 as const, source: 'test' }
+    const before = powerOptions(s, db, 1).length
+    customHandlers.disablePersonalityPower(ctx, { target: 'OPPONENT', until: 'performsEnergyAttack' })
+    expect(powerOptions(s, db, 1)).toHaveLength(0)
+    expect(before).toBeGreaterThan(0)
+    // a drill in play, then switched off
+    const drill = Object.values(db).find(d => d.id === 'AS-55')!
+    s.players[1].drills.push({ iid: 'dr1', defId: drill.id, owner: 1 })
+    expect(tableEffects(s, db, 1, 'playLimit')).toHaveLength(1)
+    s.disabledDrills.push('dr1')
+    expect(tableEffects(s, db, 1, 'playLimit')).toHaveLength(0)
   })
 })
