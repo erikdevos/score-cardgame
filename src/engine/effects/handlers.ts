@@ -663,7 +663,9 @@ export const handlers: Record<string, CustomHandler> = {
   searchDeck(ctx, p) {
     const { s, db, user } = ctx
     const owner = p.target === 'OPPONENT' ? other(user) : user
-    const zones = (Array.isArray(p.from) ? p.from : [p.from ?? 'lifeDeck']) as PickZone[]
+    const VALID = ['discard', 'dragonBalls', 'lifeDeck', 'hand', 'drills', 'allies', 'nonCombat']
+    const zones = (Array.isArray(p.from) ? p.from : [p.from ?? 'lifeDeck']).filter(z => VALID.includes(String(z))) as PickZone[]
+    if (!zones.length) return log(s, 'NO_EFFECT', `${ctx.source}: search zone ${String(p.from)} is not supported yet`)
     const level = s.players[user].mp.levelIndex + 1
     const cards = zones.flatMap(z => zoneCards(s, owner, z)).filter(c => matchesFilter(s, db, user, def(db, c), String(p.filter ?? '')))
       .filter(c => !p.matchNumberToLevel || def(db, c).dragonBallNumber === level)
