@@ -20,7 +20,7 @@ const NEW_KEYS = [
   'perCount', 'stagesPerOpponentAngerBelow', 'ifRemovedCardStyle', 'stagesPerCardInPile', 'stagesPerCardInPlay', 'lifeCardsPerCardOfType',
   'stagesPerPersonalityInPlay', 'stagesPerNamedCardInDiscard', 'againstOverride', 'stagesPerOpponentCardInPlay', 'againstNameContains',
   'lifeCardsPerCardInOpponentDiscard', 'firstAttackPerCombat', 'firstAttackOnly', 'limit', 'excludeTriggeringAttack', 'startsAfterThisAttack', 'noCost',
-  'flatStages', 'flatLifeCards', 'nextAttackOnly', 'forNextAttacks', 'filter', 'stagesPerOpponentCardInPlay', 'noModifiers',
+  'flatStages', 'flatLifeCards', 'excludeUnstoppableOrFocused', 'nextAttackOnly', 'forNextAttacks', 'filter', 'stagesPerOpponentCardInPlay', 'noModifiers',
 ]
 
 export const isNewStyle = (m: P) => NEW_KEYS.some(k => k in m)

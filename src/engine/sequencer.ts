@@ -318,7 +318,8 @@ export function resolveHit(s: GameState, db: CardDB) {
   let dmg = computeDamage(s, db, st.initiator, st.strike)
   const boost = ownDamageBoost(s, db, st.initiator, type, style)
   if (boost.sources.length) {
-    dmg = { stages: dmg.stages + boost.stages, lifeCards: dmg.lifeCards + boost.lifeCards }
+    const extra = st.doubleDrills ? { stages: boost.drillStages, lifeCards: boost.drillLifeCards } : { stages: 0, lifeCards: 0 }
+    dmg = { stages: dmg.stages + boost.stages + extra.stages, lifeCards: dmg.lifeCards + boost.lifeCards + extra.lifeCards }
     log(s, 'DAMAGE_X', `${[...new Set(boost.sources)].join(', ')}: more damage`, st.initiator)
   }
   if (st.convertStages) dmg = { stages: 0, lifeCards: dmg.lifeCards + dmg.stages }

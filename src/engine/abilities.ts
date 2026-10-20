@@ -161,8 +161,8 @@ export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name:
 }
 
 /** Damage bonuses on player p's own attacks: "+1 life card with every successful attack" (drills, Mastery, constant powers). */
-export function ownDamageBoost(s: GameState, db: CardDB, p: PlayerId, attack: 'PHYSICAL' | 'ENERGY', style: string | undefined): { stages: number; lifeCards: number; sources: string[] } {
-  const out = { stages: 0, lifeCards: 0, sources: [] as string[] }
+export function ownDamageBoost(s: GameState, db: CardDB, p: PlayerId, attack: 'PHYSICAL' | 'ENERGY', style: string | undefined): { stages: number; lifeCards: number; sources: string[]; drillStages: number; drillLifeCards: number } {
+  const out = { stages: 0, lifeCards: 0, sources: [] as string[], drillStages: 0, drillLifeCards: 0 }
   for (const src of permanentSources(s, db, p)) {
     for (const m of activeCustom(s, db, src.effects, 'damageModifier')) {
       if (isNewStyle(m) || m.scope !== 'OWNER' || (!src.constant && !m.ongoing) || !typeMatches(m.attackType, attack)) continue
@@ -171,6 +171,10 @@ export function ownDamageBoost(s: GameState, db: CardDB, p: PlayerId, attack: 'P
       out.stages += Number(use.stages ?? 0)
       out.lifeCards += Number(use.lifeCards ?? 0)
       out.sources.push(src.name)
+      if (src.card && def(db, src.card).type === 'Drill') {
+        out.drillStages += Number(use.stages ?? 0)
+        out.drillLifeCards += Number(use.lifeCards ?? 0)
+      }
     }
   }
   return out

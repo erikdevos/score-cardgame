@@ -159,6 +159,17 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     s.splitPool = []
     return
   }
+  if (q.purpose === 'perCardBonus') {
+    // BB-112, BU-10, BU-162, BU-183: "you may discard / remove any number of cards, +N damage for each"
+    if (!index) return
+    const base = JSON.parse(String(q.data.base)) as Record<string, unknown>
+    registerDamageModifier(s, q.player, q.source, { ...base, [String(q.data.key)]: index * Number(q.data.per) })
+    log(s, 'DAMAGE_X', `${q.source}: ${index} card(s), +${index * Number(q.data.per)} ${q.data.key === 'flatStages' ? 'power stages' : 'life cards'} of damage`, q.player)
+    const zone = String(q.data.zone) as PickZone
+    const pile = zone === 'discard' ? s.players[q.player].discard : s.players[q.player].nonCombat
+    const ids = JSON.parse(String(q.data.eligible)) as string[]
+    return queueChoice(s, pickRequest(q.player, q.player, zone, pile.filter(c => ids.includes(c.iid)), index, q.data.dest as PickDest, q.source))
+  }
   if (q.purpose === 'rearrange') {
     // CG-62: 0 = top 10, 1 = bottom 10, 2 = leave it; the cards are then picked in the order they should end up
     if (index === 2) return

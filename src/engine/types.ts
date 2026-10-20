@@ -81,6 +81,8 @@ export interface StrikeState {
   preventMult?: number
   /** BB-19: the power stages of damage become life cards */
   convertStages?: boolean
+  /** BB-93: damage modifiers from the attacker's Drills count twice for this attack */
+  doubleDrills?: boolean
 }
 
 /** A card fixed to a personality or another card (attach.ts). */
@@ -226,7 +228,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus' | 'unlessPays' | 'rearrange' | 'splitDiscard'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus' | 'unlessPays' | 'rearrange' | 'splitDiscard' | 'perCardBonus'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =

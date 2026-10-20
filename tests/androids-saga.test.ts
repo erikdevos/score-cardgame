@@ -744,3 +744,21 @@ describe('BU-156 and BB-P9', () => {
     expect(s.players[0].mp.levelIndex).toBeGreaterThan(level)
   })
 })
+
+describe('Optional discard-for-damage cards', () => {
+  it('BU-10 asks how many Non-Combat cards to discard and adds +3 life cards for each', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: 1 } as never
+    s.players[0].nonCombat.push({ iid: 'n1', defId: 'AS-55', owner: 0 }, { iid: 'n2', defId: 'AS-55', owner: 0 })
+    customHandlers.damageModifier({ s, db, user: 0, source: 'BU-10', card: { iid: 'c', defId: 'BU-10', owner: 0 } }, { scope: 'OWNER', attackType: 'ANY', lifeCardsPerRemovedCard: 3, duration: 'thisAttack' })
+    const q = (s.stack.find(f => f.k === 'choice') as { q: Record<string, unknown> }).q
+    expect(q.purpose).toBe('perCardBonus')
+    s.stack = []
+    s.pendingChoice = q as never
+    resolveOption(s, db, 2)
+    const out = applyNewModifiers(s, db, s.combat.strike as never, 'PHYSICAL', { stages: 0, lifeCards: 0 })
+    expect(out.lifeCards).toBe(6)
+  })
+})

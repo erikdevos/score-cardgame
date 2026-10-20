@@ -70,6 +70,14 @@ function attachFrom(ctx: EffectContext, p: Params, kind: 'mp', player: PlayerId,
   attachCard(ctx.s, ctx.db, ctx.card, { player, kind }, { until: p.until as string | undefined, effects: eff, removeWhenDone: !!p.removeWhenDone })
 }
 
+/** The "may discard / remove any number of cards for +N damage each" cards: where the cards are and what counts. */
+const PER_CARD: Record<string, { zone: 'discard' | 'nonCombat'; dest: 'REMOVED' | 'DISCARD'; test: (d: CardDef) => boolean; key: 'flatLifeCards' | 'flatStages'; per: number }> = {
+  'BB-112': { zone: 'discard', dest: 'REMOVED', test: d => d.name.includes('Sword'), key: 'flatLifeCards', per: 1 },
+  'BU-10': { zone: 'nonCombat', dest: 'DISCARD', test: () => true, key: 'flatLifeCards', per: 3 },
+  'BU-162': { zone: 'nonCombat', dest: 'DISCARD', test: () => true, key: 'flatLifeCards', per: 4 },
+  'BU-183': { zone: 'discard', dest: 'REMOVED', test: d => /focused/i.test(d.rawText), key: 'flatStages', per: 3 },
+}
+
 function unpreventable(ctx: EffectContext, p: Params) {
   const st = ctx.s.combat?.strike
   if (!st || p.duration === 'remainderOfCombat') return
@@ -1300,6 +1308,20 @@ export const handlers: Record<string, CustomHandler> = {
 
   damageModifier(ctx, p) {
     const { s, db } = ctx
+    const per = PER_CARD[ctx.card?.defId ?? mpDef(s, db, ctx.user).id]
+    if (per && !p.ongoing) {
+      const pool = (per.zone === 'discard' ? s.players[ctx.user].discard : s.players[ctx.user].nonCombat).filter(c => per.test(def(db, c)))
+      if (!pool.length) return log(s, 'NO_EFFECT', `${ctx.source}: no cards to ${per.dest === 'REMOVED' ? 'remove' : 'discard'}`, ctx.user)
+      const base = { scope: p.scope, attackType: p.attackType, duration: p.duration, excludeUnstoppableOrFocused: p.excludeUnstoppableOrFocused }
+      return queueChoice(s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: how many cards do you ${per.dest === 'REMOVED' ? 'remove from the game' : 'discard'}?`,
+        options: Array.from({ length: pool.length + 1 }, (_, i) => `${i} card${i === 1 ? '' : 's'}`), purpose: 'perCardBonus',
+        data: { base: JSON.stringify(base), key: per.key, per: per.per, zone: per.zone, dest: per.dest, eligible: JSON.stringify(pool.map(c => c.iid)) } })
+    }
+    if (p.doubleDrillModifiers) {
+      const st = s.combat?.strike
+      if (st) st.doubleDrills = true
+      return log(s, 'DAMAGE_X', `${ctx.source}: damage modifiers from drills count twice for this attack`, ctx.user)
+    }
     if (p.duration === 'game') {
       // CS-79: "until the end of the game, all of your successful attacks do +1 power stage of damage"
       const m = { ...p, flatStages: num(p.stages, 0), flatLifeCards: num(p.lifeCards, 0), stages: undefined, lifeCards: undefined }
