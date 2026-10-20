@@ -10,7 +10,7 @@ import { pickRequest, queueChoice, zoneCards } from './choices'
 import { nextRandom, shuffleInPlace } from '../rng'
 import { discardChoices } from '../activeabilities'
 import { beginStrike } from '../sequencer'
-import { attachCard, discardAttachedOf } from '../attach'
+import { attachCard, discardAttachedOf, lookingForbidden } from '../attach'
 import { isNewStyle, registerDamageModifier } from '../damagemods'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
@@ -221,6 +221,8 @@ export const handlers: Record<string, CustomHandler> = {
   discardToStopAttack: noop, // activeabilities.discardDefenses
   inPlaceOfAttackDiscard: noop, // activeabilities.activeAbilities
   grantMajin: noop, // state.canUseCard (attached BB-103)
+  allyRestriction: noop, // attach.allyRestricted (BU-76)
+  allowAllyLevelBonus: noop, // legal.canPlayNonCombat (BU-56)
   allowUsableBy: noop, // state.canUseCard (Hercule's constant powers)
   ignoreEndurance: noop, // damage.millWithEndurance
   disableEndurance(ctx, p) {
@@ -393,6 +395,7 @@ export const handlers: Record<string, CustomHandler> = {
   },
 
   lookAtHand(ctx, p) {
+    if (lookingForbidden(ctx.s, targetOf(ctx, p.target), 'hand')) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: an attached card forbids looking at that hand`, ctx.user)
     log(ctx.s, 'LOOK', `${ctx.source}: player ${ctx.user + 1} looks at player ${targetOf(ctx, p.target) + 1}'s hand`, ctx.user)
   },
 

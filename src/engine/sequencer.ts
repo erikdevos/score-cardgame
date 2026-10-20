@@ -1,5 +1,5 @@
 // The 8-point battle sequencer for a single strike.
-import { attachAfterAttack, attachAfterLifeDamage } from './attach'
+import { allyRestricted, attachAfterAttack, attachAfterLifeDamage } from './attach'
 import { activeCustom, permanentSources, canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
@@ -98,17 +98,17 @@ export function legalPowerDefense(s: GameState, db: CardDB, defender: PlayerId):
 }
 
 /** The personality power p can use as an attack (or in place of one) right now, if any. */
-export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId) {
+export function attackPowerOption(s: GameState, db: CardDB, p: PlayerId, which = 0) {
   const mp = mpDef(s, db, p)
   if (s.combat!.usedPowers.includes(`${p}:${mp.id}`) || s.combat!.lockdown) return null
-  return powerOptions(s, db, p).find(power => {
+  return powerOptions(s, db, p).filter(power => {
     const st = power.strike
     const effects = st.effects.onPlaySecondary
     if (isDefenseRole(st.combatRole) || findCustom(effects, 'powerDefense').length || isAutoOnly(effects) || isConstantPower(st)) return false
     if (findCustom(effects, 'usageLimit').some(u => u.per === 'game') && s.usedPerGame.includes(`${p}:${mp.id}`)) return false
     if (attackRestriction(s, p, st.combatRole, false)) return false
     return timingAllows(s, p, effects, 'ATTACK') && requirementsMet(s, db, p, effects) && canPayCost(s, db, p, st)
-  }) ?? null
+  })[which] ?? null
 }
 
 /** Pays the cost; returns the power stages paid. */
@@ -337,7 +337,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   if (st.noLifeCards) dmg = { ...dmg, lifeCards: 0 }
   st.pendingDamage = dmg
   // Trunks Saga: the defender chooses whether the main personality or an ally takes the power stage damage
-  const allies = s.players[defender].allies.filter(a => a.stage > 0)
+  const allies = s.players[defender].allies.filter(a => a.stage > 0 && !allyRestricted(s, a.card.iid, 'cannotAbsorbDamage'))
   if (s.rules.trunks.allyRules && dmg.stages > 0 && allies.length) {
     const options = [`Main personality (stage ${s.players[defender].mp.stage})`, ...allies.map(a => `${def(db, a.card).name} (stage ${a.stage})`)]
     const data = Object.fromEntries(allies.map((a, i) => [String(i + 1), a.card.iid]))

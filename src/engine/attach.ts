@@ -26,6 +26,15 @@ export const isForbidden = (s: GameState, iid: string) => s.attachments.some(a =
 export const nonCombatForbidden = (s: GameState, p: PlayerId) => s.attachments.some(a => a.host.kind === 'mp' && a.host.player === p &&
   a.effects.some(e => e.action === 'CUSTOM' && e.handler === 'forbidCards' && (e.params?.filter as { cardTypes?: string[] } | undefined)?.cardTypes?.includes('Non-Combat')))
 
+/** BU-76: an attached card keeps this ally from taking control of combat / absorbing damage. */
+export const allyRestricted = (s: GameState, iid: string, what: 'cannotTakeControlOfCombat' | 'cannotAbsorbDamage') =>
+  s.attachments.some(a => a.host.kind === 'card' && a.host.iid === iid && a.effects.some(e => e.action === 'CUSTOM' && e.handler === 'allyRestriction' && e.params?.[what]))
+
+/** BU-54: an attached card stops the opponent from looking at this player's hand / Life Deck. */
+export const lookingForbidden = (s: GameState, owner: PlayerId, what: 'hand' | 'lifeDeck') =>
+  s.attachments.some(a => a.host.kind === 'mp' && a.host.player === owner &&
+    a.effects.some(e => e.action === 'CUSTOM' && e.handler === 'forbidCards' && (e.params?.cardsThatLookAt as string[] | undefined)?.includes(what)))
+
 function release(s: GameState, db: CardDB, a: Attachment, why: string) {
   s.attachments = s.attachments.filter(x => x !== a)
   const owner = s.players[a.card.owner]

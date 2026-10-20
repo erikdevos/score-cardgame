@@ -1,6 +1,7 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, defensesNeeded, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
+import { allyRestricted, attachmentSources } from './attach'
 import { activeAbilities, discardDefenses } from './activeabilities'
 import { nonCombatForbidden } from './attach'
 import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
@@ -97,6 +98,8 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       const mp = mpDef(s, db, p)
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
+      // BU-200: the card's second attack power
+      if (powerOpt && attackPowerOption(s, db, p, 1)) out.push({ type: 'USE_POWER', player: p, which: 1 })
       out.push(...activeAbilities(s, db, p).map(a => ({ type: 'USE_ABILITY' as const, player: p, key: a.key })))
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
       out.push(...takeovers(s, p, db))
@@ -145,7 +148,9 @@ function canPlayNonCombat(s: GameState, db: CardDB, iid: string): boolean {
   if (d.type === 'Personality') {
     if (s.rules.trunks.allyRules) {
       const mpCards = pl.mp.stack.map(c => def(db, c))
-      if (!trunksAllyAllowed(mpCards, mpDef(s, db, other(s.attacker)).personality!.character, d)) return false
+      // BU-56: an attached Blue Gambit allows allies up to 2 personality levels higher
+      const bonus = attachmentSources(s, db, s.attacker).flatMap(a => findCustom(a.effects, 'allowAllyLevelBonus')).reduce((n, x) => n + Number(x.levels ?? 0), 0)
+      if (!trunksAllyAllowed(mpCards, mpDef(s, db, other(s.attacker)).personality!.character, d, bonus)) return false
       const p = d.personality!
       // the same ally at the same level only once in the game; a higher level replaces your lower one
       const sameLevel = s.players.some(x => x.allies.some(a => def(db, a.card).personality?.character === p.character && def(db, a.card).personality?.level === p.level))
@@ -193,7 +198,7 @@ function nonCombatLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean {
 function takeovers(s: GameState, p: PlayerId, db?: CardDB): Action[] {
   if (s.combat?.lockdown) return []
   if (!canTakeOver(s, p, db)) return []
-  return s.players[p].allies.filter(a => a.stage > 0).map(a => ({ type: 'ALLY_TAKEOVER' as const, player: p, iid: a.card.iid }))
+  return s.players[p].allies.filter(a => a.stage > 0 && !allyRestricted(s, a.card.iid, 'cannotTakeControlOfCombat')).map(a => ({ type: 'ALLY_TAKEOVER' as const, player: p, iid: a.card.iid }))
 }
 
 /** The player who must act next. */

@@ -8,7 +8,7 @@ import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
 import { mpDef, canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
-import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
+import { allyRestricted, lookingForbidden, attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
 import { defenseFor, retireUsed } from '../src/engine/sequencer'
 import { endNonCombat } from '../src/engine/turn'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
@@ -552,5 +552,28 @@ describe('Name a card', () => {
     resolveOption(s, db, q.options.indexOf(phys.name))
     expect(s.players[1].lifeDeck.filter(c => db[c.defId].name === phys.name).length).toBe(0)
     expect(s.players[1].discard.filter(c => db[c.defId].name === phys.name).length).toBeGreaterThanOrEqual(2)
+  })
+})
+
+describe('Attached restrictions and second attack power', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BU-200 (Majin Buu Lv2) offers two attack powers', () => {
+    const s = game()
+    s.players[0].mp.stack[0] = { iid: 'b', defId: 'BU-200', owner: 0 }
+    s.players[0].mp.levelIndex = 0
+    expect(powerOptions(s, db, 0).length).toBe(2)
+    expect(powerOptions(s, db, 0)[1].strike.combatRole).toBe('ATTACK_ENERGY')
+  })
+  it('allyRestriction and lookingForbidden read the attached card effects', () => {
+    const s = game()
+    s.players[1].allies.push({ card: { iid: 'ally', defId: 'SS-9', owner: 1 }, stage: 3 })
+    attachCard(s, db, { iid: 'st', defId: 'BU-76', owner: 0 }, { player: 1, kind: 'card', iid: 'ally' }, { effects: [{ action: 'CUSTOM', handler: 'allyRestriction', params: { cannotTakeControlOfCombat: true, cannotAbsorbDamage: true } }] })
+    expect(allyRestricted(s, 'ally', 'cannotAbsorbDamage')).toBe(true)
+    attachCard(s, db, { iid: 'gouge', defId: 'BU-54', owner: 0 }, { player: 0, kind: 'mp' }, { effects: [{ action: 'CUSTOM', handler: 'forbidCards', params: { scope: 'OPPONENT', cardsThatLookAt: ['hand', 'lifeDeck'] } }] })
+    expect(lookingForbidden(s, 0, 'hand')).toBe(true)
+    expect(lookingForbidden(s, 1, 'hand')).toBe(false)
   })
 })

@@ -1,6 +1,6 @@
 // Shared rules helpers for card abilities: CUSTOM param lookup, attack restrictions,
 // timing gates, defenses (cards, dual-use cards and personality powers) and damage changes.
-import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
+import { StrikeSchema, DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
 import type { Damage } from './damage'
 import { attachmentSources } from './attach'
 import { isNewStyle } from './damagemods'
@@ -259,7 +259,14 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
   const power = mpDef(s, db, p).personality!.power
   if (!power || s.powerLocks.some(l => l.player === p)) return []
   const other = findCustom(power.strike.effects.onPlaySecondary, 'useOtherLevelPower')[0]
-  if (!other) return [power]
+  if (!other) {
+    // BU-200: a second attack power on the same card
+    const extra = findCustom(power.strike.effects.onPlaySecondary, 'additionalPower').filter(a => a.kind === 'power').map(a => {
+      const strike = StrikeSchema.safeParse(a.strike)
+      return strike.success ? { name: String(a.name ?? 'Power'), text: String(a.text ?? ''), strike: strike.data } : null
+    }).filter((x): x is NonNullable<typeof x> => !!x)
+    return [power, ...extra]
+  }
   return ((other.options ?? []) as string[]).map(id => db[id]?.personality?.power).filter((x): x is NonNullable<typeof x> => !!x)
 }
 

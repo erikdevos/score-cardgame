@@ -22,6 +22,7 @@ const PRIMARY = new Set(['END_NON_COMBAT', 'DECLARE_COMBAT'])
 
 const buttons = computed(() =>
   props.legal.flatMap(a => {
+    if (a.type === 'USE_POWER' && a.which) return [{ a, label: 'Use MP power (energy attack)', primary: false }]
     if (a.type in LABELS) return [{ a, label: LABELS[a.type], primary: PRIMARY.has(a.type) }]
     if (a.type === 'DEFEND' && !a.iid) return [{ a, label: 'Take the hit', primary: false }]
     if (a.type === 'ALLY_TAKEOVER') {

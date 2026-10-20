@@ -84,13 +84,13 @@ export function activePassives(s: GameState, db: CardDB, p: PlayerId): Passive[]
  * Trunks Saga ally rules: same alignment as the main personality (Vegeta and Piccolo may pick either side),
  * at least 2 levels below the main personality's highest level, never either main personality's character.
  */
-export function trunksAllyAllowed(mpCards: CardDef[], foeCharacter: string | undefined, ally: CardDef): boolean {
+export function trunksAllyAllowed(mpCards: CardDef[], foeCharacter: string | undefined, ally: CardDef, levelBonus = 0): boolean {
   const mp = mpCards[0]?.personality
   const a = ally.personality
   if (!mp || !a) return false
   if (a.character === mp.character || a.character === foeCharacter) return false
   if (!['Vegeta', 'Piccolo'].includes(mp.character) && a.alignment !== mp.alignment) return false
-  return a.level <= mpCards.length - 2
+  return a.level <= mpCards.length - 2 + levelBonus
 }
 
 /** Card restriction "X only": the player's MP must match an allowed alignment or character. */

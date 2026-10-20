@@ -349,3 +349,9 @@ New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): i
 ## Z power stages and the Double Power Rule (2026-10-20)
 
 `personality.zPower` (WG-132 Grand Kai Lv1, BB-121 Supreme Kai Lv2: their ratings are placeholders, the boxes print Z): `damage.baseDamage` returns 2 whenever either fighter has Z power stages, for every PAT use (damage, per-PAT life card modifiers, noModifiers). The Double Power Rule (a main personality with double the other's starting rating starts at 2 stages, the weaker at his highest stage and goes first) now also runs in the hero-first setup when `rules.trunks.doublePower` is on (Cell Saga and all-sets pools; not for Z personalities). The Tournament Dragon Ball rule is still open.
+
+## Cell-era odds and ends, attached restrictions, BU-200 (2026-10-20)
+
+- Nowhere to Hide (only in pools with `rules.trunks.doublePower`, i.e. Cell and later): cards whose secondary effects end combat cannot be played as a defense. CG-100: with that Location in play the attacker may place an Ally from hand in place of an attack (at 3 stages above 0). BB-9 / WG-165: `replacePostResolution` in `retireUsed`. BU-89: `nameCardsRemoveFromLifeDeck` (name from the whole card list, all copies of a physical-attack card leave the opponent's Life Deck; BB-5 / WG-160 need Sensei).
+- Attached: Blue Gambit (allies up to 2 levels higher in `canPlayNonCombat`), Majin Buu's Stomach Throw (`allyRestricted`: no takeover, no damage absorbing), Blue Eye Gouge (`lookingForbidden` for lookAtHand only). Black Gambit and Flight Training / Majin Vegeta's Rage (drill-attached trigger) are not done.
+- BU-200: `powerOptions` lists the second attack power; `USE_POWER` has an optional `which`.

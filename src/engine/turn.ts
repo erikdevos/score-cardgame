@@ -246,9 +246,9 @@ export function playCombatCard(s: GameState, db: CardDB, p: PlayerId, iid: strin
   beginStrike(s, db, p, card, strikeOf(db, card), def(db, card).name)
 }
 
-export function usePower(s: GameState, db: CardDB, p: PlayerId) {
+export function usePower(s: GameState, db: CardDB, p: PlayerId, which = 0) {
   const d = mpDef(s, db, p)
-  const power = attackPowerOption(s, db, p)!
+  const power = attackPowerOption(s, db, p, which)!
   s.combat!.consecutivePasses = 0
   s.combat!.usedPowers.push(`${p}:${d.id}`)
   if (findCustom(power.strike.effects.onPlaySecondary, 'usageLimit').some(u => u.per === 'game')) s.usedPerGame.push(`${p}:${d.id}`)

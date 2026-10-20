@@ -299,7 +299,7 @@ export type Action =
   | { type: 'END_NON_COMBAT'; player: PlayerId }
   | { type: 'DECLARE_COMBAT'; player: PlayerId }
   | { type: 'SKIP_COMBAT'; player: PlayerId }
-  | { type: 'USE_POWER'; player: PlayerId }
+  | { type: 'USE_POWER'; player: PlayerId; which?: number }
   /** a "discard a card to ..." ability of a Mastery, power or drill during your Attacker Attacks phase (does not use the attack) */
   | { type: 'USE_ABILITY'; player: PlayerId; key: string }
   /** stop the attack by discarding a card (BB-P10, BU-91, CS-126) */

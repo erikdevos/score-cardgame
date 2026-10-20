@@ -112,7 +112,7 @@ function score(s: GameState, db: CardDB, a: Action): number {
     case 'PASS':
       return 0
     case 'USE_POWER':
-      return strikeValue(s, db, a.player, attackPowerOption(s, db, a.player)!.strike)
+      return strikeValue(s, db, a.player, attackPowerOption(s, db, a.player, a.which ?? 0)!.strike)
     case 'ALLY_TAKEOVER':
       // a fresh ally beats fighting on at 0-1 stages
       return (s.players[a.player].allies.find(x => x.card.iid === a.iid)?.stage ?? 0) >= 3 ? 12 : -1

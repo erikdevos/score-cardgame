@@ -33,7 +33,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     case 'END_NON_COMBAT': endNonCombat(s, db); break
     case 'DECLARE_COMBAT': declareCombat(s, db); break
     case 'SKIP_COMBAT': skipCombat(s, db); break
-    case 'USE_POWER': usePower(s, db, action.player); break
+    case 'USE_POWER': usePower(s, db, action.player, action.which); break
     case 'DEFEND_DISCARD': defendByDiscard(s, db, action.player, action.key); break
     case 'USE_ABILITY': useAbility(s, db, action.player, action.key); break
     case 'PASS': passCombat(s, db, action.player); break
