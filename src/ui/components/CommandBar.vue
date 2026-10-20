@@ -29,7 +29,7 @@ const buttons = computed(() =>
       return ally ? [{ a, label: `Let ${def(db, ally.card).name} take over`, primary: false }] : []
     }
     if (a.type === 'DEFEND_DISCARD') return [{ a, label: `Discard a card to stop it (${a.key.split('#')[0]})`, primary: false }]
-    if (a.type === 'USE_ABILITY') return [{ a, label: `Use ${a.key.split('#')[0]}`, primary: false }]
+    if (a.type === 'USE_ABILITY') return [{ a, label: `Use ${a.key.split(/[#@]/)[0]}`, primary: false }]
     if (a.type === 'DEFEND_POWER') return [{ a, label: `Block with power: ${mpDef(props.state, db, a.player).personality!.power!.name}`, primary: true }]
     if (a.type === 'CONFIRM') return [{ a, label: a.accept ? 'Yes' : 'No', primary: a.accept }]
     if (a.type === 'CHOOSE' && props.state.pendingChoice?.kind === 'OPTION') return [{ a, label: props.state.pendingChoice.options[a.index], primary: false }]

@@ -357,3 +357,24 @@ describe('Discard to stop an attack', () => {
     expect(s.combat!.finalAttack).toContain(1)
   })
 })
+
+describe('Granted attacks in the attack phase', () => {
+  it('BB-83 (Red Physical Drill): discard a card and pay 2 stages for a physical attack, once per combat', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    let s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.players[0].drills.push({ iid: 'rd', defId: 'BB-83', owner: 0 })
+    s.players[0].hand.push(s.players[0].lifeDeck.pop()!, s.players[0].lifeDeck.pop()!)
+    s.players[0].mp.stage = 4
+    s.step = 'COMBAT'
+    s.combat = newCombat(0)
+    const act = legalActions(s, db).find(a => a.type === 'USE_ABILITY')
+    expect(act).toBeTruthy()
+    s = applyAction(s, db, act!).state
+    expect(s.pendingChoice?.kind).toBe('PICK')
+    s = applyAction(s, db, { type: 'PICK', player: 0, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
+    expect(s.log.some(l => l.msg.includes('Red Physical Drill: attack'))).toBe(true)
+    expect(s.players[0].mp.stage).toBeLessThanOrEqual(4)
+    expect(s.combat!.onceKeys.some(k => k.startsWith('ability:0:'))).toBe(true)
+    expect(legalActions(s, db).some(a => a.type === 'USE_ABILITY')).toBe(false)
+  })
+})

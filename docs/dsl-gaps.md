@@ -325,3 +325,7 @@ New action `USE_ABILITY {player, key}`: during the player's own Attacker Attacks
 ## Discard to stop an attack (2026-10-20)
 
 New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): in the defend window a player with a `discardToStopAttack` source (drill, Mastery, power, attached card) may discard a card from hand or a Non-Combat card in play to stop a non-focused attack. BB-P10 then passes for the rest of the combat (via finalAttack). CS-126 is once per combat; its extra "if Blue Style, lower the opponent's anger 2 levels" is not applied. The AI values it at 5 (below real blocks).
+
+## Granted attacks (2026-10-20)
+
+`grantAttack` with `phase: attackerAttacks` (BB-56 Hercule Lv2, BB-83 Red Physical Drill, BU-167 Kid Trunks Lv2) is offered as USE_ABILITY (`key` with `@`). Costs: stages (as the strike cost), discard from hand (PICK), top life card (BB-56), `limit` per combat. The attack is a normal strike (BB-56 focused) and, as it goes through the usual defense/advance flow, takes the place of that phase's attack. BB-83's `onUse` (gain 2 stages if the opponent's anger is 0) runs first. TS-70's next-phase grant is still not offered.

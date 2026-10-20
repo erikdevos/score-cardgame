@@ -1,14 +1,15 @@
 // Abilities a player may use on their own during their "Attacker Attacks" phase without spending the attack:
 // "you may discard a card from your hand to ..." on Masteries, constant powers, drills and attached cards.
 import { activeCustom, attackTypeOf, isFocused, permanentSources, typeMatches, type Params } from './abilities'
-import { DefenseSchema } from './cards'
+import { DefenseSchema, StrikeSchema, type StrikeDef } from './cards'
+import { canPayCost } from './sequencer'
 import { pickRequest } from './effects/choices'
 import { customHandlers } from './effects'
-import { def, log, mpDef, schedule, step } from './state'
+import { def, log, millCards, mpDef, schedule, step } from './state'
 import type { CardDB } from './cards'
 import type { CardInstance, GameState, PlayerId } from './types'
 
-export interface ActiveAbility { key: string; source: string; params: Params }
+export interface ActiveAbility { key: string; source: string; params: Params; kind?: 'grant' }
 
 /** Hand cards that may be discarded for this ability. */
 export function discardChoices(s: GameState, db: CardDB, p: PlayerId, params: Params): CardInstance[] {
@@ -32,11 +33,40 @@ export function activeAbilities(s: GameState, db: CardDB, p: PlayerId): ActiveAb
       out.push({ key, source: src.name, params })
     })
   }
+  for (const src of permanentSources(s, db, p)) {
+    activeCustom(s, db, src.effects, 'grantAttack').forEach((params, i) => {
+      if (params.phase !== 'attackerAttacks') return
+      const key = `${src.name}@${i}`
+      if (params.performedBy && mpDef(s, db, p).personality!.character !== params.performedBy) return
+      if (params.limit && s.combat!.onceKeys.filter(k => k === `ability:${p}:${key}`).length >= Number((params.limit as { count?: number }).count ?? 1)) return
+      if (!grantedStrike(params) || !canPayCost(s, db, p, grantedStrike(params)!)) return
+      if (discardCount(params) > s.players[p].hand.length) return
+      if (params.cost && (params.cost as { discardTopLifeCard?: number }).discardTopLifeCard && s.players[p].lifeDeck.length < 2) return
+      out.push({ key, source: src.name, params, kind: 'grant' })
+    })
+  }
   return out
+}
+
+const discardCount = (params: Params) => Number((params.cost as { discardFromHand?: number } | undefined)?.discardFromHand ?? params.requiresDiscardFromHand ?? 0)
+
+/** The attack a grantAttack effect lets the player perform. */
+function grantedStrike(params: Params): StrikeDef | null {
+  const energy = params.attackType === 'ENERGY'
+  const c = (params.cost ?? {}) as { type?: string; amount?: number; stages?: number }
+  const cost = c.type ? { type: c.type, amount: c.amount } : c.stages ? { type: 'POWER_STAGES', amount: c.stages } : undefined
+  const parsed = StrikeSchema.safeParse({
+    combatRole: energy ? 'ATTACK_ENERGY' : 'ATTACK_PHYSICAL',
+    cost,
+    damage: params.damage ?? { calculation: 'PAT', modifierStages: 0, modifierLifeCards: 0 },
+    effects: { onPlaySecondary: params.focused ? [{ action: 'CUSTOM', handler: 'focused' }] : [], onHit: [], onEnterPlay: [], postResolution: 'DISCARD' },
+  })
+  return parsed.success ? parsed.data : null
 }
 
 export function useAbility(s: GameState, db: CardDB, p: PlayerId, key: string) {
   const ab = activeAbilities(s, db, p).find(a => a.key === key)!
+  if (ab.kind === 'grant') return useGrantedAttack(s, db, p, ab)
   s.combat!.onceKeys.push(`ability:${p}:${key}`)
   log(s, 'ABILITY', `Player ${p + 1} uses ${ab.source}`, p)
   customHandlers.discardFromHandThen({ s, db, user: p, source: ab.source }, { ...ab.params, activated: true })
@@ -82,4 +112,17 @@ export function defendByDiscard(s: GameState, db: CardDB, p: PlayerId, key: stri
   schedule(s,
     { k: 'choice', q: pickRequest(p, p, d?.zone === 'table' ? 'nonCombat' : 'hand', discardCandidates(s, db, p, ab.params), n, 'DISCARD', ab.source) },
     step('strike.resolveHit'))
+}
+
+/** "Discard X to have your personality perform an attack" (BB-56, BB-83, BU-167): the attack replaces this phase's attack. */
+function useGrantedAttack(s: GameState, db: CardDB, p: PlayerId, ab: ActiveAbility) {
+  s.combat!.onceKeys.push(`ability:${p}:${ab.key}`)
+  log(s, 'ABILITY', `Player ${p + 1} uses ${ab.source}`, p)
+  if ((ab.params.cost as { discardTopLifeCard?: number } | undefined)?.discardTopLifeCard) millCards(s, p, 1, db)
+  const strike = grantedStrike(ab.params)!
+  const n = discardCount(ab.params)
+  const frames = []
+  if (n) frames.push({ k: 'choice' as const, q: pickRequest(p, p, 'hand', s.players[p].hand, n, 'DISCARD', ab.source) })
+  frames.push({ k: 'effects' as const, user: p, source: ab.source, effects: [{ action: 'CUSTOM' as const, handler: 'beginGrantedAttack', params: { strike, onUse: ab.params.onUse ?? [] } }] })
+  schedule(s, ...frames)
 }

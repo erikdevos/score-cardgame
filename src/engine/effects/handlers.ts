@@ -9,6 +9,7 @@ import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
 import { nextRandom, shuffleInPlace } from '../rng'
 import { discardChoices } from '../activeabilities'
+import { beginStrike } from '../sequencer'
 import { attachCard, discardAttachedOf } from '../attach'
 import { isNewStyle, registerDamageModifier } from '../damagemods'
 
@@ -118,7 +119,13 @@ export const handlers: Record<string, CustomHandler> = {
   // optional "you may" effects: not using them is always allowed
   convertDamageToStages: noop, // TS-13: energy damage as power stages instead
   shuffleInsteadOfBottom: noop, // TS-P3: shuffle instead of the bottom of the life deck
-  grantAttack: noop, // TS-70: an extra energy attack option next attack phase (not offered yet)
+  grantAttack: noop, // attack-phase grants are offered through USE_ABILITY (activeabilities.ts); TS-70's next-phase option is not offered
+  beginGrantedAttack(ctx, p) {
+    if (!ctx.s.combat) return
+    ctx.s.combat.consecutivePasses = 0
+    beginStrike(ctx.s, ctx.db, ctx.user, null, p.strike as never, `${ctx.source}: attack`)
+    resolveEffects(ctx, then({ then: p.onUse }))
+  },
 
   // Androids Saga: read where they matter
   ifStopped: noop, // sequencer damageIfStopped
