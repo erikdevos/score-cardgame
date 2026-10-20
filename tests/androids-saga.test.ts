@@ -378,3 +378,41 @@ describe('Granted attacks in the attack phase', () => {
     expect(legalActions(s, db).some(a => a.type === 'USE_ABILITY')).toBe(false)
   })
 })
+
+describe('Attack-phase abilities, part 2', () => {
+  const orangeDrill = Object.values(db).find(d => d.type === 'Drill' && d.style === 'Orange')!.id
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.step = 'COMBAT'
+    s.combat = newCombat(0)
+    return s
+  }
+
+  it('BU-142: discard an Orange Drill to put 2 Drills from the Life Deck into play, once per combat', () => {
+    let s = setup()
+    s.players[0].mastery = { iid: 'm142', defId: 'BU-142', owner: 0 }
+    s.players[0].drills.push({ iid: 'od', defId: orangeDrill, owner: 0 })
+    const act = legalActions(s, db).find(a => a.type === 'USE_ABILITY')
+    expect(act).toBeTruthy()
+    const before = s.players[0].drills.length
+    s = applyAction(s, db, act!).state
+    for (let i = 0; i < 4 && s.pendingChoice?.kind === 'PICK'; i++) s = applyAction(s, db, { type: 'PICK', player: 0, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
+    expect(s.players[0].discard.some(c => c.iid === 'od')).toBe(true)
+    expect(s.players[0].drills.length).toBeGreaterThanOrEqual(before - 1)
+    expect(legalActions(s, db).some(a => a.type === 'USE_ABILITY')).toBe(false)
+  })
+
+  it('BU-43 attached: discard a card from hand to discard an opponent Non-Combat card', () => {
+    let s = setup()
+    const inner = (db['BU-43'].effects.onPlaySecondary.flatMap(function f(e): never[] { return e.action === 'CUSTOM' ? [e as never, ...((e.params?.then as never[] | undefined) ?? []).flatMap(f)] : [] }) as { handler: string }[]).find(e => e.handler === 'triggeredEffect')!
+    attachCard(s, db, { iid: 'g', defId: 'BU-43', owner: 0 }, { player: 0, kind: 'mp' }, { effects: [inner as never] })
+    s.players[0].hand.push(s.players[0].lifeDeck.pop()!)
+    s.players[1].nonCombat.push({ iid: 'victim', defId: 'AS-55', owner: 1 })
+    const act = legalActions(s, db).find(a => a.type === 'USE_ABILITY')
+    expect(act).toBeTruthy()
+    s = applyAction(s, db, act!).state
+    for (let i = 0; i < 4 && s.pendingChoice?.kind === 'PICK'; i++) s = applyAction(s, db, { type: 'PICK', player: 0, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
+    expect(s.players[1].nonCombat.some(c => c.iid === 'victim')).toBe(false)
+  })
+})

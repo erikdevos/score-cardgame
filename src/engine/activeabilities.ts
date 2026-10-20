@@ -1,15 +1,15 @@
 // Abilities a player may use on their own during their "Attacker Attacks" phase without spending the attack:
 // "you may discard a card from your hand to ..." on Masteries, constant powers, drills and attached cards.
 import { activeCustom, attackTypeOf, isFocused, permanentSources, typeMatches, type Params } from './abilities'
-import { DefenseSchema, StrikeSchema, type StrikeDef } from './cards'
+import { DefenseSchema, type Effect, StrikeSchema, type StrikeDef } from './cards'
 import { canPayCost } from './sequencer'
 import { pickRequest } from './effects/choices'
 import { customHandlers } from './effects'
 import { def, log, millCards, mpDef, schedule, step } from './state'
 import type { CardDB } from './cards'
-import type { CardInstance, GameState, PlayerId } from './types'
+import { other, type CardInstance, type GameState, type PlayerId } from './types'
 
-export interface ActiveAbility { key: string; source: string; params: Params; kind?: 'grant' }
+export interface ActiveAbility { key: string; source: string; params: Params; kind?: 'grant' | 'discardPlay' | 'triggered' }
 
 /** Hand cards that may be discarded for this ability. */
 export function discardChoices(s: GameState, db: CardDB, p: PlayerId, params: Params): CardInstance[] {
@@ -34,6 +34,21 @@ export function activeAbilities(s: GameState, db: CardDB, p: PlayerId): ActiveAb
     })
   }
   for (const src of permanentSources(s, db, p)) {
+    // BU-142: discard a card of yours in play to ...
+    activeCustom(s, db, src.effects, 'inPlaceOfAttackDiscard').forEach((params, i) => {
+      if (params.phase !== 'attackerAttacks' || params.inPlaceOfAttack !== false) return
+      const key = `${src.name}!${i}`
+      if (params.perCombat && s.combat!.onceKeys.includes(`ability:${p}:${key}`)) return
+      if (!playDiscardChoices(s, db, p, params).length) return
+      out.push({ key, source: src.name, params, kind: 'discardPlay' })
+    })
+    // BU-43: an attached card's "during your Attacker Attacks phase, you may discard a card from your hand to ..."
+    activeCustom(s, db, src.effects, 'triggeredEffect').forEach((params, i) => {
+      const cost = params.cost as { discardFromHand?: number } | undefined
+      if (params.trigger !== 'attackerAttacksPhase' || !cost?.discardFromHand || s.players[p].hand.length < cost.discardFromHand) return
+      if (!s.players[other(p)].nonCombat.length && !s.players[other(p)].allies.length && !s.location) return
+      out.push({ key: `${src.name}~${i}`, source: src.name, params, kind: 'triggered' })
+    })
     activeCustom(s, db, src.effects, 'grantAttack').forEach((params, i) => {
       if (params.phase !== 'attackerAttacks') return
       const key = `${src.name}@${i}`
@@ -67,6 +82,20 @@ function grantedStrike(params: Params): StrikeDef | null {
 export function useAbility(s: GameState, db: CardDB, p: PlayerId, key: string) {
   const ab = activeAbilities(s, db, p).find(a => a.key === key)!
   if (ab.kind === 'grant') return useGrantedAttack(s, db, p, ab)
+  if (ab.kind === 'discardPlay') {
+    s.combat!.onceKeys.push(`ability:${p}:${key}`)
+    log(s, 'ABILITY', `Player ${p + 1} uses ${ab.source}`, p)
+    return schedule(s,
+      { k: 'choice', q: pickRequest(p, p, 'drills', playDiscardChoices(s, db, p, ab.params), 1, 'DISCARD', ab.source) },
+      { k: 'effects', user: p, source: ab.source, effects: (ab.params.then ?? []) as Effect[] })
+  }
+  if (ab.kind === 'triggered') {
+    log(s, 'ABILITY', `Player ${p + 1} uses ${ab.source}`, p)
+    const n = Number((ab.params.cost as { discardFromHand: number }).discardFromHand)
+    return schedule(s,
+      { k: 'choice', q: pickRequest(p, p, 'hand', s.players[p].hand, n, 'DISCARD', ab.source) },
+      { k: 'effects', user: p, source: ab.source, effects: (ab.params.then ?? []) as Effect[] })
+  }
   s.combat!.onceKeys.push(`ability:${p}:${key}`)
   log(s, 'ABILITY', `Player ${p + 1} uses ${ab.source}`, p)
   customHandlers.discardFromHandThen({ s, db, user: p, source: ab.source }, { ...ab.params, activated: true })
@@ -125,4 +154,9 @@ function useGrantedAttack(s: GameState, db: CardDB, p: PlayerId, ab: ActiveAbili
   if (n) frames.push({ k: 'choice' as const, q: pickRequest(p, p, 'hand', s.players[p].hand, n, 'DISCARD', ab.source) })
   frames.push({ k: 'effects' as const, user: p, source: ab.source, effects: [{ action: 'CUSTOM' as const, handler: 'beginGrantedAttack', params: { strike, onUse: ab.params.onUse ?? [] } }] })
   schedule(s, ...frames)
+}
+
+function playDiscardChoices(s: GameState, db: CardDB, p: PlayerId, params: Params): CardInstance[] {
+  const f = (params.discardFromPlay ?? {}) as { cardTypes?: string[]; style?: string }
+  return s.players[p].drills.filter(c => (!f.cardTypes || f.cardTypes.includes(def(db, c).type)) && (!f.style || def(db, c).style === f.style))
 }

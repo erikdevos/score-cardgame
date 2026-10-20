@@ -853,7 +853,7 @@ export const handlers: Record<string, CustomHandler> = {
       return queueChoice(s, pickRequest(user, owner, zones, [cards[0]], 1, p.to === 'bottomOfLifeDeck' ? 'OWNER_LIFE_BOTTOM' : 'HAND', ctx.source))
     }
     const allyStage = p.setPowerStage === 'MAX' ? s.rules.maxStage : undefined
-    queueChoice(s, pickRequest(user, owner, zones, cards, 1, p.to === 'play' ? 'PLAY' : 'HAND', ctx.source, { allyStage }))
+    queueChoice(s, pickRequest(user, owner, zones, cards, Math.min(num(p.amount, 1), cards.length), p.to === 'play' ? 'PLAY' : 'HAND', ctx.source, { allyStage }))
   },
 
   useDiscardAsLifeDeck(ctx, p) {
