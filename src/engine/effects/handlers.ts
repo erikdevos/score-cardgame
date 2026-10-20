@@ -8,6 +8,7 @@ import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
 import { nextRandom, shuffleInPlace } from '../rng'
+import { isNewStyle, registerDamageModifier } from '../damagemods'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
 export function targetOf(ctx: EffectContext, t: unknown): PlayerId {
@@ -938,6 +939,11 @@ export const handlers: Record<string, CustomHandler> = {
 
   damageModifier(ctx, p) {
     const { s, db } = ctx
+    if (isNewStyle(p)) {
+      // damagemods.ts: stored for this attack or for the combat, applied when the damage is dealt
+      if (!p.ongoing) registerDamageModifier(s, ctx.user, ctx.source, p)
+      return
+    }
     if (p.ongoing && !ctx.triggered) return // drills: applied when damage is dealt
     const st = s.combat?.strike
     if (typeof p.multiplier === 'number') {

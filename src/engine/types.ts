@@ -60,6 +60,9 @@ export interface StrikeState {
   /** how the defense (card or power) affects this strike; null = no defense */
   defense: Defense | null
   lifeCardsDealt: number
+  /** damagemods.ts: modifiers that apply to this attack only */
+  mods?: DamageModEntry[]
+  seq?: number
   /** power stages the initiator paid as the cost (opens the reaction window) */
   paidStages: number
   /** "change the power stage to the maximum for this attack" (SS-17) */
@@ -99,6 +102,17 @@ export interface CombatDamageMod {
   either?: number
 }
 
+/** A damage modifier waiting to apply (see damagemods.ts): `m` are the card's damageModifier params. */
+export interface DamageModEntry {
+  m: Record<string, unknown>
+  owner: PlayerId
+  source: string
+  /** for "next attack" modifiers: how many more attacks it applies to */
+  usesLeft?: number
+  /** the strike that created it does not count ("the next attack", "other attacks") */
+  exceptSeq?: number
+}
+
 export interface CombatState {
   /** whose attack phase it currently is */
   active: PlayerId
@@ -132,6 +146,10 @@ export interface CombatState {
   lastAttack: [LastAttack | null, LastAttack | null]
   /** TS-93: Constant Combat Powers do nothing for the rest of this combat */
   noConstantPowers?: boolean
+  /** damagemods.ts: modifiers that last for this combat or for the next attacks */
+  mods: DamageModEntry[]
+  /** counts the strikes of this combat (1-based) */
+  strikeSeq: number
   /** BB-3, BB-40: "for the remainder of Combat your attacks gain ..." */
   grants: { player: PlayerId; kind: 'onHit' | 'focused'; condition?: unknown; effects: Effect[] }[]
   /** TS-P10: no drills, allies or personality powers this combat */

@@ -2,6 +2,7 @@
 import { canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
+import { applyNewModifiers } from './damagemods'
 import { resolveEffects } from './effects'
 import { triggerFrames } from './effects/triggers'
 import { canUseCard, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
@@ -149,7 +150,8 @@ export function retireResolved(s: GameState, db: CardDB, iid: string) {
 // Steps 1-4: declaration, costs, reactions, attacker secondaries, open the defend window.
 export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card: CardInstance | null, strike: StrikeDef, label: string) {
   const combat = s.combat!
-  combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 }
+  combat.strikeSeq++
+  combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: combat.strikeSeq }
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   combat.strike.paidStages = payCost(s, db, initiator, strike, card ? def(db, card).style : undefined)
@@ -307,6 +309,7 @@ export function resolveHit(s: GameState, db: CardDB) {
   }
   if (st.defense) dmg = applyDefense(dmg, st.defense)
   dmg = ongoingDamageChanges(s, db, defender, type, dmg)
+  dmg = applyNewModifiers(s, db, st, type, dmg)
   if (dmg.lifeCards > 0) {
     const lc = useShield(s, db, defender, type, true)
     if (lc) {

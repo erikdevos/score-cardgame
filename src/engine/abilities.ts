@@ -2,6 +2,7 @@
 // timing gates, defenses (cards, dual-use cards and personality powers) and damage changes.
 import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
 import type { Damage } from './damage'
+import { isNewStyle } from './damagemods'
 import { constantParams, controllingAlly, def, findCustom, inPlayAnywhere, log, mpDef } from './state'
 export { findCustom, inPlayAnywhere }
 import type { AttackType, CardInstance, CombatState, GameState, PlayerId } from './types'
@@ -11,7 +12,7 @@ export type Params = Record<string, unknown>
 export function newCombat(active: PlayerId): CombatState {
   return {
     active, consecutivePasses: 0, strike: null, finalAttack: [], borrowedDrills: [], controllers: [], usedPowers: [], ended: false,
-    restrictions: [], grants: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+    restrictions: [], grants: [], mods: [], strikeSeq: 0, allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
 
@@ -162,7 +163,7 @@ export function ownDamageBoost(s: GameState, db: CardDB, p: PlayerId, attack: 'P
   const out = { stages: 0, lifeCards: 0, sources: [] as string[] }
   for (const src of permanentSources(s, db, p)) {
     for (const m of activeCustom(s, db, src.effects, 'damageModifier')) {
-      if (m.scope !== 'OWNER' || (!src.constant && !m.ongoing) || !typeMatches(m.attackType, attack)) continue
+      if (isNewStyle(m) || m.scope !== 'OWNER' || (!src.constant && !m.ongoing) || !typeMatches(m.attackType, attack)) continue
       const over = m.styleOverride as { style?: string; stages?: number; lifeCards?: number } | undefined
       const use = over && style && over.style === style ? over : m
       out.stages += Number(use.stages ?? 0)
@@ -418,7 +419,7 @@ export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerI
     log(s, 'REDUCE', `${m.source} changes the damage`, defender)
   }
   for (const m of constantPowerEffects(s, db, defender, 'damageModifier')) {
-    if (!typeMatches(m.attackType, attack) || m.scope === 'OWNER' || m.useStageOf) continue
+    if (isNewStyle(m) || !typeMatches(m.attackType, attack) || m.scope === 'OWNER' || m.useStageOf) continue
     // TS-150/151: only during the opponent's turn; TS-101: only against an ally fighting for the attacker
     if (m.duringOpponentTurn && s.attacker === defender) continue
     if (m.sourceIsAlly && !controllingAlly(s, defender === 0 ? 1 : 0)) continue
@@ -434,7 +435,7 @@ export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerI
     for (const drill of pl.drills) {
       const d = def(db, drill)
       for (const m of findCustom(d.effects.onEnterPlay, 'damageModifier')) {
-        if (!m.ongoing || !typeMatches(m.attackType, attack) || !defenderIsVillain) continue
+        if (isNewStyle(m) || !m.ongoing || !typeMatches(m.attackType, attack) || !defenderIsVillain) continue
         if (m.scope === 'VILLAINS') {
           // "1 less power stage or life card": take it off the life cards when there are any
           if (lifeCards > 0) lifeCards += Number(m.stagesOrLifeCards ?? -1)
@@ -449,7 +450,7 @@ export function ongoingDamageChanges(s: GameState, db: CardDB, defender: PlayerI
   for (const drill of s.players[defender].drills) {
     const d = def(db, drill)
     for (const m of findCustom(d.effects.onEnterPlay, 'damageModifier')) {
-      if (m.scope === 'VILLAINS' || m.condition === 'defenderIsVillain') continue
+      if (isNewStyle(m) || m.scope === 'VILLAINS' || m.condition === 'defenderIsVillain') continue
       if (!m.ongoing || !typeMatches(m.attackType, attack) || lifeCards <= 0) continue
       if (m.condition === 'foeHasAlly' && !s.players[defender === 0 ? 1 : 0].allies.length) continue
       const key = `${drill.iid}:damageModifier`

@@ -7,6 +7,7 @@ import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
 import { retire } from '../src/engine/state'
+import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
 import { FORMATS } from '../src/ui/formats'
@@ -159,5 +160,56 @@ describe('Empower and card destinations', () => {
     retire(s, card, 'DISCARD')
     expect(s.players[0].lifeDeck.length).toBe(before + 1)
     expect(s.players[0].lifeDeck[before].iid).toBe('x1')
+  })
+})
+
+describe('Generic damage modifiers', () => {
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    return s
+  }
+  const strike = (s: GameState, attacker: 0 | 1, role = 'ATTACK_ENERGY', seq = 1) => {
+    const effects = { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' }
+    s.combat!.strikeSeq = seq
+    s.combat!.strike = { initiator: attacker, card: null, strike: { combatRole: role, effects }, label: 'test', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq } as never
+    return s.combat!.strike as never as import('../src/engine').StrikeState
+  }
+  const dragonBall = (n: number) => ({ iid: `db${n}`, defId: 'SS-75', owner: 0 as const })
+
+  it('adds a bonus per Dragon Ball in play', () => {
+    const s = setup()
+    const st = strike(s, 0)
+    s.players[0].dragonBalls.push(dragonBall(1), { ...dragonBall(2), defId: 'WG-15' })
+    registerDamageModifier(s, 0, 'AS-66', { lifeCardsPerDragonBall: 1, anywhere: true, duration: 'thisAttack' })
+    expect(applyNewModifiers(s, db, st, 'ENERGY', { stages: 0, lifeCards: 4 }).lifeCards).toBe(6)
+  })
+
+  it('prevents damage from the next attack only', () => {
+    const s = setup()
+    strike(s, 1, 'ATTACK_ENERGY', 1)
+    registerDamageModifier(s, 0, 'WG-34', { target: 'SELF', attackType: 'ANY', preventLifeCards: 3, forNextAttacks: 1, duration: 'thisCombat' })
+    const second = strike(s, 1, 'ATTACK_ENERGY', 2)
+    expect(applyNewModifiers(s, db, second, 'ENERGY', { stages: 0, lifeCards: 5 }).lifeCards).toBe(2)
+    const third = strike(s, 1, 'ATTACK_ENERGY', 3)
+    expect(applyNewModifiers(s, db, third, 'ENERGY', { stages: 0, lifeCards: 5 }).lifeCards).toBe(5)
+  })
+
+  it('a drill that prevents life cards from every opposing attack works, and the attacker name bonus replaces', () => {
+    const s = setup()
+    const st = strike(s, 0)
+    s.players[1].drills.push({ iid: 'dr86', defId: 'BU-86', owner: 1 })
+    expect(applyNewModifiers(s, db, st, 'ENERGY', { stages: 0, lifeCards: 4 }).lifeCards).toBe(2)
+    expect(applyNewModifiers(s, db, st, 'ENERGY', { stages: 0, lifeCards: 1 }).lifeCards).toBe(0)
+  })
+
+  it('"first attack" bonuses apply once per combat', () => {
+    const s = setup()
+    const st = strike(s, 0, 'ATTACK_PHYSICAL')
+    s.players[0].drills.push({ iid: 'dr158', defId: 'WG-158', owner: 0 })
+    s.players[0].removed.push(...Array.from({ length: 3 }, (_, i) => ({ iid: `r${i}`, defId: 'AS-55', owner: 0 as const })))
+    expect(applyNewModifiers(s, db, st, 'PHYSICAL', { stages: 2, lifeCards: 0 }).stages).toBe(5)
+    expect(applyNewModifiers(s, db, st, 'PHYSICAL', { stages: 2, lifeCards: 0 }).stages).toBe(2)
   })
 })
