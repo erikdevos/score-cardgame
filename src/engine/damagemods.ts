@@ -206,6 +206,7 @@ function valueOf(m: P, owner: PlayerId, c: Ctx, base: Damage) {
   if (m.patBaseDamage && c.type === 'PHYSICAL') stages += num(m.patBaseDamage)
   if (typeof m.multiplyBaseDamage === 'number') { stages += base.stages * (m.multiplyBaseDamage - 1); life += base.lifeCards * (m.multiplyBaseDamage - 1) }
   if (m.baseOnly && typeof m.multiplier === 'number') { stages += base.stages * (m.multiplier - 1); life += base.lifeCards * (m.multiplier - 1) }
+  if (m.lifeCardsPerCardDrawnThisTurn) life += s.drawnThisTurn[owner] * num(m.lifeCardsPerCardDrawnThisTurn) // BB-109
   if (m.flatStages) stages += num(m.flatStages)
   if (m.flatLifeCards) life += num(m.flatLifeCards)
   if (m.bonusLifeCards && s.players[owner].lifeDeck.length > 12) life += num(m.bonusLifeCards) // the optional life card cost is always paid when the deck is deep enough

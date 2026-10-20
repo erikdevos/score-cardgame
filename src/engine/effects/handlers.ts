@@ -1117,7 +1117,7 @@ export const handlers: Record<string, CustomHandler> = {
       const n = Math.min(num(p.amount, 1), pile.length)
       const gone = p.zone === 'discard' ? pile.splice(pile.length - n, n) : pile.splice(0, n)
       s.players[who].removed.push(...gone)
-      if (p.remember && gone.length) s.lastRemoved = gone[gone.length - 1].iid
+      if (p.remember) s.lastRemoved = gone.length ? gone[gone.length - 1].iid : null
       return log(s, 'REMOVE', `${ctx.source}: player ${who + 1} removes ${n} card(s) from their ${p.zone === 'discard' ? 'discard pile' : 'life deck'} from the game`, who)
     }
     if (p.perOwnLifeCardsRemoved) {
@@ -1316,6 +1316,17 @@ export const handlers: Record<string, CustomHandler> = {
       return queueChoice(s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: how many cards do you ${per.dest === 'REMOVED' ? 'remove from the game' : 'discard'}?`,
         options: Array.from({ length: pool.length + 1 }, (_, i) => `${i} card${i === 1 ? '' : 's'}`), purpose: 'perCardBonus',
         data: { base: JSON.stringify(base), key: per.key, per: per.per, zone: per.zone, dest: per.dest, eligible: JSON.stringify(pool.map(c => c.iid)) } })
+    }
+    if (p.noCost && s.combat) {
+      // CG-16: the next energy attack costs nothing (its +2 life cards go through the usual next-attack modifier)
+      ;(s.combat.noCostNext ??= []).push(ctx.user)
+    }
+    if (p.ifRemovedCardStyle) {
+      // CS-131: +1 power stage on physical attacks for the combat, +3 if the card removed from the game was a Red Style card
+      const removed = s.lastRemoved ? s.players[ctx.user].removed.find(c => c.iid === s.lastRemoved) : undefined
+      if (!removed) return log(s, 'NO_EFFECT', `${ctx.source}: no card was removed from the game`, ctx.user)
+      const spec = p.ifRemovedCardStyle as { style: string; stages: number }
+      return void registerDamageModifier(s, ctx.user, ctx.source, { flatStages: def(db, removed).style === spec.style ? spec.stages : num(p.stages, 1), attackType: 'PHYSICAL', duration: 'thisCombat' })
     }
     if (p.doubleDrillModifiers) {
       const st = s.combat?.strike

@@ -276,6 +276,7 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
 export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
+  if (role === 'ATTACK_ENERGY' && s.combat?.noCostNext?.includes(p)) return { type: 'NONE' as const, amount: 0 } // CG-16
   const base = costForBase(s, db, p, cost, role, style)
   // BB-P9: power stages for effects may be paid with life cards, one for one
   if (base.type === 'POWER_STAGES' && s.combat?.lifeForStages?.includes(p) && s.players[p].lifeDeck.length > base.amount + 3) return { type: 'LIFE_CARDS' as const, amount: base.amount }

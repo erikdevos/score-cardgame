@@ -19,6 +19,10 @@ function extraPlayCost(s: GameState, db: CardDB, strike: StrikeDef): number {
 
 export function canPayCost(s: GameState, db: CardDB, p: PlayerId, strike: StrikeDef, style?: string): boolean {
   const cost = costFor(s, db, p, strikeCost(strike, s.rules), strike.combatRole, style)
+  if (strike.combatRole === 'ATTACK_ENERGY' && s.combat?.noCostNext?.includes(p)) {
+    s.combat.noCostNext = s.combat.noCostNext.filter(x => x !== p)
+    log(s, 'COST', `Player ${p + 1} pays no costs for this energy attack`, p)
+  }
   const extra = extraPlayCost(s, db, strike)
   if (extra && s.players[p].lifeDeck.length <= extra + (cost.type === 'LIFE_CARDS' ? cost.amount : 0)) return false
   if (cost.type === 'POWER_STAGES') return fighterStage(s, p) >= cost.amount

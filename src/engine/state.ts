@@ -201,6 +201,7 @@ export function drawCards(s: GameState, p: PlayerId, n: number) {
     const c = pl.lifeDeck.shift()
     if (!c) return win(s, other(p), 'SURVIVAL')
     pl.hand.push(c)
+    s.drawnThisTurn[p]++
   }
   log(s, 'DRAW', `Player ${p + 1} draws ${n}`, p)
 }

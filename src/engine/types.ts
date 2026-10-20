@@ -179,6 +179,8 @@ export interface CombatState {
   noTakeover?: PlayerId[]
   /** BU-166 / BU-P4 / BU-160: energy attack costs paid with a life card; Styled cards shuffled back after use; styles of the attacks performed */
   lifeForCost?: PlayerId[]
+  /** CG-16: the next energy attack of these players costs nothing */
+  noCostNext?: PlayerId[]
   /** BB-P9: life cards may be paid instead of power stages for game effects */
   lifeForStages?: PlayerId[]
   shuffleUsed?: PlayerId[]
@@ -316,6 +318,8 @@ export interface GameState {
   /** BU-111: the player loses at the start of the opponent's turn, from this turn on */
   /** BU-150: card powers can no longer end combat (rest of the game); CS-79 and similar: damage modifiers that last for the game */
   combatCannotEnd: boolean
+  /** BB-109: cards drawn this turn, per player */
+  drawnThisTurn: [number, number]
   /** result of the last "requirement" removal (BU-156): the effects after it only work when it was met */
   requirementMet: boolean
   gameMods: DamageModEntry[]

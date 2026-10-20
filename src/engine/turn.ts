@@ -11,6 +11,7 @@ import { other, type Frame, type GameState, type PlayerId } from './types'
 export function startTurn(s: GameState, db: CardDB) {
   s.step = 'NON_COMBAT'
   s.noMasteryTurn = []
+  s.drawnThisTurn = [0, 0]
   s.locationPlayedThisTurn = false
   s.combat = null
   s.combatSkipped = false

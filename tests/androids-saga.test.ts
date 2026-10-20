@@ -762,3 +762,29 @@ describe('Optional discard-for-damage cards', () => {
     expect(out.lifeCards).toBe(6)
   })
 })
+
+describe('Draw counter, free energy attack, removed-card style', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: 1 } as never
+    return s
+  }
+  it('BB-109 counts the cards drawn this turn', () => {
+    const s = game()
+    s.drawnThisTurn = [3, 0]
+    registerDamageModifier(s, 0, 'BB-109', { lifeCardsPerCardDrawnThisTurn: 1, attackType: 'ANY', scope: 'OWNER', duration: 'thisCombat' })
+    ;(s.combat!.strike as { seq: number }).seq = 2
+    expect(applyNewModifiers(s, db, s.combat!.strike as never, 'PHYSICAL', { stages: 0, lifeCards: 0 }).lifeCards).toBe(3)
+  })
+  it('CS-131: +1 stage, +3 when the removed card is Red Style', () => {
+    const s = game()
+    const red = Object.values(db).find(d => d.style === 'Red' && !d.id.startsWith('TEST'))!
+    s.players[0].removed.push({ iid: 'rr', defId: red.id, owner: 0 })
+    s.lastRemoved = 'rr'
+    customHandlers.damageModifier({ s, db, user: 0, source: 'CS-131' }, { scope: 'OWNER', attackType: 'PHYSICAL', stages: 1, duration: 'thisCombat', ifRemovedCardStyle: { style: 'Red', stages: 3 } })
+    ;(s.combat!.strike as { seq: number }).seq = 2
+    expect(applyNewModifiers(s, db, s.combat!.strike as never, 'PHYSICAL', { stages: 0, lifeCards: 0 }).stages).toBe(3)
+  })
+})
