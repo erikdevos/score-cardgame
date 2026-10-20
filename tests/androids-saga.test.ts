@@ -614,3 +614,32 @@ describe('Reveal and compare cards', () => {
     expect(allCardsOf(s, 1).length).toBe(total)
   })
 })
+
+describe('Choice cards: pay-or-else and discard piles', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BU-129: both players may search; the opponent may pay a stage to stop it', () => {
+    const s = game()
+    s.players[1].mp.stage = 4
+    customHandlers.unlessOpponentPays({ s, db, user: 0, source: 'BU-129' }, { stages: 1, then: [] })
+    const q = (s.stack.find(f => f.k === 'choice') as { q: { player: number; purpose: string } }).q
+    expect(q.player).toBe(1)
+    expect(q.purpose).toBe('unlessPays')
+  })
+  it('CG-65 removes 2 cards from the game and shuffles 2 into the Life Deck', () => {
+    let s = game()
+    const pl = s.players[0]
+    pl.discard.push(...pl.lifeDeck.splice(0, 6))
+    const total = allCardsOf(s, 0).length
+    const deck = pl.lifeDeck.length
+    customHandlers.removeAndShuffleFromDiscard({ s, db, user: 0, source: 'CG-65' }, { choose: 4, remove: 2 })
+    for (let i = 0; i < 6; i++) {
+      s = applyAction(s, db, chooseAction(s, db)!).state
+      if (!s.pendingChoice && !s.stack.length) break
+    }
+    expect(allCardsOf(s, 0).length).toBe(total)
+    expect(deck).toBeGreaterThan(0)
+  })
+})

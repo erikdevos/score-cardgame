@@ -203,12 +203,14 @@ export type PickDest =
   | 'OWNER_HAND'
   /** BU-83: set aside until the end of this combat, then back into the owner's hand */
   | 'SET_ASIDE'
+  /** CG-62: put the card on top / at the bottom of its owner's discard pile (picked in the order wanted) */
+  | 'DISCARD_TOP' | 'DISCARD_BOTTOM'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus' | 'unlessPays' | 'rearrange'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =

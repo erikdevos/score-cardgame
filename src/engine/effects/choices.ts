@@ -135,6 +135,24 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     log(s, 'DAMAGE_X', `${q.source}: ${index} card(s) discarded, +${index * Number(q.data.per)} life cards of damage`, q.player)
     return queueChoice(s, pickRequest(q.player, q.player, 'hand', s.players[q.player].hand, index, 'DISCARD', q.source))
   }
+  if (q.purpose === 'unlessPays') {
+    // index 0: the opponent pays (stages / a discarded card) and the effect fails; index 1: the effect works for the card user
+    const user = Number(q.data.user) as PlayerId
+    if (index === 1) return resolveEffects({ s, db, user, source: q.source }, JSON.parse(String(q.data.effects)) as Effect[])
+    if (q.data.kind === 'stages') {
+      changeStages(s, q.player, -Number(q.data.n))
+      return log(s, 'COST', `${q.source}: player ${q.player + 1} pays ${q.data.n} power stage(s) to stop it`, q.player)
+    }
+    return queueChoice(s, pickRequest(q.player, q.player, 'hand', s.players[q.player].hand, Number(q.data.n), 'DISCARD', q.source))
+  }
+  if (q.purpose === 'rearrange') {
+    // CG-62: 0 = top 10, 1 = bottom 10, 2 = leave it; the cards are then picked in the order they should end up
+    if (index === 2) return
+    const pile = s.players[q.player].discard
+    const n = Math.min(Number(q.data.count), pile.length)
+    const cards = index === 0 ? pile.slice(pile.length - n) : pile.slice(0, n)
+    return queueChoice(s, pickRequest(q.player, q.player, 'discard', cards, n, index === 0 ? 'DISCARD_TOP' : 'DISCARD_BOTTOM', q.source))
+  }
   if (q.purpose === 'revealBonus') {
     // BB-81: show N physical attack cards, +3 power stages per card for the rest of this combat
     if (!index) return
@@ -225,11 +243,14 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, USE_NONCOMBAT: 'and uses it', PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',
     LIFE_SHUFFLE: `and shuffles it into player ${q.owner + 1}'s life deck`,
+    DISCARD_TOP: 'on top of the discard pile', DISCARD_BOTTOM: 'at the bottom of the discard pile',
     OWNER_HAND: `and gives it to player ${q.owner + 1}'s hand`, SET_ASIDE: 'and sets it aside until the end of combat',
   }
   switch (q.dest) {
     case 'HAND': picker.hand.push(card); break
     case 'OWNER_HAND': owner.hand.push(card); break
+    case 'DISCARD_TOP': owner.discard.push(card); break
+    case 'DISCARD_BOTTOM': owner.discard.unshift(card); break
     case 'SET_ASIDE': s.setAside.push({ card, to: q.owner }); break
     case 'LIFE_TOP': owner.lifeDeck.unshift(card); break
     case 'LIFE_BOTTOM':

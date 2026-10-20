@@ -38,6 +38,7 @@ function fromDiscard(ctx: EffectContext, p: Params, dest: 'HAND' | 'LIFE_TOP' | 
 
 /** Search filters used by searchDeck. */
 function matchesFilter(s: GameState, db: CardDB, user: PlayerId, d: CardDef, filter: string): boolean {
+  if (filter === 'any') return true
   if (filter.startsWith('Dragon Ball')) {
     if (d.type !== 'Dragon Ball') return false
     const inPlay = s.players.some(p => p.dragonBalls.some(c => def(db, c).dragonBallNumber === d.dragonBallNumber))
@@ -551,6 +552,49 @@ export const handlers: Record<string, CustomHandler> = {
     queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: {} })
   },
 
+  unlessOpponentPays(ctx, p) {
+    // BU-129: the opponent's Main Personality may pay power stages to stop the effect
+    const foe = other(ctx.user)
+    const n = num(p.stages, 1)
+    if (ctx.s.players[foe].mp.stage < n) return resolveEffects(ctx, then(p))
+    queueChoice(ctx.s, { kind: 'OPTION', player: foe, source: ctx.source, prompt: `${ctx.source}: pay ${n} power stage(s) to stop the effect?`, options: [`Pay ${n} stage(s)`, 'Let it happen'],
+      purpose: 'unlessPays', data: { kind: 'stages', n, user: ctx.user, effects: JSON.stringify(then(p)) } })
+  },
+
+  unlessOpponentDiscards(ctx, p) {
+    // BB-50: the opponent may discard a card from his hand to stop the "otherwise" effect
+    const foe = other(ctx.user)
+    const n = num(p.amount, 1)
+    const otherwise = (p.otherwise ?? []) as Effect[]
+    if (ctx.s.players[foe].hand.length < n) return resolveEffects(ctx, otherwise)
+    queueChoice(ctx.s, { kind: 'OPTION', player: foe, source: ctx.source, prompt: `${ctx.source}: discard ${n} card(s) from your hand?`, options: [`Discard ${n} card(s)`, 'Do not discard'],
+      purpose: 'unlessPays', data: { kind: 'discard', n, user: ctx.user, effects: JSON.stringify(otherwise) } })
+  },
+
+  rearrangeDiscard(ctx, p) {
+    const n = num(p.count, 10)
+    if (ctx.s.players[ctx.user].discard.length < 2) return
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: rearrange the top or bottom ${n} cards of your discard pile (pick them in the order wanted, the last picked ends up on top / at the bottom)?`,
+      options: [`Top ${n}`, `Bottom ${n}`, 'Leave it'], purpose: 'rearrange', data: { count: n } })
+  },
+
+  removeAndShuffleFromDiscard(ctx, p) {
+    // CG-65: of up to 4 chosen cards, 2 leave the game and the rest are shuffled into the Life Deck (the same as choosing the 2 to remove, then the 2 to shuffle)
+    const pile = ctx.s.players[ctx.user].discard
+    const rm = Math.min(num(p.remove, 2), pile.length)
+    if (!rm) return
+    const shuffle = Math.min(num(p.choose, 4) - rm, pile.length - rm)
+    // scheduled first so that it runs after the removal pick
+    if (shuffle > 0) schedule(ctx.s, { k: 'effects', user: ctx.user, source: ctx.source, card: ctx.card, effects: [{ action: 'CUSTOM', handler: 'pickToShuffleFromDiscard', params: { amount: shuffle } }] })
+    queueChoice(ctx.s, pickRequest(ctx.user, ctx.user, 'discard', [...pile], rm, 'REMOVED', ctx.source))
+  },
+
+  pickToShuffleFromDiscard(ctx, p) {
+    const pile = ctx.s.players[ctx.user].discard
+    if (!pile.length) return
+    queueChoice(ctx.s, pickRequest(ctx.user, ctx.user, 'discard', [...pile], Math.min(num(p.amount, 2), pile.length), 'LIFE_SHUFFLE', ctx.source))
+  },
+
   revealTopChooseOne(ctx, p) {
     // BB-43: the top cards are shown; the opponent (the owner at personality level 3+) chooses one for the owner's hand; the rest stay on top
     const { s } = ctx
@@ -976,6 +1020,7 @@ export const handlers: Record<string, CustomHandler> = {
   },
 
   searchDeck(ctx, p) {
+    if (p.target === 'ALL') return ([ctx.user, other(ctx.user)] as PlayerId[]).forEach(u => handlers.searchDeck({ ...ctx, user: u }, { ...p, target: 'SELF' }))
     const { s, db, user } = ctx
     const owner = p.target === 'OPPONENT' ? other(user) : user
     const VALID = ['discard', 'dragonBalls', 'lifeDeck', 'hand', 'drills', 'allies', 'nonCombat']
