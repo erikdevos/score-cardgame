@@ -60,6 +60,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     keepHand: [],
     combatSkipped: false,
     victoryGuards: [],
+    rescueCards: [],
     postponedWins: [],
     stageLocks: [],
     victoryBlocks: [],

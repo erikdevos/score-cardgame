@@ -7,7 +7,7 @@ import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
-import { mpDef, canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
+import { win, mpDef, canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
 import { allyRestricted, lookingForbidden, attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
 import { defenseFor, retireUsed } from '../src/engine/sequencer'
 import { endNonCombat } from '../src/engine/turn'
@@ -641,5 +641,33 @@ describe('Choice cards: pay-or-else and discard piles', () => {
     }
     expect(allCardsOf(s, 0).length).toBe(total)
     expect(deck).toBeGreaterThan(0)
+  })
+})
+
+describe('Rule tweaks batch A', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BB-100 prevents a Survival Victory once (top 4 discards go back into the Life Deck)', () => {
+    const s = game()
+    s.players[1].discard.push(...s.players[1].lifeDeck.splice(0, 6))
+    s.players[1].lifeDeck = []
+    s.players[1].nonCombat.push({ iid: 'bb100', defId: 'BB-100', owner: 1 })
+    s.rescueCards.push('bb100')
+    win(s, 0, 'SURVIVAL')
+    expect(s.winner).toBeNull()
+    expect(s.players[1].lifeDeck.length).toBe(4)
+    expect(s.players[1].removed.some(c => c.iid === 'bb100')).toBe(true)
+    win(s, 0, 'SURVIVAL')
+    expect(s.winner).toBe(0)
+  })
+  it('BB-1 protects the life deck from card effects but not from damage; BB-85 grants stages each attack phase', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    customHandlers.protectLifeDeck({ s, db, user: 1, source: 'BB-1' }, {})
+    expect(s.combat.protectLife).toEqual([1])
+    customHandlers.stagesAtAttackPhaseStart({ s, db, user: 1, source: 'BB-85' }, { amount: 2 })
+    expect(s.combat.phaseStages).toEqual([{ player: 1, amount: 2 }])
   })
 })

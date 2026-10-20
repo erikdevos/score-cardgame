@@ -320,6 +320,7 @@ export function resolveHit(s: GameState, db: CardDB) {
     dmg = { stages: dmg.stages + boost.stages, lifeCards: dmg.lifeCards + boost.lifeCards }
     log(s, 'DAMAGE_X', `${[...new Set(boost.sources)].join(', ')}: more damage`, st.initiator)
   }
+  if (st.convertStages) dmg = { stages: 0, lifeCards: dmg.lifeCards + dmg.stages }
   const unreduced = dmg
   if (st.defense) dmg = applyDefense(dmg, st.defense)
   dmg = ongoingDamageChanges(s, db, defender, type, dmg)

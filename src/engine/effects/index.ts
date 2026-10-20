@@ -86,6 +86,7 @@ function resolveEffect(ctx: EffectContext, e: Effect) {
     case 'DRAW':
       return drawCards(s, target, e.amount)
     case 'DISCARD_LIFE': {
+      if (target !== user && s.combat?.protectLife?.includes(target)) return log(s, 'PROTECT', `${ctx.source}: player ${target + 1}'s life deck is protected from card effects`, target)
       const n = millCards(s, target, e.amount, ctx.db)
       if (n > 0 && target !== user) s.angerLock = s.angerLock.filter(x => x !== user)
       return log(s, 'MILL', `${ctx.source}: player ${target + 1} discards ${n} life card(s)`, target)

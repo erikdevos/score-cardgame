@@ -63,6 +63,7 @@ export function playNonCombat(s: GameState, db: CardDB, p: PlayerId, iid: string
     // Placed face up; its power stays available until used (now, or later in combat).
     pl.nonCombat.push(card)
     if (findCustom(d.effects.onEnterPlay, 'postponeVictory').length) s.victoryGuards.push(card.iid)
+    if (findCustom(d.effects.onEnterPlay, 'preventSurvivalVictory').length) s.rescueCards.push(card.iid)
     return log(s, 'PLACE', `Player ${p + 1} places ${d.name} on the table`, p)
   }
   log(s, 'PLAY', `Player ${p + 1} plays ${d.name}`, p)
@@ -265,7 +266,8 @@ export const FINAL_PHYSICAL_ATTACK: StrikeDef = {
 export function finalPhysicalAttack(s: GameState, db: CardDB, p: PlayerId, iid: string) {
   const card = removeFromHand(s, p, iid)
   s.players[p].discard.push(card)
-  s.combat!.finalAttack.push(p)
+  // BB-53: the attack may be made without passing for the rest of the combat
+  if (!s.combat!.freeFinal?.includes(p)) s.combat!.finalAttack.push(p)
   s.combat!.consecutivePasses = 0
   log(s, 'DISCARD', `Player ${p + 1} discards ${def(db, card).name} for a Final Physical Attack`, p)
   beginStrike(s, db, p, null, FINAL_PHYSICAL_ATTACK, 'Final Physical Attack')
@@ -321,6 +323,8 @@ export function advanceCombat(s: GameState, db: CardDB) {
   c.bonusAttack = null
   endAttackPhase(c, c.active)
   c.active = other(c.active)
+  // BB-85: stages gained at the beginning of the owner's Attacker Attacks phases
+  for (const g of c.phaseStages ?? []) if (g.player === c.active) changeStages(s, c.active, g.amount)
 }
 
 // Step 6

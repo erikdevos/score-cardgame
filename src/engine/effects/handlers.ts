@@ -552,6 +552,34 @@ export const handlers: Record<string, CustomHandler> = {
     queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: {} })
   },
 
+  convertStagesToLifeCards(ctx) {
+    // BB-19: optional, when the attack is performed
+    const st = ctx.s.combat?.strike
+    if (!st) return
+    queueChoice(ctx.s, { kind: 'CONFIRM', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: turn the power stages of damage into life cards?`, effects: [{ action: 'CUSTOM', handler: 'setConvertStages' }] })
+  },
+  setConvertStages(ctx) {
+    const st = ctx.s.combat?.strike
+    if (st) st.convertStages = true
+  },
+  ignoreCardUseRestrictions(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.ignoreRestrictions ??= []).push(ctx.user)
+    log(ctx.s, 'PROTECT', `${ctx.source}: the opponent's restrictions on using your cards are ignored this combat`, ctx.user)
+  },
+  protectLifeDeck(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.protectLife ??= []).push(ctx.user)
+    log(ctx.s, 'PROTECT', `${ctx.source}: no life cards are discarded by the opponent's card effects this combat (damage still counts)`, ctx.user)
+  },
+  replaceFinalPhysicalAttack(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.freeFinal ??= []).push(ctx.user)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: a discarded card makes a physical attack without passing, for this combat`, ctx.user)
+  },
+  stagesAtAttackPhaseStart(ctx, p) {
+    ctx.s.combat?.phaseStages?.push({ player: ctx.user, amount: num(p.amount, 2) })
+    if (ctx.s.combat && !ctx.s.combat.phaseStages) ctx.s.combat.phaseStages = [{ player: ctx.user, amount: num(p.amount, 2) }]
+  },
+  dynamicPur: noop, // BB-70: the X it defines is not used by the text
+  preventSurvivalVictory: noop, // state.win (BB-100)
   unlessOpponentPays(ctx, p) {
     // BU-129: the opponent's Main Personality may pay power stages to stop the effect
     const foe = other(ctx.user)

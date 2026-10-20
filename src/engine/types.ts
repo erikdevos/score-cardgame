@@ -79,6 +79,8 @@ export interface StrikeState {
   unpreventable?: boolean
   /** BU-163: effects that prevent damage prevent this many times their amount against this attack */
   preventMult?: number
+  /** BB-19: the power stages of damage become life cards */
+  convertStages?: boolean
 }
 
 /** A card fixed to a personality or another card (attach.ts). */
@@ -173,6 +175,12 @@ export interface CombatState {
   noMastery?: PlayerId[]
   /** BU-112: allies cannot take control of this combat */
   noTakeover?: PlayerId[]
+  /** BB-29: opponent's use restrictions are ignored; BB-1: opponent card effects cannot discard life cards (damage still can); BB-53: a Final Physical Attack does not end the player's attacking */
+  ignoreRestrictions?: PlayerId[]
+  protectLife?: PlayerId[]
+  freeFinal?: PlayerId[]
+  /** BB-85: stages gained at the start of each of the player's Attacker Attacks phases */
+  phaseStages?: { player: PlayerId; amount: number }[]
   /** BU-77: extra Empower per player for this combat */
   empowerBonus?: number[]
   noDrills?: PlayerId[]
@@ -292,6 +300,8 @@ export interface GameState {
   combatSkipped: boolean
   /** TS-157 cards on the table that postpone an opponent's victory */
   victoryGuards: string[]
+  /** BB-100: Non-Combat cards on the table that can prevent a Survival Victory */
+  rescueCards: string[]
   postponedWins: { player: PlayerId; reason: WinReason; turn: number }[]
   /** TS-29: no power stage gains before this turn */
   stageLocks: { player: PlayerId; untilTurn: number }[]

@@ -96,7 +96,7 @@ export function trunksAllyAllowed(mpCards: CardDef[], foeCharacter: string | und
 /** Card restriction "X only": the player's MP must match an allowed alignment or character. */
 export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): boolean {
   // TS-42/TS-P4: no cards that end combat while the drill is in play; TS-128: the drill owner's opponent plays no allies
-  for (const pl of s.players) {
+  for (const pl of s.combat?.ignoreRestrictions?.includes(p) ? [] : s.players) {
     for (const c of pl.drills) {
       for (const f of findCustom(def(db, c).effects.onEnterPlay, 'forbidCards')) {
         const filter = (f.filter ?? {}) as { effect?: string; cardType?: string }
@@ -166,6 +166,16 @@ export function win(s: GameState, p: PlayerId, reason: WinReason) {
   if (s.winner !== null) return
   // TS-157: the loser postpones the victory to the start of the winner's next turn, then it is checked again
   const loser = s.players[other(p)]
+  // BB-100: a Non-Combat card on the table stops a Survival Victory by shuffling the top 4 discards into the Life Deck
+  const rescue = reason === 'SURVIVAL' ? loser.nonCombat.find(c => s.rescueCards.includes(c.iid)) : undefined
+  if (rescue) {
+    loser.nonCombat = loser.nonCombat.filter(c => c !== rescue)
+    loser.removed.push(rescue)
+    const back = loser.discard.splice(Math.max(0, loser.discard.length - 4))
+    loser.lifeDeck.push(...back)
+    s.rngSeed = shuffleInPlace(loser.lifeDeck, s.rngSeed)
+    return log(s, 'PROTECT', `Player ${loser.id + 1} shuffles ${back.length} cards into the life deck: the Survival Victory is prevented`, loser.id)
+  }
   const hope = loser.nonCombat.find(c => s.victoryGuards.includes(c.iid))
   if (hope && !s.postponedWins.some(w => w.player === p)) {
     loser.nonCombat = loser.nonCombat.filter(c => c !== hope)
