@@ -153,6 +153,14 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   combat.strike.paidStages = payCost(s, db, initiator, strike, card ? def(db, card).style : undefined)
+  // BB-3, BB-40: effects granted to this player's attacks for the rest of the combat
+  for (const g of combat.grants.filter(x => x.player === initiator && conditionMet(s, db, initiator, x.condition))) {
+    const st = combat.strike
+    st.strike = g.kind === 'focused'
+      ? { ...st.strike, effects: { ...st.strike.effects, onPlaySecondary: [...st.strike.effects.onPlaySecondary, { action: 'CUSTOM', handler: 'focused' }] } }
+      : { ...st.strike, effects: { ...st.strike.effects, onHit: [...st.strike.effects.onHit, ...g.effects] } }
+    log(s, 'GRANT', `${label} gains ${g.kind === 'focused' ? 'focused' : 'an "if successful" effect'}`, initiator)
+  }
   // AS-24: a personality power that was switched off until its owner performs an energy attack
   if (attackTypeOf(strike.combatRole) === 'ENERGY') s.powerLocks = s.powerLocks.filter(l => !(l.player === initiator && l.until === 'performsEnergyAttack'))
   if (over(s)) return
@@ -473,4 +481,13 @@ export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
   const condition = alt?.condition as { inPlay?: string } | undefined
   if (alt && condition?.inPlay && inPlayAnywhere(s, db, { cardName: condition.inPlay })) return retire(s, card, alt.postResolution as 'DISCARD' | 'REMOVE' | 'STAYS')
   retire(s, card, def(db, card).effects.postResolution)
+}
+
+/** Conditions of granted effects: "opponentNoDrills", { ownDrillsInPlay: { style, min } }; no condition = always. */
+function conditionMet(s: GameState, db: CardDB, p: PlayerId, c: unknown): boolean {
+  if (!c) return true
+  if (c === 'opponentNoDrills') return s.players[other(p)].drills.length === 0
+  const own = (c as { ownDrillsInPlay?: { style?: string; min?: number } }).ownDrillsInPlay
+  if (own) return s.players[p].drills.filter(d => !own.style || def(db, d).style === own.style).length >= (own.min ?? 1)
+  return false
 }

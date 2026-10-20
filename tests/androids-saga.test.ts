@@ -4,6 +4,9 @@ import { customHandlers } from '../src/engine/effects'
 import { defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
 import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
+import { resolveOption } from '../src/engine/effects/choices'
+import { computeDamage } from '../src/engine/damage'
+import { retire } from '../src/engine/state'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
 import { FORMATS } from '../src/ui/formats'
@@ -123,5 +126,38 @@ describe('Buu Saga rulebook keywords', () => {
     const normal = shield(false)
     expect(normal === null || typeof normal === 'string').toBe(true)
     expect(shield(true)).toBeNull()
+  })
+})
+
+describe('Empower and card destinations', () => {
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+
+  it('Empower adds life cards; declining resolves the dropped text', () => {
+    for (const index of [0, 1]) {
+      const s = setup()
+      s.combat = newCombat(0)
+      const effects = { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' }
+      s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_ENERGY', effects }, label: 'test', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
+      const dropped = { onPlaySecondary: [{ action: 'MODIFY_ANGER', target: 'OPPONENT', amount: 2 }] }
+      const anger = s.players[1].mp.anger
+      s.pendingChoice = { kind: 'OPTION', player: 0, source: 'test', prompt: '', options: ['a', 'b'], purpose: 'empower', data: { amount: 2, dropped: JSON.stringify(dropped) } }
+      resolveOption(s, db, index)
+      if (index === 1) expect(computeDamage(s, db, 0, (s.combat.strike as unknown as { strike: never }).strike).lifeCards).toBe(s.rules.energyAttack.defaultLifeCards + 2)
+      else expect(s.stack.length).toBeGreaterThan(0) // the dropped effects are scheduled
+      expect(s.players[1].mp.anger).toBe(anger)
+    }
+  })
+
+  it('a used card can return to the life deck', () => {
+    const s = setup()
+    const card = { iid: 'x1', defId: 'AS-55', owner: 0 as const }
+    s.retireTo.x1 = 'LIFE_BOTTOM'
+    const before = s.players[0].lifeDeck.length
+    retire(s, card, 'DISCARD')
+    expect(s.players[0].lifeDeck.length).toBe(before + 1)
+    expect(s.players[0].lifeDeck[before].iid).toBe('x1')
   })
 })

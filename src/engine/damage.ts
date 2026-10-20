@@ -51,7 +51,7 @@ export function computeDamage(s: GameState, db: CardDB, attacker: PlayerId, stri
   return { stages: Math.max(0, stages), lifeCards: Math.max(0, lifeCards) }
 }
 
-function defaultDamage(strike: StrikeDef, rules: Rules) {
+export function defaultDamage(strike: StrikeDef, rules: Rules) {
   const base = { stages: 0, lifeCards: 0, modifierStages: 0, modifierLifeCards: 0 }
   if (strike.combatRole === 'ATTACK_ENERGY') return { ...base, calculation: 'FLAT' as const, lifeCards: rules.energyAttack.defaultLifeCards }
   if (strike.combatRole === 'ATTACK_PHYSICAL') return { ...base, calculation: 'PAT' as const }

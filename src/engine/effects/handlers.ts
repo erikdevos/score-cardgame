@@ -225,6 +225,59 @@ export const handlers: Record<string, CustomHandler> = {
   },
 
   modifyCombatDraw: noop,
+
+  empower(ctx, p) {
+    // Buu Saga rulebook p. 53: +N life cards of damage, in exchange for the text that follows the Empower
+    queueChoice(ctx.s, {
+      kind: 'OPTION', player: ctx.user, source: ctx.source, purpose: 'empower',
+      prompt: `${ctx.source}: Empower ${num(p.amount, 1)}?`,
+      options: ['Normal attack (keep the text after Empower)', `Empower ${num(p.amount, 1)}: +${num(p.amount, 1)} life cards, drop that text`],
+      data: { amount: num(p.amount, 1), dropped: JSON.stringify(p.dropped ?? {}) },
+    })
+  },
+
+  grantOnHitEffect(ctx, p) {
+    ctx.s.combat?.grants.push({ player: ctx.user, kind: 'onHit', condition: p.condition, effects: (p.effect ?? []) as Effect[] })
+  },
+
+  grantFocused(ctx, p) {
+    ctx.s.combat?.grants.push({ player: ctx.user, kind: 'focused', condition: p.condition, effects: [] })
+  },
+
+  shuffleSelfIntoLifeDeck(ctx) {
+    if (ctx.card) ctx.s.retireTo[ctx.card.iid] = 'LIFE_SHUFFLE'
+  },
+
+  placeSelfInLifeDeck(ctx, p) {
+    if (ctx.card) ctx.s.retireTo[ctx.card.iid] = p.position === 'top' ? 'LIFE_SHUFFLE' : 'LIFE_BOTTOM'
+  },
+
+  ifHandStyleCount(ctx, p) {
+    const n = ctx.s.players[ctx.user].hand.filter(c => def(ctx.db, c).style === p.style).length
+    if (n >= num(p.atLeast, 1)) resolveEffects(ctx, then(p))
+  },
+
+  ifUserNameContains(ctx, p) {
+    const name = mpDef(ctx.s, ctx.db, ctx.user).name
+    if (((p.texts ?? []) as string[]).some(t => name.includes(t))) resolveEffects(ctx, then(p))
+  },
+
+  drawFromLifeDeck(ctx, p) {
+    const pl = ctx.s.players[ctx.user]
+    for (let i = 0; i < num(p.amount, 1) && pl.lifeDeck.length > 1; i++) {
+      const c = p.from === 'bottom' ? pl.lifeDeck.pop()! : pl.lifeDeck.shift()!
+      pl.hand.push(c)
+    }
+    log(ctx.s, 'DRAW', `${ctx.source}: player ${ctx.user + 1} takes ${num(p.amount, 1)} card(s) from the ${p.from === 'bottom' ? 'bottom' : 'top'} of the life deck`, ctx.user)
+  },
+
+  modifyStagesChosen(ctx, p) {
+    // "all": every personality of the target; a single choice is not asked yet (the main personality loses them)
+    const who = targetOf(ctx, p.target)
+    changeStages(ctx.s, who, num(p.amount, 0))
+    if (p.all || p.includeAllies) for (const a of ctx.s.players[who].allies) a.stage = Math.max(0, a.stage + num(p.amount, 0))
+    log(ctx.s, 'STAGES', `${ctx.source}: player ${who + 1}'s personalities lose ${Math.abs(num(p.amount, 0))} power stage(s)`, who)
+  },
   // World Games Saga
   senseiDeck: noop, // deck-building keyword: the Sensei Deck itself is not modelled, the card works as a normal card in the life deck
   canStopFocused: noop, // abilities.canStopFocused

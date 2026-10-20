@@ -132,6 +132,8 @@ export interface CombatState {
   lastAttack: [LastAttack | null, LastAttack | null]
   /** TS-93: Constant Combat Powers do nothing for the rest of this combat */
   noConstantPowers?: boolean
+  /** BB-3, BB-40: "for the remainder of Combat your attacks gain ..." */
+  grants: { player: PlayerId; kind: 'onHit' | 'focused'; condition?: unknown; effects: Effect[] }[]
   /** TS-P10: no drills, allies or personality powers this combat */
   lockdown?: boolean
   /** life cards the defender lost to the last successful attack (for "per life card received") */
@@ -162,7 +164,7 @@ export type PickDest =
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -229,6 +231,8 @@ export interface GameState {
   powerLocks: { player: PlayerId; until: string; cardIid?: string }[]
   /** AS-21: drills (by iid) whose power cannot be used any more */
   disabledDrills: string[]
+  /** cards that go to their owner's life deck instead of the discard pile after use, by iid */
+  retireTo: Record<string, 'LIFE_SHUFFLE' | 'LIFE_BOTTOM'>
   /** AS-96: length of each discard pile after the last sweep (cards above it are new) */
   discardMark: number[]
   /** may keep extra cards in the discard step of this turn */

@@ -1,4 +1,5 @@
 import type { CardDB, CardDef, Effect, Passive } from './cards'
+import { shuffleInPlace } from './rng'
 import { other, type CardInstance, type DeckList, type Frame, type GameState, type PlayerId, type StepName, type WinReason } from './types'
 
 export function log(s: GameState, t: string, msg: string, player?: PlayerId) {
@@ -350,6 +351,16 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
 /** Send a card to its owner's discard pile, or remove it from the game. */
 export function retire(s: GameState, c: CardInstance, mode: 'DISCARD' | 'REMOVE' | 'STAYS') {
   const owner = s.players[c.owner]
+  const to = s.retireTo[c.iid]
+  if (to) {
+    // "shuffle this card into your Life Deck after use" / "place it at the bottom of your Life Deck"
+    delete s.retireTo[c.iid]
+    if (mode !== 'REMOVE') {
+      owner.lifeDeck.push(c)
+      if (to === 'LIFE_SHUFFLE') s.rngSeed = shuffleInPlace(owner.lifeDeck, s.rngSeed)
+      return
+    }
+  }
   if (mode === 'REMOVE') owner.removed.push(c)
   else owner.discard.push(c)
 }

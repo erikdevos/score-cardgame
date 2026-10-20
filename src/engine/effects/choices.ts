@@ -5,6 +5,7 @@ import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards,
 import type { CardDB, Effect } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
+import { defaultDamage } from '../damage'
 import { resolveEffects } from '.'
 
 type Pick = QueuedChoice & { kind: 'PICK' }
@@ -112,6 +113,17 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
   if (q.purpose === 'anger') {
     const who = (index === 0 ? q.data.first : q.data.second) as PlayerId
     return changeAnger(s, db, who, Number(q.data.amount))
+  }
+  if (q.purpose === 'empower') {
+    // index 0: the normal attack, the text after Empower applies; index 1: +N life cards and that text is gone
+    const dropped = JSON.parse(String(q.data.dropped)) as { onPlaySecondary?: Effect[]; onHit?: Effect[] }
+    const st = s.combat?.strike
+    if (index === 1) {
+      if (st) st.strike = { ...st.strike, damage: { ...(st.strike.damage ?? defaultDamage(st.strike, s.rules)), modifierLifeCards: (st.strike.damage ?? defaultDamage(st.strike, s.rules)).modifierLifeCards + Number(q.data.amount) } }
+      return log(s, 'EMPOWER', `${q.source}: Empower ${q.data.amount}, +${q.data.amount} life cards of damage`, q.player)
+    }
+    if (st && dropped.onHit?.length) st.strike = { ...st.strike, effects: { ...st.strike.effects, onHit: [...st.strike.effects.onHit, ...dropped.onHit] } }
+    return resolveEffects({ s, db, user: q.player, source: q.source }, dropped.onPlaySecondary ?? [])
   }
   if (q.purpose === 'disableDrill') {
     s.disabledDrills.push(String(q.data[String(index)]))

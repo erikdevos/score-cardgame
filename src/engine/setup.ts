@@ -53,6 +53,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     angerLock: [],
     powerLocks: [],
     disabledDrills: [],
+    retireTo: {},
     discardMark: [0, 0],
     keepHand: [],
     combatSkipped: false,

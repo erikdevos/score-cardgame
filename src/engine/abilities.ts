@@ -11,7 +11,7 @@ export type Params = Record<string, unknown>
 export function newCombat(active: PlayerId): CombatState {
   return {
     active, consecutivePasses: 0, strike: null, finalAttack: [], borrowedDrills: [], controllers: [], usedPowers: [], ended: false,
-    restrictions: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
+    restrictions: [], grants: [], allyShield: [], bonusAttack: null, usedCardIds: [], startLevels: [], defended: [null, null], damageMods: [], extraUses: {}, onceKeys: [], lastAttack: [null, null],
   }
 }
 
