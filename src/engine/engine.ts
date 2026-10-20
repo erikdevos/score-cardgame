@@ -6,6 +6,7 @@ import {
   cleanup, copyAttack, dealDamage, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
+import { useAbility } from './activeabilities'
 import { sweepAttachments } from './attach'
 import { clone, def, log, schedule } from './state'
 import {
@@ -33,6 +34,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     case 'DECLARE_COMBAT': declareCombat(s, db); break
     case 'SKIP_COMBAT': skipCombat(s, db); break
     case 'USE_POWER': usePower(s, db, action.player); break
+    case 'USE_ABILITY': useAbility(s, db, action.player, action.key); break
     case 'PASS': passCombat(s, db, action.player); break
     case 'DEFEND': defend(s, db, action.iid); break
     case 'DEFEND_POWER': defendWithPower(s, db); break
@@ -57,7 +59,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
   }
   run(s, db)
   // Only actions taken inside combat hand the attack phase over; declaring combat and free uses do not.
-  if ((wasInCombat || s.combat?.ended) && action.type !== 'USE_FREE' && action.type !== 'ALLY_TAKEOVER' && s.step === 'COMBAT' && !s.stack.length) {
+  if ((wasInCombat || s.combat?.ended) && action.type !== 'USE_FREE' && action.type !== 'USE_ABILITY' && action.type !== 'ALLY_TAKEOVER' && s.step === 'COMBAT' && !s.stack.length) {
     advanceCombat(s, db)
     run(s, db)
   }

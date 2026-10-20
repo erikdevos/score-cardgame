@@ -289,6 +289,8 @@ export type Action =
   | { type: 'DECLARE_COMBAT'; player: PlayerId }
   | { type: 'SKIP_COMBAT'; player: PlayerId }
   | { type: 'USE_POWER'; player: PlayerId }
+  /** a "discard a card to ..." ability of a Mastery, power or drill during your Attacker Attacks phase (does not use the attack) */
+  | { type: 'USE_ABILITY'; player: PlayerId; key: string }
   | { type: 'PASS'; player: PlayerId }
   | { type: 'DEFEND'; player: PlayerId; iid: string | null }
   | { type: 'DEFEND_POWER'; player: PlayerId }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { allCardsOf, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
+import { allCardsOf, legalActions, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
 import { customHandlers } from '../src/engine/effects'
 import { ownDamageBoost, defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
 import { applyDamage } from '../src/engine/damage'
@@ -315,5 +315,24 @@ describe('Second constant power and unpreventable damage', () => {
     s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
     customHandlers.damageCannotBePrevented({ s, db, user: 0, source: 'BB-120' }, {})
     expect((s.combat.strike as unknown as { unpreventable?: boolean }).unpreventable).toBe(true)
+  })
+})
+
+describe('Attack-phase abilities (discard a card to ...)', () => {
+  it('Hercule Lv3 can discard a card to mill the opponent for 3, once the combat has begun', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    let s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.players[0].mp.stack[0] = { iid: 'her', defId: 'BU-133', owner: 0 }
+    s.players[0].mp.levelIndex = 0
+    s.step = 'COMBAT'
+    s.combat = newCombat(0)
+    const acts = legalActions(s, db).filter(a => a.type === 'USE_ABILITY')
+    expect(acts.length).toBe(1)
+    const deck = s.players[1].lifeDeck.length
+    s = applyAction(s, db, acts[0]).state
+    expect(s.pendingChoice?.kind).toBe('PICK')
+    s = applyAction(s, db, { type: 'PICK', player: 0, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
+    expect(s.players[1].lifeDeck.length).toBe(deck - 3)
+    expect(s.step).toBe('COMBAT')
   })
 })

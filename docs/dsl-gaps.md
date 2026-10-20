@@ -317,3 +317,7 @@ Simplifications / not yet working: a "choice" host is picked automatically (oppo
 ## Second constant power, unpreventable damage (2026-10-20)
 
 `additionalPower` kind `constant` (BU-197..199, Majin Buu) is now read as a second Constant Combat Power (`state.constantEffectsOf`). BU-200's second attack power (kind `power`) is still not selectable. `damageCannotBePrevented` / `damageCannotBeModified` set `StrikeState.unpreventable`: the damage cannot fall below what it was before defenses and reductions (BB-87, BB-115, BB-120, BU-17, WG-56). Remaining long tail (89 cards, 1-6 each): senseiCard (6), discardFromHandThen (4), nameCardsRemoveFromLifeDeck (3), replacePostResolution (3), discardToStopAttack (3) and singletons.
+
+## Attack-phase abilities (2026-10-20, `src/engine/activeabilities.ts`)
+
+New action `USE_ABILITY {player, key}`: during the player's own Attacker Attacks phase, `discardFromHandThen` effects with `phase: attackerAttacks` on Masteries, constant powers, drills and attached cards can be used without giving up the attack. The cost is a PICK from hand (style / named filters), then the `then` effects run. Without `phase` (BU-131) the handler runs as a normal effect. The AI uses each such ability at most once per combat. Not on it yet: BB-56, BB-83, BU-142, BU-167, WG-156, BU-43 (other handlers).

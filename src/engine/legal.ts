@@ -1,6 +1,7 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
+import { activeAbilities } from './activeabilities'
 import { nonCombatForbidden } from './attach'
 import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
 import { canTakeOver, mustSkipCombat } from './turn'
@@ -90,6 +91,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       const mp = mpDef(s, db, p)
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
+      out.push(...activeAbilities(s, db, p).map(a => ({ type: 'USE_ABILITY' as const, player: p, key: a.key })))
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
       out.push(...takeovers(s, p))
       if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL', false)) {

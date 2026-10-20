@@ -2,12 +2,13 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, win } from '../state'
+import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
 import { nextRandom, shuffleInPlace } from '../rng'
+import { discardChoices } from '../activeabilities'
 import { attachCard, discardAttachedOf } from '../attach'
 import { isNewStyle, registerDamageModifier } from '../damagemods'
 
@@ -200,6 +201,16 @@ export const handlers: Record<string, CustomHandler> = {
   focused: noop, // read in damage.ts / abilities.ts
   focusedAttack: noop, // read in damage.ts / abilities.ts
   temporaryPurModifier: noop, // CG-5, not applied yet
+  discardFromHandThen(ctx, p) {
+    // "you may discard N cards from your hand to ..." (BU-126, BU-130, BU-131, BU-133); the attack-phase ones are used through USE_ABILITY
+    if (p.phase === 'attackerAttacks' && !p.activated) return
+    const choices = discardChoices(ctx.s, ctx.db, ctx.user, p)
+    const n = num(p.amount, 1)
+    if (choices.length < n) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: not enough cards to discard`, ctx.user)
+    schedule(ctx.s,
+      { k: 'choice', q: pickRequest(ctx.user, ctx.user, 'hand', choices, n, 'DISCARD', ctx.source) },
+      { k: 'effects', user: ctx.user, source: ctx.source, card: ctx.card, effects: then(p) })
+  },
   additionalPower: noop, // BU-197..199: read as a second Constant Combat Power (state.constantEffectsOf); BU-200's second attack is not selectable yet
   damageCannotBePrevented: unpreventable,
   damageCannotBeModified: unpreventable,
