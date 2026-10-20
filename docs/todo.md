@@ -3,7 +3,7 @@
 ## Engine
 - [x] discardFromHandThen (BU-126, BU-130, BU-131, BU-133), via the new USE_ABILITY action
 - [ ] Other attack-phase abilities on USE_ABILITY: BB-56, BB-83, BU-142, BU-167, WG-156, BU-43
-- [ ] discardToStopAttack (BB-P10, BU-91, CS-126)
+- [x] discardToStopAttack (BB-P10, BU-91, CS-126) via DEFEND_DISCARD (CS-126's Blue Style anger bonus not applied)
 - [ ] nameCardsRemoveFromLifeDeck (3 cards), replacePostResolution (BB-9, BU-106, WG-165)
 - [ ] Remaining attached effects: Blue/Black Gambit, Blue Eye Gouge, Stomach Throw, drill-attached cards
 - [ ] BU-200 second attack power selectable

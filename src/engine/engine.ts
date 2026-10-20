@@ -6,7 +6,7 @@ import {
   cleanup, copyAttack, dealDamage, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
-import { useAbility } from './activeabilities'
+import { defendByDiscard, useAbility } from './activeabilities'
 import { sweepAttachments } from './attach'
 import { clone, def, log, schedule } from './state'
 import {
@@ -34,6 +34,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     case 'DECLARE_COMBAT': declareCombat(s, db); break
     case 'SKIP_COMBAT': skipCombat(s, db); break
     case 'USE_POWER': usePower(s, db, action.player); break
+    case 'DEFEND_DISCARD': defendByDiscard(s, db, action.player, action.key); break
     case 'USE_ABILITY': useAbility(s, db, action.player, action.key); break
     case 'PASS': passCombat(s, db, action.player); break
     case 'DEFEND': defend(s, db, action.iid); break

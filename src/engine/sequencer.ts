@@ -59,7 +59,7 @@ function attackAsDefense(s: GameState, db: CardDB, defender: PlayerId, d: CardDe
 }
 
 /** TS-185: "to stop this attack, your opponent must play 2 cards that stop physical attacks" */
-const defensesNeeded = (s: GameState) => Number(findCustom(s.combat?.strike?.strike.effects.onPlaySecondary ?? [], 'requireMultipleDefenses')[0]?.count ?? 1)
+export const defensesNeeded = (s: GameState) => Number(findCustom(s.combat?.strike?.strike.effects.onPlaySecondary ?? [], 'requireMultipleDefenses')[0]?.count ?? 1)
 
 /**
  * Cards that can answer the current strike: defense cards in hand or among the unused

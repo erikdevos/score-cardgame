@@ -89,6 +89,8 @@ function score(s: GameState, db: CardDB, a: Action): number {
       return a.iid ? 3 : 0
     case 'USE_FREE':
       return 4
+    case 'DEFEND_DISCARD':
+      return 5
     case 'USE_ABILITY':
       // once per combat for the AI: the discard is a real cost
       return s.combat!.onceKeys.some(k => k.startsWith(`ability:${a.player}:`)) ? -1 : 1

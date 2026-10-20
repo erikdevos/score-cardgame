@@ -291,6 +291,8 @@ export type Action =
   | { type: 'USE_POWER'; player: PlayerId }
   /** a "discard a card to ..." ability of a Mastery, power or drill during your Attacker Attacks phase (does not use the attack) */
   | { type: 'USE_ABILITY'; player: PlayerId; key: string }
+  /** stop the attack by discarding a card (BB-P10, BU-91, CS-126) */
+  | { type: 'DEFEND_DISCARD'; player: PlayerId; key: string }
   | { type: 'PASS'; player: PlayerId }
   | { type: 'DEFEND'; player: PlayerId; iid: string | null }
   | { type: 'DEFEND_POWER'; player: PlayerId }

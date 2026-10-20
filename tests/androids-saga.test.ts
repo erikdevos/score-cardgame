@@ -336,3 +336,24 @@ describe('Attack-phase abilities (discard a card to ...)', () => {
     expect(s.step).toBe('COMBAT')
   })
 })
+
+describe('Discard to stop an attack', () => {
+  it('BB-P10 stops a non-focused attack for a discard, and the player then passes for the rest of the combat', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    let s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.players[1].drills.push({ iid: 'm', defId: 'BB-P10', owner: 1 })
+    s.players[1].hand.push(s.players[1].lifeDeck.pop()!, s.players[1].lifeDeck.pop()!)
+    s.step = 'COMBAT'
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
+    s.pendingChoice = { kind: 'DEFEND', player: 1 } as never
+    const act = legalActions(s, db).find(a => a.type === 'DEFEND_DISCARD')
+    expect(act).toBeTruthy()
+    s = applyAction(s, db, act!).state
+    expect(s.pendingChoice?.kind).toBe('PICK')
+    const hp = s.players[1].mp.stage
+    s = applyAction(s, db, { type: 'PICK', player: 1, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
+    expect(s.players[1].mp.stage).toBe(hp)
+    expect(s.combat!.finalAttack).toContain(1)
+  })
+})

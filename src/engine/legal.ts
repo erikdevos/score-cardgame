@@ -1,7 +1,7 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
-import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
-import { activeAbilities } from './activeabilities'
+import { attackPowerOption, defensesNeeded, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
+import { activeAbilities, discardDefenses } from './activeabilities'
 import { nonCombatForbidden } from './attach'
 import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
 import { canTakeOver, mustSkipCombat } from './turn'
@@ -36,6 +36,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
           ...takeovers(s, p),
           { type: 'DEFEND', player: p, iid: null },
           ...legalDefenses(s, db, p).map(c => ({ type: 'DEFEND' as const, player: p, iid: c.iid })),
+          ...(defensesNeeded(s) > 1 ? [] : discardDefenses(s, db, p).map(a => ({ type: 'DEFEND_DISCARD' as const, player: p, key: a.key }))),
           ...(legalPowerDefense(s, db, p) ? [{ type: 'DEFEND_POWER' as const, player: p }] : []),
         ]
       case 'PICK':

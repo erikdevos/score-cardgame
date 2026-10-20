@@ -321,3 +321,7 @@ Simplifications / not yet working: a "choice" host is picked automatically (oppo
 ## Attack-phase abilities (2026-10-20, `src/engine/activeabilities.ts`)
 
 New action `USE_ABILITY {player, key}`: during the player's own Attacker Attacks phase, `discardFromHandThen` effects with `phase: attackerAttacks` on Masteries, constant powers, drills and attached cards can be used without giving up the attack. The cost is a PICK from hand (style / named filters), then the `then` effects run. Without `phase` (BU-131) the handler runs as a normal effect. The AI uses each such ability at most once per combat. Not on it yet: BB-56, BB-83, BU-142, BU-167, WG-156, BU-43 (other handlers).
+
+## Discard to stop an attack (2026-10-20)
+
+New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): in the defend window a player with a `discardToStopAttack` source (drill, Mastery, power, attached card) may discard a card from hand or a Non-Combat card in play to stop a non-focused attack. BB-P10 then passes for the rest of the combat (via finalAttack). CS-126 is once per combat; its extra "if Blue Style, lower the opponent's anger 2 levels" is not applied. The AI values it at 5 (below real blocks).
