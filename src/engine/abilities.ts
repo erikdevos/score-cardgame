@@ -4,7 +4,7 @@ import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRol
 import type { Damage } from './damage'
 import { attachmentSources } from './attach'
 import { isNewStyle } from './damagemods'
-import { constantParams, controllingAlly, def, findCustom, inPlayAnywhere, log, mpDef } from './state'
+import { constantEffectsOf, constantParams, controllingAlly, def, findCustom, inPlayAnywhere, log, mpDef } from './state'
 export { findCustom, inPlayAnywhere }
 import type { AttackType, CardInstance, CombatState, GameState, PlayerId } from './types'
 
@@ -154,7 +154,7 @@ export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name:
   out.push(...attachmentSources(s, db, p))
   const power = mpDef(s, db, p).personality!.power
   if (power && !s.combat?.noConstantPowers) {
-    const effects = findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => (c.then ?? []) as Effect[])
+    const effects = constantEffectsOf(power).flatMap(c => (c.then ?? []) as Effect[])
     if (effects.length) out.push({ name: power.name, effects, constant: true })
   }
   return out

@@ -75,6 +75,8 @@ export interface StrikeState {
   takeFirstMilled?: PlayerId
   /** TS-127: the defender takes no life cards from this attack, not even overflow */
   noLifeCards?: boolean
+  /** BB-87, BB-120, BU-17: damage from this attack cannot be reduced or prevented */
+  unpreventable?: boolean
 }
 
 /** A card fixed to a personality or another card (attach.ts). */

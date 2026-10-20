@@ -141,7 +141,14 @@ export function findCustom(effects: Effect[], handler: string): Record<string, u
 export function constantParams(s: GameState, db: CardDB, p: PlayerId, handler: string): Record<string, unknown>[] {
   const power = mpDef(s, db, p).personality!.power
   if (!power || s.combat?.noConstantPowers || s.powerLocks.some(l => l.player === p)) return []
-  return findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
+  return constantEffectsOf(power).flatMap(c => findCustom((c.then ?? []) as Effect[], handler))
+}
+
+/** The constantPower effects of a personality power, including a second Constant Combat Power on the card (BU-197..199). */
+export function constantEffectsOf(power: { strike: { effects: { onPlaySecondary: Effect[] } } }) {
+  const extra = findCustom(power.strike.effects.onPlaySecondary, 'additionalPower').filter(a => a.kind === 'constant')
+    .flatMap(a => findCustom(((a.strike as { effects?: { onPlaySecondary?: Effect[] } })?.effects?.onPlaySecondary ?? []), 'constantPower'))
+  return [...findCustom(power.strike.effects.onPlaySecondary, 'constantPower'), ...extra]
 }
 
 /** Trunks Saga Mastery card params with this handler. */

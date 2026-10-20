@@ -67,6 +67,13 @@ function attachFrom(ctx: EffectContext, p: Params, kind: 'mp', player: PlayerId,
   attachCard(ctx.s, ctx.db, ctx.card, { player, kind }, { until: p.until as string | undefined, effects: eff, removeWhenDone: !!p.removeWhenDone })
 }
 
+function unpreventable(ctx: EffectContext, p: Params) {
+  const st = ctx.s.combat?.strike
+  if (!st || p.duration === 'remainderOfCombat') return
+  st.unpreventable = true
+  log(ctx.s, 'RESTRICT', `${ctx.source}: this attack's damage cannot be prevented`, ctx.user)
+}
+
 export const handlers: Record<string, CustomHandler> = {
   // Read elsewhere (legal actions, defenses, timing, damage), nothing to resolve.
   playTiming: noop,
@@ -193,6 +200,9 @@ export const handlers: Record<string, CustomHandler> = {
   focused: noop, // read in damage.ts / abilities.ts
   focusedAttack: noop, // read in damage.ts / abilities.ts
   temporaryPurModifier: noop, // CG-5, not applied yet
+  additionalPower: noop, // BU-197..199: read as a second Constant Combat Power (state.constantEffectsOf); BU-200's second attack is not selectable yet
+  damageCannotBePrevented: unpreventable,
+  damageCannotBeModified: unpreventable,
   discardAttached: discardAttachedHandler, // CG-44
   discardAttachedCards: discardAttachedHandler, // CG-67
   attachToMainPersonality(ctx, p) { attachFrom(ctx, p, 'mp', targetOf(ctx, p.target ?? 'SELF')) },

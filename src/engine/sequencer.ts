@@ -309,9 +309,11 @@ export function resolveHit(s: GameState, db: CardDB) {
     dmg = { stages: dmg.stages + boost.stages, lifeCards: dmg.lifeCards + boost.lifeCards }
     log(s, 'DAMAGE_X', `${[...new Set(boost.sources)].join(', ')}: more damage`, st.initiator)
   }
+  const unreduced = dmg
   if (st.defense) dmg = applyDefense(dmg, st.defense)
   dmg = ongoingDamageChanges(s, db, defender, type, dmg)
   dmg = applyNewModifiers(s, db, st, type, dmg)
+  if (st.unpreventable) dmg = { stages: Math.max(dmg.stages, unreduced.stages), lifeCards: Math.max(dmg.lifeCards, unreduced.lifeCards) }
   if (dmg.lifeCards > 0) {
     const lc = useShield(s, db, defender, type, true)
     if (lc) {

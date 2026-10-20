@@ -6,7 +6,7 @@ import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
-import { retire, powerRating } from '../src/engine/state'
+import { constantParams, retire, powerRating } from '../src/engine/state'
 import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
@@ -296,5 +296,24 @@ describe('Attached cards', () => {
       expect(s.winner).not.toBeNull()
       expect([allCardsOf(s, 0).length, allCardsOf(s, 1).length]).toEqual(total)
     }
+  })
+})
+
+describe('Second constant power and unpreventable damage', () => {
+  it('Majin Buu Lv1 prevents 2 life cards of every opposing attack through its second power', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.players[1].mp.stack[0] = { iid: 'buu', defId: 'BU-197', owner: 1 }
+    s.players[1].mp.levelIndex = 0
+    expect(constantParams(s, db, 1, 'damageModifier').length).toBe(1)
+  })
+
+  it('"cannot be prevented" flags the strike', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
+    customHandlers.damageCannotBePrevented({ s, db, user: 0, source: 'BB-120' }, {})
+    expect((s.combat.strike as unknown as { unpreventable?: boolean }).unpreventable).toBe(true)
   })
 })
