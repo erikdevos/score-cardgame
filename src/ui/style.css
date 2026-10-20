@@ -413,7 +413,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 /* ---------- review ---------- */
 .review { max-width: 1040px; margin: 0 auto; padding: 18px 16px 40px; display: grid; gap: 14px; }
 .review .bar { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-.review .bar h2 { font-family: var(--font-display); font-weight: 400; font-size: 34px; letter-spacing: 0.03em; background: var(--ki); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.review .bar h2 { font-family: var(--font-display); font-weight: 400; font-size: 24px; letter-spacing: 0.03em; background: var(--ki); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .review .bar button { background: var(--glass-2); border: 1px solid var(--line-2); border-radius: 10px; padding: 6px 12px; color: var(--text); }
 .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .filters button { background: var(--glass-3); border: none; border-radius: 10px; padding: 8px 14px; font-weight: 700; color: var(--text); }
@@ -735,17 +735,29 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 /* Card catalog */
 .catalog { max-width: 1400px; margin: 0 auto; padding: 0 16px 40px; }
-.catalog-top { position: sticky; top: 0; z-index: 5; display: grid; gap: 10px; padding: 14px 0 12px; background: var(--bg-0); border-bottom: 1px solid var(--line); margin-bottom: 14px; }
-.catalog-bar { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+.catalog-top { display: grid; gap: 12px; padding: 12px 16px; background: var(--bg-0); border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+@media (min-height: 900px) { .catalog-top { position: sticky; top: 0; z-index: 5; } }
+.catalog-bar { display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap; }
 .catalog-bar h2 { font-family: var(--font-display); font-weight: 400; font-size: 34px; letter-spacing: 0.03em; background: var(--ki); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .catalog-search { width: 100%; padding: 10px 14px; font-size: 16px; color: var(--text); background: var(--glass); border: 1px solid var(--line-2); border-radius: var(--radius-sm); }
 .catalog-search:focus { outline: none; border-color: var(--gold); }
-.catalog-top .segmented { flex-wrap: wrap; }
+.filter-bar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.filter-bar .catalog-search { flex: 1 1 220px; width: auto; min-width: 180px; padding: 6px 12px; font-size: 14px; }
+.filter-select { padding: 7px 10px; font-size: 13px; color: var(--text); background: var(--glass); border: 1px solid var(--line-2); border-radius: var(--radius-sm); }
+.filter-select.on { border-color: var(--gold); color: var(--gold); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.print-toggle { margin-left: auto; }
+.chips button { padding: 3px 10px; font-size: 12px; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.chips button small { font-size: 10px; opacity: 0.8; }
+.chips button.on { background: var(--ki); color: #2a0e00; border-color: transparent; }
 .catalog-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
 .cat-card { width: 100%; display: grid; gap: 4px; padding: 6px; text-align: left; color: var(--text); background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius-sm); cursor: pointer; transition: transform 0.12s, border-color 0.12s; }
 .cat-card:hover, .cat-card:focus-visible { transform: translateY(-3px); border-color: var(--gold); outline: none; }
 .cat-card img { filter: var(--card-filter); width: 100%; aspect-ratio: 5 / 7; object-fit: cover; border-radius: 8px; background: var(--bg-2); }
 .cat-num { font-family: var(--font-digits); font-size: 11px; color: var(--gold); }
+.cat-price { display: flex; gap: 6px; align-items: baseline; font-size: 12px; }
+.cat-price b { color: var(--gold); font-family: var(--font-digits); font-weight: 600; }
+.cat-price small { color: var(--muted, #9aa); font-size: 11px; }
 .cat-name { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .catalog-empty { padding: 40px 0; text-align: center; }
 .cat-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px 72px; background: rgba(4, 6, 16, 0.94); overflow: auto; }

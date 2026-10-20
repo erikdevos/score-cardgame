@@ -2,21 +2,51 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { CardDef } from '../../engine'
 import { SETS, realCards, setOrder } from '../cardDb'
+import { cardPrice, cardPriceValue, priceInfo, type PrintMode } from '../prices'
 
 defineEmits<{ back: [] }>()
 
 const setFilter = ref<string>('all')
 const query = ref('')
+const typeFilter = ref('all')
+const styleFilter = ref('all')
+const rarityFilter = ref('all')
+const printMode = ref<PrintMode>('both')
+const sortBy = ref<'number' | 'price-desc' | 'price-asc'>('number')
 const open = ref<CardDef | null>(null)
 
 const sorted = [...realCards].sort((a, b) => setOrder(a.set) - setOrder(b.set) || a.number - b.number)
 const counts = computed(() => Object.fromEntries(SETS.map(s => [s.name, sorted.filter(c => c.set === s.name).length])))
 
+const RARITIES = ['Starter', 'Common', 'Uncommon', 'Rare', 'Ultra Rare', 'Promo']
+const TYPES = ['Personality', 'Physical Combat', 'Energy Combat', 'Combat', 'Non-Combat', 'Drill', 'Mastery', 'Dragon Ball', 'Location', 'Battleground']
+const STYLES = ['Orange', 'Red', 'Black', 'Blue', 'Saiyan', 'Namekian']
+const styleOf = (c: CardDef) => (c as CardDef & { style?: string }).style
+const inSeries = computed(() => sorted.filter(c => setFilter.value === 'all' || c.set === setFilter.value))
+/** Options with counts within the chosen series; only values that occur are offered. */
+const facet = (all: string[], get: (c: CardDef) => string | undefined) =>
+  computed(() => all.map(v => ({ v, n: inSeries.value.filter(c => get(c) === v).length })).filter(o => o.n))
+const typeOpts = facet(TYPES, c => c.type)
+const styleOpts = facet(STYLES, styleOf)
+const rarityOpts = facet(RARITIES, c => c.rarity)
+const filtersOn = computed(() => typeFilter.value !== 'all' || styleFilter.value !== 'all' || rarityFilter.value !== 'all' || setFilter.value !== 'all' || query.value !== '')
+function reset() { setFilter.value = typeFilter.value = styleFilter.value = rarityFilter.value = 'all'; query.value = '' }
+
 const list = computed(() => {
   const q = query.value.trim().toLowerCase()
-  return sorted.filter(c => {
+  const out = sorted.filter(c => {
     if (setFilter.value !== 'all' && c.set !== setFilter.value) return false
+    if (typeFilter.value !== 'all' && c.type !== typeFilter.value) return false
+    if (styleFilter.value !== 'all' && styleOf(c) !== styleFilter.value) return false
+    if (rarityFilter.value !== 'all' && c.rarity !== rarityFilter.value) return false
     return !q || c.name.toLowerCase().includes(q) || c.id.toLowerCase().includes(q) || String(c.number) === q || c.rawText.toLowerCase().includes(q)
+  })
+  if (sortBy.value === 'number') return out
+  const dir = sortBy.value === 'price-desc' ? -1 : 1
+  // unpriced cards always go last
+  return out.sort((a, b) => {
+    const pa = cardPriceValue(a.id, printMode.value), pb = cardPriceValue(b.id, printMode.value)
+    return pa === undefined ? (pb === undefined ? 0 : 1) : pb === undefined ? -1 : dir * (pa - pb)
   })
 })
 
@@ -121,11 +151,35 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         <button class="link-btn" @click="$emit('back')">&larr; Menu</button>
         <h2>Card catalog</h2>
         <span class="muted small">{{ list.length }} of {{ sorted.length }} cards</span>
+        <span class="muted small" :title="`Estimated ungraded market value in USD, from ${priceInfo.source}`">Values: {{ priceInfo.source }}, {{ priceInfo.fetched }}</span>
       </div>
-      <input v-model="query" class="catalog-search" type="search" placeholder="Search name, text or number" aria-label="Search cards" autofocus />
-      <div class="segmented" role="group" aria-label="Series">
-        <button :class="{ on: setFilter === 'all' }" @click="setFilter = 'all'">All<small>{{ sorted.length }}</small></button>
-        <button v-for="s in SETS" :key="s.key" :class="{ on: setFilter === s.name }" @click="setFilter = s.name">{{ s.name }}<small>{{ counts[s.name] }}</small></button>
+      <div class="filter-bar">
+        <input v-model="query" class="catalog-search" type="search" placeholder="Search name, text or number" aria-label="Search cards" autofocus />
+        <select v-model="typeFilter" class="filter-select" aria-label="Card type" :class="{ on: typeFilter !== 'all' }">
+          <option value="all">All types</option>
+          <option v-for="o in typeOpts" :key="o.v" :value="o.v">{{ o.v }} ({{ o.n }})</option>
+        </select>
+        <select v-model="styleFilter" class="filter-select" aria-label="Style" :class="{ on: styleFilter !== 'all' }">
+          <option value="all">All styles</option>
+          <option v-for="o in styleOpts" :key="o.v" :value="o.v">{{ o.v }} ({{ o.n }})</option>
+        </select>
+        <select v-model="rarityFilter" class="filter-select" aria-label="Rarity" :class="{ on: rarityFilter !== 'all' }">
+          <option value="all">All rarities</option>
+          <option v-for="o in rarityOpts" :key="o.v" :value="o.v">{{ o.v }} ({{ o.n }})</option>
+        </select>
+        <select v-model="sortBy" class="filter-select" aria-label="Sort" :class="{ on: sortBy !== 'number' }">
+          <option value="number">Sort: card number</option>
+          <option value="price-desc">Sort: value, high to low</option>
+          <option value="price-asc">Sort: value, low to high</option>
+        </select>
+        <button v-if="filtersOn" class="link-btn" @click="reset">Clear</button>
+      </div>
+      <div class="chips" role="group" aria-label="Series">
+        <button :class="{ on: setFilter === 'all' }" @click="setFilter = 'all'">All <small>{{ sorted.length }}</small></button>
+        <button v-for="s in SETS" :key="s.key" :class="{ on: setFilter === s.name }" @click="setFilter = s.name">{{ s.name }} <small>{{ counts[s.name] }}</small></button>
+        <div class="chips print-toggle" role="group" aria-label="Print">
+          <button v-for="m in (['both', 'regular', 'foil'] as const)" :key="m" :class="{ on: printMode === m }" @click="printMode = m">{{ m === 'both' ? 'Both prints' : m === 'regular' ? 'Regular' : 'Foil' }}</button>
+        </div>
       </div>
     </header>
 
@@ -135,10 +189,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           <img :src="c.imageUrl" :alt="c.name" loading="lazy" />
           <span class="cat-num">{{ c.id }}</span>
           <span class="cat-name">{{ c.name }}</span>
+          <span class="cat-price" :title="`Estimated value, ${priceInfo.source} ${priceInfo.fetched}`">
+            <template v-if="printMode !== 'foil' && cardPrice(c.id).regular"><b>{{ cardPrice(c.id).regular }}</b></template>
+            <template v-if="printMode !== 'regular' && cardPrice(c.id).foil">
+              <b v-if="printMode === 'foil'">{{ cardPrice(c.id).foil }}</b>
+              <small v-else>{{ cardPrice(c.id).regular ? 'foil ' : 'foil only ' }}{{ cardPrice(c.id).foil }}</small>
+            </template>
+            <small v-if="cardPriceValue(c.id, printMode) === undefined">no {{ printMode === 'both' ? '' : printMode + ' ' }}price</small>
+          </span>
         </button>
       </li>
     </ul>
-    <p v-else class="muted catalog-empty">No cards match.</p>
+    <p v-else class="muted catalog-empty">No cards match. <button class="link-btn" @click="reset">Clear filters</button></p>
 
     <div v-if="open" class="cat-modal" role="dialog" aria-modal="true" :aria-label="open.name" @click.self="open = null">
       <button class="cat-close" aria-label="Close" @click="open = null">&times;</button>

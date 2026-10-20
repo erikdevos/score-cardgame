@@ -12,6 +12,7 @@
     "typecheck": "vue-tsc --noEmit && tsc -p tsconfig.engine.json",
     "validate:cards": "tsx scripts/validate-cards.ts",
     "fetch:index": "tsx scripts/fetch-card-index.ts",
+    "fetch:prices": "tsx scripts/fetch-prices.ts",
     "fetch:images": "tsx scripts/download-images.ts"
   },
   "dependencies": {
