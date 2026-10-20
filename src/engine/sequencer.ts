@@ -47,6 +47,8 @@ export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: Card
     if (extra) opt = cardDefense(d, attack === 'ENERGY' ? 'PHYSICAL' : 'ENERGY')
   }
   // focused attacks cannot be stopped by cards that stop both attack types
+  // Cell Saga rulebook, Nowhere to Hide (Cell-era pools only, flag doublePower): cards that end combat can only be played as an attack, never as a defense
+  if (s.rules.trunks.doublePower && opt && d.effects.onPlaySecondary.some(e => e.action === 'END_COMBAT')) return null
   if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike) && !canStopFocused(d)) return null
   if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, db, defender, opt.strike)) return null
   if (d.noStacking && s.combat!.usedCardIds.includes(d.id)) return null
@@ -514,7 +516,16 @@ export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
     if (m.onlyWhen === 'stoppedAttack' && s.combat?.strike?.defenseCard?.iid !== card.iid) continue
     s.retireTo[card.iid] = 'LIFE_BOTTOM'
   }
-  retire(s, card, d.effects.postResolution)
+  // BB-9 (own condition) and WG-165 (Vegeta Named cards discard instead of leaving the game)
+  let mode = d.effects.postResolution
+  for (const r of findCustom(d.effects.onPlaySecondary, 'replacePostResolution')) {
+    const need = (r.condition as { mainPersonalityLevelAtLeast?: number } | undefined)?.mainPersonalityLevelAtLeast
+    if (need === undefined || s.players[card.owner].mp.levelIndex + 1 >= need) mode = r.value as typeof mode
+  }
+  for (const r of constantParams(s, db, card.owner, 'replacePostResolution')) {
+    if (r.filter === 'Vegeta Named' && d.named === 'Vegeta' && mode === r.from) mode = r.to as typeof mode
+  }
+  retire(s, card, mode)
 }
 
 /** Conditions of granted effects: "opponentNoDrills", { ownDrillsInPlay: { style, min } }; no condition = always. */

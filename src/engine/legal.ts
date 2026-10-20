@@ -89,6 +89,11 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       if (tableEffects(s, db, p, 'playNonCombatInsteadOfAttack').length && !s.combat!.onceKeys.includes(`instead:${p}`) && !attackRestriction(s, p, 'COMBAT_EFFECT', false)) {
         out.push(...pl.hand.filter(c => def(db, c).type === 'Non-Combat' && canUseCard(s, db, p, def(db, c))).map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid })))
       }
+      // CG-100: in place of an attack, place an Ally from the hand
+      if (s.location && p === s.attacker && !s.combat!.onceKeys.includes(`ally-instead:${p}`) && findCustom(def(db, s.location).effects.onEnterPlay, 'placeAllyInsteadOfAttack').length
+        && !attackRestriction(s, p, 'COMBAT_EFFECT', false)) {
+        out.push(...pl.hand.filter(c => def(db, c).type === 'Personality' && canPlayNonCombat(s, db, c.iid)).map(c => ({ type: 'PLAY_CARD' as const, player: p, iid: c.iid })))
+      }
       const mp = mpDef(s, db, p)
       const powerOpt = attackPowerOption(s, db, p)
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })

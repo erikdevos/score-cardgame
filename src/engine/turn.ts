@@ -141,6 +141,15 @@ export function playCard(s: GameState, db: CardDB, p: PlayerId, iid: string) {
     s.combat!.consecutivePasses = 0
     return playNonCombat(s, db, p, iid)
   }
+  if (s.step === 'COMBAT' && !onTable && def(db, s.players[p].hand.find(c => c.iid === iid)!).type === 'Personality') {
+    // CG-100: in place of an attack, an Ally from the hand is placed at 3 power stages above 0
+    s.combat!.onceKeys.push(`ally-instead:${p}`)
+    s.combat!.consecutivePasses = 0
+    playNonCombat(s, db, p, iid)
+    const ally = s.players[p].allies.find(a => a.card.iid === iid)
+    if (ally) ally.stage = Math.max(ally.stage, 3)
+    return
+  }
   if (s.step === 'COMBAT') return onTable && !role ? useNonCombat(s, db, p, iid) : playCombatCard(s, db, p, iid)
   return onTable ? useNonCombat(s, db, p, iid) : playNonCombat(s, db, p, iid)
 }

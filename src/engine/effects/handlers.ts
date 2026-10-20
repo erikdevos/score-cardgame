@@ -240,6 +240,8 @@ export const handlers: Record<string, CustomHandler> = {
     if (p.alsoDrills) (ctx.s.combat.noDrills ??= []).push(who)
     log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot use ${p.alsoDrills ? 'Mastery and Drills' : 'Mastery'} this combat`, ctx.user)
   },
+  replacePostResolution: noop, // sequencer.retireUsed (BB-9, WG-165)
+  placeAllyInsteadOfAttack: noop, // legal.ts (CG-100)
   stopsAlso: noop, // sequencer.defenseFor (BU-5)
   stoppedAsAttackType: noop, // sequencer.defenseFor (BU-34)
   allowAllyControl: noop, // turn.canTakeOver

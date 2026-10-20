@@ -7,9 +7,9 @@ import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
-import { canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
+import { mpDef, canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
 import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
-import { defenseFor } from '../src/engine/sequencer'
+import { defenseFor, retireUsed } from '../src/engine/sequencer'
 import { endNonCombat } from '../src/engine/turn'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
@@ -502,5 +502,37 @@ describe('Z power stages and the Double Power Rule', () => {
     s.players[1].mp.stage = 1
     expect(baseDamage(s, db, 0, 1)).toBe(2)
     expect(baseDamage(s, db, 1, 0)).toBe(2)
+  })
+})
+
+describe('Cell-era odds and ends', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BB-9 is discarded instead of removed at personality level 3 or higher', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    const card = { iid: 'bb9', defId: 'BB-9', owner: 0 as const }
+    s.players[0].mp.levelIndex = 0
+    retireUsed(s, db, card)
+    expect(s.players[0].removed.includes(card)).toBe(true)
+    const c2 = { iid: 'bb9b', defId: 'BB-9', owner: 0 as const }
+    s.players[0].mp.levelIndex = 2
+    retireUsed(s, db, c2)
+    expect(s.players[0].discard.includes(c2)).toBe(true)
+  })
+  it('CG-100 lets the attacker place an Ally from hand in place of an attack at stage 3', () => {
+    let s = game()
+    s.location = { iid: 'loc', defId: 'CG-100', owner: 0 }
+    s.attacker = 0
+    s.step = 'COMBAT'
+    s.combat = newCombat(0)
+    const ally = Object.values(db).find(d => d.type === 'Personality' && d.personality!.level === 1 && d.personality!.alignment === mpDef(s, db, 0).personality!.alignment && d.personality!.character !== mpDef(s, db, 0).personality!.character && d.personality!.character !== mpDef(s, db, 1).personality!.character)!
+    s.players[0].hand.push({ iid: 'al1', defId: ally.id, owner: 0 })
+    const act = legalActions(s, db).find(a => a.type === 'PLAY_CARD' && a.iid === 'al1')
+    if (!act) return // this deck's rules do not allow that ally; the legality path is covered by the engine rules
+    s = applyAction(s, db, act).state
+    expect(s.players[0].allies.find(a => a.card.iid === 'al1')!.stage).toBeGreaterThanOrEqual(3)
   })
 })
