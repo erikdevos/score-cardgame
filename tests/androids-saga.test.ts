@@ -671,3 +671,32 @@ describe('Rule tweaks batch A', () => {
     expect(s.combat.phaseStages).toEqual([{ player: 1, amount: 2 }])
   })
 })
+
+describe('Rule tweaks batch B', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BU-111: the user loses at the start of the opponent next turn', () => {
+    const s = game()
+    s.attacker = 0
+    customHandlers.loseGameAtPhase({ s, db, user: 0, source: 'BU-111' }, {})
+    expect(s.loseAt).toEqual([{ player: 0, turn: s.turn + 1 }])
+  })
+  it('removeFromDiscardThen with a rarity and amount removes that many matching cards (BB-85)', () => {
+    const s = game()
+    const un = Object.values(db).find(d => d.rarity === 'Uncommon' && !d.id.startsWith('TEST'))!
+    s.combat = newCombat(0)
+    s.players[0].discard.push(...[1, 2, 3, 4].map(i => ({ iid: `u${i}`, defId: un.id, owner: 0 as const })))
+    customHandlers.removeFromDiscardThen({ s, db, user: 0, source: 'BB-85' }, { rarity: 'Uncommon', amount: 4, then: [] })
+    expect(s.players[0].removed.filter(c => c.iid.startsWith('u')).length).toBe(4)
+  })
+  it('BU-160 counts earlier Saiyan Style attacks of this combat', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    s.combat.attackStyles = [{ player: 0, style: 'Saiyan' }, { player: 0, style: 'Saiyan' }, { player: 1, style: 'Saiyan' }]
+    const before = s.stack.length
+    customHandlers.ifAttacksPerformedThisCombat({ s, db, user: 0, source: 'BU-160' }, { style: 'Saiyan', atLeast: 2, then: [{ action: 'MODIFY_ANGER', target: 'SELF', amount: 1 }] })
+    expect(s.stack.length).toBe(before + 1)
+  })
+})

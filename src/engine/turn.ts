@@ -10,6 +10,7 @@ import { other, type Frame, type GameState, type PlayerId } from './types'
 // Step 1
 export function startTurn(s: GameState, db: CardDB) {
   s.step = 'NON_COMBAT'
+  s.noMasteryTurn = []
   s.locationPlayedThisTurn = false
   s.combat = null
   s.combatSkipped = false
@@ -20,6 +21,12 @@ export function startTurn(s: GameState, db: CardDB) {
     const foe = s.players[w.player === 0 ? 1 : 0]
     if (w.reason === 'SURVIVAL' && !foe.lifeDeck.length) win(s, w.player, 'SURVIVAL')
     if (w.reason === 'MPP' && s.players[w.player].mp.levelIndex === s.players[w.player].mp.stack.length - 1) win(s, w.player, 'MPP')
+  }
+  // BU-111: the player who attacked with it loses now
+  for (const l of s.loseAt.filter(x => x.player === other(s.attacker) && x.turn <= s.turn)) {
+    s.loseAt = s.loseAt.filter(x => x !== l)
+    log(s, 'GAME', `Player ${l.player + 1} loses: the Sacrifice catches up`, l.player)
+    win(s, s.attacker, 'SURVIVAL')
   }
   // Trunks Saga: a set of 7 completed by capture wins now, if the player still has it
   // (also catches a win that FS-P1 held back)

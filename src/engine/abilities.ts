@@ -139,7 +139,7 @@ export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: str
   const pl = s.players[p]
   const borrowed = (s.combat?.borrowedDrills ?? []).filter(b => b.player === p).map(b => ({ iid: `borrowed-${b.defId}`, defId: b.defId, owner: p }))
   const drills = s.combat?.lockdown || s.combat?.noDrills?.includes(p) ? [] : [...pl.drills.filter(c => !s.disabledDrills.includes(c.iid)), ...borrowed]
-  return [...drills, ...pl.nonCombat, ...pl.dragonBalls, ...(pl.mastery && !s.combat?.noMastery?.includes(p) ? [pl.mastery] : [])].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
+  return [...drills, ...pl.nonCombat, ...pl.dragonBalls, ...(pl.mastery && !s.combat?.noMastery?.includes(p) && !s.noMasteryTurn.includes(p) ? [pl.mastery] : [])].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
 }
 
 /**
@@ -150,7 +150,7 @@ export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name:
   const pl = s.players[p]
   const out: { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] = []
   if (!s.combat?.lockdown && !s.combat?.noDrills?.includes(p)) for (const card of pl.drills.filter(c => !s.disabledDrills.includes(c.iid))) out.push({ name: def(db, card).name, card, effects: def(db, card).effects.onEnterPlay })
-  if (pl.mastery && !s.combat?.noMastery?.includes(p)) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
+  if (pl.mastery && !s.combat?.noMastery?.includes(p) && !s.noMasteryTurn.includes(p)) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
   out.push(...attachmentSources(s, db, p))
   const power = mpDef(s, db, p).personality!.power
   if (power && !s.combat?.noConstantPowers) {
@@ -273,6 +273,8 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
 export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
   const base = costForBase(s, db, p, cost, role, style)
+  // BU-166: Kid Trunks' energy attacks may be paid with the top life card instead of power stages
+  if (base.type === 'POWER_STAGES' && role === 'ATTACK_ENERGY' && s.combat?.lifeForCost?.includes(p) && s.players[p].lifeDeck.length > 3) return { type: 'LIFE_CARDS' as const, amount: 1 }
   // BU-85: an attached card waives the costs of the player's card effects
   if (base.type !== 'NONE' && attachmentSources(s, db, p).some(a => findCustom(a.effects, 'costModifier').some(m => m.waive))) return { type: 'NONE' as const, amount: 0 }
   // BB-35: costs in power stages or life cards are doubled after the other modifiers

@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage, defaultDamage } from '../damage'
-import { constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
+import { constantParams, constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -237,8 +237,12 @@ export const handlers: Record<string, CustomHandler> = {
     log(ctx.s, 'RESTRICT', `${ctx.source}: Endurance cards stay in the discard pile for the rest of this combat`, ctx.user)
   },
   disableMastery(ctx, p) {
-    if (!ctx.s.combat) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no combat`, ctx.user)
     const who = targetOf(ctx, p.target)
+    if (p.duration === 'endOfTurn') {
+      ctx.s.noMasteryTurn.push(who)
+      return log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot use their Mastery for the rest of this turn`, ctx.user)
+    }
+    if (!ctx.s.combat) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no combat`, ctx.user)
     ;(ctx.s.combat.noMastery ??= []).push(who)
     if (p.alsoDrills) (ctx.s.combat.noDrills ??= []).push(who)
     log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot use ${p.alsoDrills ? 'Mastery and Drills' : 'Mastery'} this combat`, ctx.user)
@@ -342,6 +346,18 @@ export const handlers: Record<string, CustomHandler> = {
   costModifier: noop, // abilities.costFor (BB-35)
 
   removeFromDiscardThen(ctx, p) {
+    // BB-85: "remove 4 Uncommons in your discard pile": a rarity / style filter and an amount
+    if (!p.cardName) {
+      const pl = ctx.s.players[ctx.user]
+      const hits = pl.discard.filter(c => (!p.rarity || def(ctx.db, c).rarity === p.rarity) && (!p.style || def(ctx.db, c).style === p.style))
+      const n = num(p.amount, 1)
+      if (hits.length < n) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: not enough matching cards in the discard pile`, ctx.user)
+      const gone = hits.slice(-n)
+      pl.discard = pl.discard.filter(c => !gone.includes(c))
+      pl.removed.push(...gone)
+      log(ctx.s, 'REMOVE', `${ctx.source}: ${n} card(s) are removed from the game`, ctx.user)
+      return resolveEffects(ctx, then(p))
+    }
     // "You may remove <card> in your discard pile from the game. If you do, ..." (always taken: it is a benefit)
     const pile = ctx.s.players[ctx.user].discard
     const i = pile.findIndex(c => def(ctx.db, c).name === p.cardName)
@@ -351,6 +367,31 @@ export const handlers: Record<string, CustomHandler> = {
     resolveEffects(ctx, then(p))
   },
 
+  loseGameAtPhase(ctx) {
+    // BU-111: the user loses at the start of the opponent's next turn
+    ctx.s.loseAt.push({ player: ctx.user, turn: ctx.s.turn + (ctx.s.attacker === ctx.user ? 1 : 0) })
+    log(ctx.s, 'RESTRICT', `${ctx.source}: player ${ctx.user + 1} loses the game in the opponent's next Attacker Attacks phase`, ctx.user)
+  },
+  ifAttacksPerformedThisCombat(ctx, p) {
+    // BU-160: earlier attacks of this combat by the user in the given style
+    const done = (ctx.s.combat?.attackStyles ?? []).filter(a => a.player === ctx.user && (!p.style || a.style === p.style)).length
+    if (done >= num(p.atLeast, 1)) resolveEffects(ctx, then(p))
+  },
+  replaceCostWithLifeCard(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.lifeForCost ??= []).push(ctx.user)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: energy attack costs are paid with a life card for the rest of this combat`, ctx.user)
+  },
+  repeatOnHitEffects: noop, // sequencer.finishSuccessful (BU-180)
+  shuffleUsedCardsIntoLifeDeck(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.shuffleUsed ??= []).push(ctx.user)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: Styled non-Drill cards are shuffled into the life deck after use this combat`, ctx.user)
+  },
+  protectDiscardPile: noop, // removeFromGame / removeFromDiscardThen (WG-197)
+  ifRemovedCardMatchesMainPersonality(ctx, p) {
+    const iid = ctx.s.lastRemoved
+    const card = iid ? ctx.s.players[ctx.user].removed.find(c => c.iid === iid) : undefined
+    if (card && (!p.named || def(ctx.db, card).named === mpDef(ctx.s, ctx.db, ctx.user).personality!.character)) resolveEffects(ctx, then(p))
+  },
   ifMoreCardsInDiscard(ctx, p) {
     const foe = targetOf(ctx, p.than ?? 'OPPONENT')
     if (ctx.s.players[ctx.user].discard.length > ctx.s.players[foe].discard.length) resolveEffects(ctx, then(p))
@@ -1013,10 +1054,12 @@ export const handlers: Record<string, CustomHandler> = {
     if (p.zone === 'discard' || p.zone === 'lifeDeck') {
       // FS-14: top 3 of the opponent's discard pile; FS-21: top card of your own life deck
       const who = targetOf(ctx, p.target)
+      if (p.zone === 'discard' && constantParams(s, db, who, 'protectDiscardPile').length) return log(s, 'PROTECT', `${ctx.source}: the discard pile cannot be removed from the game`, who)
       const pile = s.players[who][p.zone]
       const n = Math.min(num(p.amount, 1), pile.length)
       const gone = p.zone === 'discard' ? pile.splice(pile.length - n, n) : pile.splice(0, n)
       s.players[who].removed.push(...gone)
+      if (p.remember && gone.length) s.lastRemoved = gone[gone.length - 1].iid
       return log(s, 'REMOVE', `${ctx.source}: player ${who + 1} removes ${n} card(s) from their ${p.zone === 'discard' ? 'discard pile' : 'life deck'} from the game`, who)
     }
     if (p.perOwnLifeCardsRemoved) {

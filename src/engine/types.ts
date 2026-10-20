@@ -175,6 +175,10 @@ export interface CombatState {
   noMastery?: PlayerId[]
   /** BU-112: allies cannot take control of this combat */
   noTakeover?: PlayerId[]
+  /** BU-166 / BU-P4 / BU-160: energy attack costs paid with a life card; Styled cards shuffled back after use; styles of the attacks performed */
+  lifeForCost?: PlayerId[]
+  shuffleUsed?: PlayerId[]
+  attackStyles?: { player: PlayerId; style?: string }[]
   /** BB-29: opponent's use restrictions are ignored; BB-1: opponent card effects cannot discard life cards (damage still can); BB-53: a Final Physical Attack does not end the player's attacking */
   ignoreRestrictions?: PlayerId[]
   protectLife?: PlayerId[]
@@ -302,6 +306,12 @@ export interface GameState {
   victoryGuards: string[]
   /** BB-100: Non-Combat cards on the table that can prevent a Survival Victory */
   rescueCards: string[]
+  /** BU-111: the player loses at the start of the opponent's turn, from this turn on */
+  loseAt: { player: PlayerId; turn: number }[]
+  /** WG-140: Mastery of these players is off for the rest of the turn */
+  noMasteryTurn: PlayerId[]
+  /** WG-126: the card the last "remember" removal took from the game */
+  lastRemoved: string | null
   postponedWins: { player: PlayerId; reason: WinReason; turn: number }[]
   /** TS-29: no power stage gains before this turn */
   stageLocks: { player: PlayerId; untilTurn: number }[]

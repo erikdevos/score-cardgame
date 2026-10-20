@@ -165,6 +165,7 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
   combat.strikeSeq++
   combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: combat.strikeSeq }
   { const t = attackTypeOf(strike.combatRole); if (t) attachAfterAttack(s, db, initiator, t, false) }
+  ;(combat.attackStyles ??= []).push({ player: initiator, style: card ? def(db, card).style : undefined })
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   combat.strike.paidStages = payCost(s, db, initiator, strike, card ? def(db, card).style : undefined)
@@ -476,7 +477,12 @@ function finishSuccessful(s: GameState, db: CardDB) {
   const type = attackTypeOf(st.strike.combatRole)!
   s.combat!.lastAttack[st.initiator] = { type, success: true }
   s.combat!.onceKeys.push(`hit:${st.initiator}:${type}`)
+  const twice = isFocused(st.strike) && constantParams(s, db, st.initiator, 'repeatOnHitEffects').length > 0 // BU-180
   schedule(s, effectsFrame(st.initiator, st.label, st.strike.effects.onHit, st.card), step('strike.afterOnHit'))
+  if (twice && st.strike.effects.onHit.length) {
+    log(s, 'TRIGGER', `${mpDef(s, db, st.initiator).name}'s power: the "if successful" effects work twice`, st.initiator)
+    schedule(s, effectsFrame(st.initiator, st.label, st.strike.effects.onHit, st.card))
+  }
 }
 
 /** Stack step: "if successful" effects done; now ongoing effects that answer a successful attack. */
@@ -517,6 +523,8 @@ export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
     if (m.onlyWhen === 'stoppedAttack' && s.combat?.strike?.defenseCard?.iid !== card.iid) continue
     s.retireTo[card.iid] = 'LIFE_BOTTOM'
   }
+  // BU-P4: Styled non-Drill cards are shuffled back into the Life Deck after use for the rest of the combat
+  if (s.combat?.shuffleUsed?.includes(card.owner) && d.style && d.type !== 'Drill' && d.effects.postResolution !== 'REMOVE') s.retireTo[card.iid] = 'LIFE_SHUFFLE'
   // BB-9 (own condition) and WG-165 (Vegeta Named cards discard instead of leaving the game)
   let mode = d.effects.postResolution
   for (const r of findCustom(d.effects.onPlaySecondary, 'replacePostResolution')) {
