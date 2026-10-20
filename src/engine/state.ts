@@ -289,7 +289,7 @@ export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number
   if (mp.anger >= max) onMaxAnger(s, db, p)
 }
 
-function onMaxAnger(s: GameState, db: CardDB, p: PlayerId) {
+export function onMaxAnger(s: GameState, db: CardDB, p: PlayerId) {
   const pl = s.players[p]
   const mp = pl.mp
   // TS-37 (lying on the opponent's table): back to anger 3 instead of gaining a level, then removed
@@ -371,7 +371,7 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
     out.push(...pl.mp.stack, ...pl.lifeDeck, ...pl.hand, ...pl.discard, ...pl.removed, ...pl.drills, ...pl.dragonBalls, ...pl.nonCombat, ...pl.allies.map(a => a.card))
   }
   if (s.location) out.push(s.location)
-  out.push(...s.resolving, ...s.attachments.map(a => a.card), ...s.setAside.map(x => x.card))
+  out.push(...s.resolving, ...s.attachments.map(a => a.card), ...s.setAside.map(x => x.card), ...s.splitPool)
   const st = s.combat?.strike
   if (st?.card) out.push(st.card)
   if (st?.defenseCard) out.push(st.defenseCard)

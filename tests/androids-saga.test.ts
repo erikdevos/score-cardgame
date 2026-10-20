@@ -723,3 +723,24 @@ describe('Game-long modifiers and switches', () => {
     expect(s.combatCannotEnd).toBe(true)
   })
 })
+
+describe('BU-156 and BB-P9', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BU-156 needs 7 Saiyan Style cards in the discard pile before the level advances', () => {
+    const s = game()
+    const style = Object.values(db).find(d => d.style === 'Saiyan' && !d.id.startsWith('TEST'))!
+    const level = s.players[0].mp.levelIndex
+    const ctx = { s, db, user: 0 as const, source: 'BU-156' }
+    s.players[0].discard.push(...[1, 2, 3].map(i => ({ iid: `sy${i}`, defId: style.id, owner: 0 as const })))
+    customHandlers.removeFromGame(ctx, { target: 'SELF', zone: 'discard', filter: { style: 'Saiyan' }, amount: 7, requirement: true })
+    customHandlers.advancePersonalityLevel(ctx, { amount: 1 })
+    expect(s.players[0].mp.levelIndex).toBe(level)
+    s.players[0].discard.push(...[4, 5, 6, 7, 8].map(i => ({ iid: `sy${i}`, defId: style.id, owner: 0 as const })))
+    customHandlers.removeFromGame(ctx, { target: 'SELF', zone: 'discard', filter: { style: 'Saiyan' }, amount: 7, requirement: true })
+    customHandlers.advancePersonalityLevel(ctx, { amount: 1 })
+    expect(s.players[0].mp.levelIndex).toBeGreaterThan(level)
+  })
+})

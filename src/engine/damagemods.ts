@@ -157,10 +157,14 @@ function valueOf(m: P, owner: PlayerId, c: Ctx, base: Damage) {
   if (m.stagesPerDragonBallInPlay) stages += dragonBalls('ALL') * num(m.stagesPerDragonBallInPlay)
   if (m.lifeCardsPerPersonalityLevel) life += (s.players[attacker].mp.levelIndex + 1) * num(m.lifeCardsPerPersonalityLevel)
   if (m.lifeCardsPerDiscardedCardWithTitle) life += countIn(s, db, owner, 'discard', d => d.name.includes(mine('lifeCardsPerDiscardedCardWithTitle'))) * 1
-  if (m.stagesPerOpponentAlly) stages += s.players[foe].allies.length * num(m.stagesPerOpponentAlly)
-  if (m.stagesPerOwnAlly) stages += s.players[owner].allies.length * num(m.stagesPerOwnAlly)
-  if (m.stagesPerAllyInPlay) stages += (s.players[0].allies.length + s.players[1].allies.length) * num(m.stagesPerAllyInPlay)
-  if (m.lifeCardsPerAlly) life += s.players[owner].allies.length * num(m.lifeCardsPerAlly)
+  // BU-37 (West City): every player counts as having +4 Allies for card effects
+  const bonus = [s.location, ...s.players.flatMap(pl => pl.nonCombat)].filter((x): x is CardInstance => !!x)
+    .flatMap(x => activeCustom(s, db, def(db, x).effects.onEnterPlay, 'allyCountModifier')).reduce((n, x) => n + num(x.amount), 0)
+  const allyCount = (who: PlayerId) => s.players[who].allies.length + bonus
+  if (m.stagesPerOpponentAlly) stages += allyCount(foe) * num(m.stagesPerOpponentAlly)
+  if (m.stagesPerOwnAlly) stages += allyCount(owner) * num(m.stagesPerOwnAlly)
+  if (m.stagesPerAllyInPlay) stages += (allyCount(0) + allyCount(1)) * num(m.stagesPerAllyInPlay)
+  if (m.lifeCardsPerAlly) life += allyCount(owner) * num(m.lifeCardsPerAlly)
   if (m.lifeCardsPerPersonalityInPlay) {
     const spec = m.lifeCardsPerPersonalityInPlay as { nameContains?: string; amount?: number }
     life += personalitiesInPlay(s, db, 'ALL').filter(n => !spec.nameContains || n.includes(spec.nameContains)).length * num(spec.amount, 1)

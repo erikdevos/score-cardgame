@@ -273,6 +273,8 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
 export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
   const base = costForBase(s, db, p, cost, role, style)
+  // BB-P9: power stages for effects may be paid with life cards, one for one
+  if (base.type === 'POWER_STAGES' && s.combat?.lifeForStages?.includes(p) && s.players[p].lifeDeck.length > base.amount + 3) return { type: 'LIFE_CARDS' as const, amount: base.amount }
   // BU-166: Kid Trunks' energy attacks may be paid with the top life card instead of power stages
   if (base.type === 'POWER_STAGES' && role === 'ATTACK_ENERGY' && s.combat?.lifeForCost?.includes(p) && s.players[p].lifeDeck.length > 3) return { type: 'LIFE_CARDS' as const, amount: 1 }
   // BU-85: an attached card waives the costs of the player's card effects

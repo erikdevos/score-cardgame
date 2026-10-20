@@ -145,6 +145,20 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     }
     return queueChoice(s, pickRequest(q.player, q.player, 'hand', s.players[q.player].hand, Number(q.data.n), 'DISCARD', q.source))
   }
+  if (q.purpose === 'splitDiscard') {
+    // the opponent picked one card of the pool: it goes to `chosenTo`, the rest to the other place
+    const owner = Number(q.data.owner) as PlayerId
+    const pool = s.splitPool
+    const pick = pool[Math.min(index, pool.length - 1)]
+    const chosenTo = String(q.data.chosenTo)
+    for (const card of pool) {
+      const toHand = (card === pick) === (chosenTo === 'hand')
+      ;(toHand ? s.players[owner].hand : s.players[owner].removed).push(card)
+    }
+    log(s, 'MOVE', `${q.source}: ${def(db, pick).name} goes ${chosenTo === 'hand' ? 'into the hand' : 'out of the game'}, the rest ${chosenTo === 'hand' ? 'leave the game' : 'go into the hand'}`, owner)
+    s.splitPool = []
+    return
+  }
   if (q.purpose === 'rearrange') {
     // CG-62: 0 = top 10, 1 = bottom 10, 2 = leave it; the cards are then picked in the order they should end up
     if (index === 2) return
@@ -243,12 +257,13 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, USE_NONCOMBAT: 'and uses it', PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',
     LIFE_SHUFFLE: `and shuffles it into player ${q.owner + 1}'s life deck`,
-    DISCARD_TOP: 'on top of the discard pile', DISCARD_BOTTOM: 'at the bottom of the discard pile',
+    SPLIT_POOL: 'and sets it out for the opponent to choose from', DISCARD_TOP: 'on top of the discard pile', DISCARD_BOTTOM: 'at the bottom of the discard pile',
     OWNER_HAND: `and gives it to player ${q.owner + 1}'s hand`, SET_ASIDE: 'and sets it aside until the end of combat',
   }
   switch (q.dest) {
     case 'HAND': picker.hand.push(card); break
     case 'OWNER_HAND': owner.hand.push(card); break
+    case 'SPLIT_POOL': s.splitPool.push(card); break
     case 'DISCARD_TOP': owner.discard.push(card); break
     case 'DISCARD_BOTTOM': owner.discard.unshift(card); break
     case 'SET_ASIDE': s.setAside.push({ card, to: q.owner }); break

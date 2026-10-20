@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage, defaultDamage } from '../damage'
-import { constantParams, constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
+import { onMaxAnger, constantParams, constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -393,6 +393,15 @@ export const handlers: Record<string, CustomHandler> = {
     ctx.s.combatCannotEnd = true
     log(ctx.s, 'RESTRICT', `${ctx.source}: card powers cannot end combat for the rest of the game`, ctx.user)
   },
+  advancePersonalityLevel(ctx) {
+    if (!ctx.s.requirementMet) return
+    ctx.s.requirementMet = true
+    onMaxAnger(ctx.s, ctx.db, ctx.user)
+  },
+  payLifeCardsForStages(ctx) {
+    if (ctx.s.combat) (ctx.s.combat.lifeForStages ??= []).push(ctx.user)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: power stage costs may be paid with life cards for the rest of this combat`, ctx.user)
+  },
   repeatOnHitEffects: noop, // sequencer.finishSuccessful (BU-180)
   shuffleUsedCardsIntoLifeDeck(ctx) {
     if (ctx.s.combat) (ctx.s.combat.shuffleUsed ??= []).push(ctx.user)
@@ -633,6 +642,23 @@ export const handlers: Record<string, CustomHandler> = {
   },
   dynamicPur: noop, // BB-70: the X it defines is not used by the text
   preventSurvivalVictory: noop, // state.win (BB-100)
+  opponentSplitsDiscard(ctx, p) {
+    // WG-187 / BU-179: choose cards in your discard pile; the opponent picks which one goes where
+    const pile = ctx.s.players[ctx.user].discard
+    const n = Math.min(num(p.choose, 2), pile.length)
+    if (n < 1) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: the discard pile is empty`, ctx.user)
+    const chosenTo = p.opponentChoosesKept ? 'hand' : 'removed'
+    // scheduled first so that it runs after the owner's pick
+    schedule(ctx.s, { k: 'effects', user: ctx.user, source: ctx.source, card: ctx.card, effects: [{ action: 'CUSTOM', handler: 'askOpponentSplit', params: { chosenTo } }] })
+    queueChoice(ctx.s, pickRequest(ctx.user, ctx.user, 'discard', [...pile], n, 'SPLIT_POOL', ctx.source))
+  },
+  askOpponentSplit(ctx, p) {
+    const pool = ctx.s.splitPool
+    if (!pool.length) return
+    queueChoice(ctx.s, { kind: 'OPTION', player: other(ctx.user), source: ctx.source, prompt: `${ctx.source}: choose one of these cards (${p.chosenTo === 'hand' ? 'it goes into the hand, the rest leave the game' : 'it leaves the game, the rest go into the hand'})`,
+      options: pool.map(c => def(ctx.db, c).name), purpose: 'splitDiscard', data: { owner: ctx.user, chosenTo: String(p.chosenTo) } })
+  },
+  allyCountModifier: noop, // damagemods (BU-37)
   unlessOpponentPays(ctx, p) {
     // BU-129: the opponent's Main Personality may pay power stages to stop the effect
     const foe = other(ctx.user)
@@ -1063,6 +1089,18 @@ export const handlers: Record<string, CustomHandler> = {
 
   removeFromGame(ctx, p) {
     const { s, db, user } = ctx
+    // BU-156: "remove 7 Saiyan Style cards in your discard pile from the game": all or nothing, and the effects after it need it
+    if (p.requirement && (p.filter as { style?: string } | undefined)?.style) {
+      const pl = s.players[user]
+      const hits = pl.discard.filter(c => def(db, c).style === (p.filter as { style: string }).style)
+      const n = num(p.amount, 1)
+      s.requirementMet = hits.length >= n
+      if (!s.requirementMet) return log(s, 'NO_EFFECT', `${ctx.source}: only ${hits.length} of ${n} cards in the discard pile`, user)
+      const gone = hits.slice(-n)
+      pl.discard = pl.discard.filter(c => !gone.includes(c))
+      pl.removed.push(...gone)
+      return log(s, 'REMOVE', `${ctx.source}: ${n} cards are removed from the game`, user)
+    }
     if (p.zone === 'discard' || p.zone === 'lifeDeck') {
       // FS-14: top 3 of the opponent's discard pile; FS-21: top card of your own life deck
       const who = targetOf(ctx, p.target)

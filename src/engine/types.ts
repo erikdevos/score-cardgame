@@ -177,6 +177,8 @@ export interface CombatState {
   noTakeover?: PlayerId[]
   /** BU-166 / BU-P4 / BU-160: energy attack costs paid with a life card; Styled cards shuffled back after use; styles of the attacks performed */
   lifeForCost?: PlayerId[]
+  /** BB-P9: life cards may be paid instead of power stages for game effects */
+  lifeForStages?: PlayerId[]
   shuffleUsed?: PlayerId[]
   attackStyles?: { player: PlayerId; style?: string }[]
   /** BB-29: opponent's use restrictions are ignored; BB-1: opponent card effects cannot discard life cards (damage still can); BB-53: a Final Physical Attack does not end the player's attacking */
@@ -217,12 +219,14 @@ export type PickDest =
   | 'SET_ASIDE'
   /** CG-62: put the card on top / at the bottom of its owner's discard pile (picked in the order wanted) */
   | 'DISCARD_TOP' | 'DISCARD_BOTTOM'
+  /** WG-187 / BU-179: into the pool the opponent then splits */
+  | 'SPLIT_POOL'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus' | 'unlessPays' | 'rearrange'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus' | 'unlessPays' | 'rearrange' | 'splitDiscard'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -289,6 +293,7 @@ export interface GameState {
   attachments: Attachment[]
   /** BU-83: cards set aside until the end of the combat */
   setAside: { card: CardInstance; to: PlayerId }[]
+  splitPool: CardInstance[]
   powerLocks: { player: PlayerId; until: string; cardIid?: string }[]
   /** AS-21: drills (by iid) whose power cannot be used any more */
   disabledDrills: string[]
@@ -309,6 +314,8 @@ export interface GameState {
   /** BU-111: the player loses at the start of the opponent's turn, from this turn on */
   /** BU-150: card powers can no longer end combat (rest of the game); CS-79 and similar: damage modifiers that last for the game */
   combatCannotEnd: boolean
+  /** result of the last "requirement" removal (BU-156): the effects after it only work when it was met */
+  requirementMet: boolean
   gameMods: DamageModEntry[]
   loseAt: { player: PlayerId; turn: number }[]
   /** WG-140: Mastery of these players is off for the rest of the turn */
