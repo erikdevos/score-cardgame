@@ -96,6 +96,7 @@ function resolveEffect(ctx: EffectContext, e: Effect) {
       return log(s, 'RECOVER', `${ctx.source}: player ${target + 1} returns ${n} card(s) to the bottom of their life deck`, target)
     }
     case 'END_COMBAT':
+      if (s.combatCannotEnd) return log(s, 'NO_EFFECT', `${ctx.source} cannot end combat (Eternal Dragon's Quest)`)
       if (s.combat) s.combat.ended = true
       return log(s, 'END_COMBAT', `${ctx.source} ends combat`)
     case 'CUSTOM': {

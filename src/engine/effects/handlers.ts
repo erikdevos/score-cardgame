@@ -381,6 +381,18 @@ export const handlers: Record<string, CustomHandler> = {
     if (ctx.s.combat) (ctx.s.combat.lifeForCost ??= []).push(ctx.user)
     log(ctx.s, 'RESTRICT', `${ctx.source}: energy attack costs are paid with a life card for the rest of this combat`, ctx.user)
   },
+  revealHandOnce(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    log(ctx.s, 'REVEAL', `${ctx.source}: player ${who + 1} shows their hand: ${ctx.s.players[who].hand.map(c => def(ctx.db, c).name).join(', ')}`, who)
+  },
+  forceAttackOrPass: noop, // "must perform an attack or pass": the legal actions of a combat phase already are attacks or passing
+  rejuvenationOverride: noop, // turn.rejuvenate (BU-78)
+  powerRatingBonus: noop, // state.powerRating (BU-103)
+  placeInPlayIfDiscardedFromHand: noop, // choices.movePicked / turn.discardFromHand (WG-57)
+  preventEndCombat(ctx) {
+    ctx.s.combatCannotEnd = true
+    log(ctx.s, 'RESTRICT', `${ctx.source}: card powers cannot end combat for the rest of the game`, ctx.user)
+  },
   repeatOnHitEffects: noop, // sequencer.finishSuccessful (BU-180)
   shuffleUsedCardsIntoLifeDeck(ctx) {
     if (ctx.s.combat) (ctx.s.combat.shuffleUsed ??= []).push(ctx.user)
@@ -1250,6 +1262,12 @@ export const handlers: Record<string, CustomHandler> = {
 
   damageModifier(ctx, p) {
     const { s, db } = ctx
+    if (p.duration === 'game') {
+      // CS-79: "until the end of the game, all of your successful attacks do +1 power stage of damage"
+      const m = { ...p, flatStages: num(p.stages, 0), flatLifeCards: num(p.lifeCards, 0), stages: undefined, lifeCards: undefined }
+      s.gameMods.push({ m, owner: ctx.user, source: ctx.source })
+      return log(s, 'DAMAGE_X', `${ctx.source}: this lasts for the rest of the game`, ctx.user)
+    }
     if (isNewStyle(p)) {
       // damagemods.ts: stored for this attack or for the combat, applied when the damage is dealt
       if (!p.ongoing) registerDamageModifier(s, ctx.user, ctx.source, p)

@@ -220,7 +220,7 @@ function valueOf(m: P, owner: PlayerId, c: Ctx, base: Damage) {
 /** All new-style modifiers that can apply to the strike, with their owner. */
 function collect(c: Ctx): DamageModEntry[] {
   const { s, db } = c
-  const out: DamageModEntry[] = [...(c.st.mods ?? []).map(e => ({ ...e })), ...(s.combat?.mods ?? [])]
+  const out: DamageModEntry[] = [...(c.st.mods ?? []).map(e => ({ ...e })), ...(s.combat?.mods ?? []), ...s.gameMods]
   for (const pl of s.players) {
     for (const src of permanentSources(s, db, pl.id)) {
       for (const m of activeCustom(s, db, src.effects, 'damageModifier')) {

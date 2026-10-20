@@ -1,7 +1,7 @@
 // Player choices raised by card effects ("2 cards of your choice", "if you wish").
 // They queue up and are asked once the action that raised them has resolved.
 import { shuffleInPlace } from '../rng'
-import { changeAnger, changeStages, checkDragonBallVictory, def, log, millCards, schedule, step } from '../state'
+import { changeAnger, changeStages, checkDragonBallVictory, def, findCustom, log, millCards, schedule, step } from '../state'
 import type { CardDB, Effect } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
@@ -256,7 +256,13 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     case 'LIFE_BOTTOM':
     case 'OWNER_LIFE_BOTTOM': owner.lifeDeck.push(card); break
     case 'PICKER_DRAGON_BALLS': picker.dragonBalls.push(card); break
-    case 'DISCARD': owner.discard.push(card); break
+    case 'DISCARD':
+      // WG-57: a Drill with this text goes into play when it is discarded from the hand
+      if (found.zone === 'hand' && d.type === 'Drill' && findCustom(d.effects.onEnterPlay, 'placeInPlayIfDiscardedFromHand').length && !owner.drills.some(c => c.defId === card.defId)) {
+        owner.drills.push(card)
+        log(s, 'PLACE', `${d.name} is placed into play instead of being discarded`, q.owner)
+      } else owner.discard.push(card)
+      break
     case 'REMOVED': owner.removed.push(card); break
     case 'LIFE_SHUFFLE':
       owner.lifeDeck.push(card)

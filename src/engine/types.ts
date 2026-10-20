@@ -307,6 +307,9 @@ export interface GameState {
   /** BB-100: Non-Combat cards on the table that can prevent a Survival Victory */
   rescueCards: string[]
   /** BU-111: the player loses at the start of the opponent's turn, from this turn on */
+  /** BU-150: card powers can no longer end combat (rest of the game); CS-79 and similar: damage modifiers that last for the game */
+  combatCannotEnd: boolean
+  gameMods: DamageModEntry[]
   loseAt: { player: PlayerId; turn: number }[]
   /** WG-140: Mastery of these players is off for the rest of the turn */
   noMasteryTurn: PlayerId[]

@@ -700,3 +700,26 @@ describe('Rule tweaks batch B', () => {
     expect(s.stack.length).toBe(before + 1)
   })
 })
+
+describe('Game-long modifiers and switches', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('CS-79 adds a stage to every later attack of its owner for the rest of the game', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: 1 } as never
+    customHandlers.damageModifier({ s, db, user: 0, source: 'CS-79' }, { scope: 'OWNER', attackType: 'ANY', stages: 1, duration: 'game' })
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: 1 } as never
+    const out = applyNewModifiers(s, db, s.combat.strike as never, 'PHYSICAL', { stages: 2, lifeCards: 0 })
+    expect(out.stages).toBe(3)
+  })
+  it('The Eternal Dragon Quest stops END_COMBAT effects', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    customHandlers.preventEndCombat({ s, db, user: 0, source: 'BU-150' }, {})
+    expect(s.combatCannotEnd).toBe(true)
+  })
+})

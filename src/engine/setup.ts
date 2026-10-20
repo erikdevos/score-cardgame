@@ -61,6 +61,8 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     combatSkipped: false,
     victoryGuards: [],
     rescueCards: [],
+    combatCannotEnd: false,
+    gameMods: [],
     loseAt: [],
     noMasteryTurn: [],
     lastRemoved: null,

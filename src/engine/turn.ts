@@ -370,8 +370,13 @@ function nextDiscard(s: GameState, db: CardDB) {
 
 export function discardFromHand(s: GameState, db: CardDB, p: PlayerId, iid: string) {
   const c = removeFromHand(s, p, iid)
-  s.players[p].discard.push(c)
-  log(s, 'DISCARD', `Player ${p + 1} discards ${def(db, c).name}`, p)
+  if (def(db, c).type === 'Drill' && findCustom(def(db, c).effects.onEnterPlay, 'placeInPlayIfDiscardedFromHand').length && !s.players[p].drills.some(x => x.defId === c.defId)) {
+    s.players[p].drills.push(c)
+    log(s, 'PLACE', `${def(db, c).name} is placed into play instead of being discarded`, p)
+  } else {
+    s.players[p].discard.push(c)
+    log(s, 'DISCARD', `Player ${p + 1} discards ${def(db, c).name}`, p)
+  }
   nextDiscard(s, db)
 }
 
