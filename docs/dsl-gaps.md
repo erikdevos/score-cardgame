@@ -336,3 +336,12 @@ New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): i
 - `disableMastery` (BU-108 with drills, WG-140) sets `noMastery / noDrills` for the combat; WG-140's "rest of the turn" lasts only the current combat.
 - `allowUsableBy` (BB-56, BU-133 Hercule): `canUseCard` accepts "Villains only" cards.
 - BU-142 (discard an Orange Drill to put 2 Drills from the Life Deck into play) and BU-43 (attached: discard a card to discard an opponent's Non-Combat/Ally/Battleground) are USE_ABILITY kinds `discardPlay` and `triggered`. `searchDeck` now takes `amount` picks; "different" names are not enforced.
+
+## Batch 3 of small hooks (2026-10-20)
+
+- BU-5 / BU-34: `defenseFor` honours `stopsAlso` (Kai/Popo users) and `stoppedAsAttackType`.
+- BU-115 / BU-130: `endNonCombat` ally power-up gains (`modifyPowerUpGain`).
+- BU-120 / BU-121 / BU-112: `canTakeOver` (`allowAllyControl`, `CombatState.noTakeover`).
+- BU-116 / BU-144: `retireUsed` sets `retireTo = LIFE_BOTTOM` (`returnToLifeDeckAfterUse`).
+- BU-107: `dealDamage` removes the first N damage cards from the game. BU-77: `empowerBonus`. BU-51: `ifOpponentNoConstantPower`. BU-132: `ifFusedPersonality` is never true (no Fusion).
+- BB-45 (+1 prevented per type, not yet for Endurance) and BU-163 (prevention doubled for that attack) in `damagemods`.

@@ -270,6 +270,15 @@ export function applyNewModifiers(s: GameState, db: CardDB, st: StrikeState, typ
   // modifiers that were handed out for "next attacks" live in combat.mods: write the used counts back
   const entries = combat.mods
   for (const e of entries) if (e.usesLeft !== undefined && e.usesLeft <= 0) entries.splice(entries.indexOf(e), 1)
+  // BB-45: whenever the defender prevents damage, it may prevent 1 more of that type; BU-163: doubled against this attack
+  for (const src of permanentSources(s, db, c.defender)) {
+    for (const b of activeCustom(s, db, src.effects, 'preventionBonus')) {
+      if (!b.ongoing || typeof b.amount !== 'number') continue
+      if (prevS > 0) prevS += b.amount
+      if (prevL > 0) prevL += b.amount
+    }
+  }
+  if (st.preventMult) { prevS *= st.preventMult; prevL *= st.preventMult }
   stages = Math.max(0, stages - prevS)
   life = Math.max(0, life - prevL)
   if (all) { stages = 0; life = 0 }

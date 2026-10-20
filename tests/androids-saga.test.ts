@@ -8,6 +8,8 @@ import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
 import { canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
 import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
+import { defenseFor } from '../src/engine/sequencer'
+import { endNonCombat } from '../src/engine/turn'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
@@ -441,5 +443,44 @@ describe('Endurance modifiers, disabled Mastery, Hercule', () => {
     s.players[0].mp.stack[0] = { iid: 'her', defId: 'BU-133', owner: 0 }
     s.players[0].mp.levelIndex = 0
     expect(canUseCard(s, db, 0, villainOnly)).toBe(true)
+  })
+})
+
+describe('Small rule hooks (batch 3)', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BU-34 can only be stopped as an energy attack; BU-5 also stops energy for Kai/Popo users', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_PHYSICAL', effects: db['BU-34'].effects }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
+    const physStop = Object.values(db).find(d => d.combatRole === 'DEFENSE_PHYSICAL' && !d.usableBy)!
+    expect(defenseFor(s, db, 1, { iid: 'x', defId: physStop.id, owner: 1 })).toBeNull()
+  })
+  it('BU-130 gives allies +1 stage per Dragon Ball at power up; BU-115 gives them their PUR', () => {
+    const s = game()
+    s.players[0].mp.stack[0] = { iid: 'd', defId: 'BU-130', owner: 0 }
+    s.players[0].mp.levelIndex = 0
+    s.players[0].dragonBalls.push({ iid: 'b1', defId: 'SS-75', owner: 0 }, { iid: 'b2', defId: 'WG-15', owner: 0 })
+    s.players[0].allies.push({ card: { iid: 'al', defId: 'SS-9', owner: 0 }, stage: 0 })
+    s.attacker = 0
+    endNonCombat(s, db)
+    expect(s.players[0].allies[0].stage).toBe(s.rules.allyPowerUp + 2)
+  })
+  it('BU-112 stops ally takeovers and BU-77 raises Empower', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    customHandlers.preventAllyControl({ s, db, user: 0, source: 'BU-112' }, { target: 'OPPONENT' })
+    expect(s.combat.noTakeover).toEqual([1])
+    customHandlers.increaseEmpower({ s, db, user: 0, source: 'BU-77' }, { amount: 3 })
+    expect(s.combat.empowerBonus![0]).toBe(3)
+  })
+  it('BU-163 doubles prevention against its attack', () => {
+    const s = game()
+    s.combat = newCombat(0)
+    s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_ENERGY', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
+    customHandlers.preventionBonus({ s, db, user: 0, source: 'BU-163' }, { multiplier: 2 })
+    expect((s.combat.strike as unknown as { preventMult: number }).preventMult).toBe(2)
   })
 })

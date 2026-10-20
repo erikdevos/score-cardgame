@@ -33,7 +33,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
         // a player who made a Final Physical Attack cannot defend for the rest of this combat
         if (s.combat?.finalAttack.includes(p)) return [{ type: 'DEFEND', player: p, iid: null }]
         return [
-          ...takeovers(s, p),
+          ...takeovers(s, p, db),
           { type: 'DEFEND', player: p, iid: null },
           ...legalDefenses(s, db, p).map(c => ({ type: 'DEFEND' as const, player: p, iid: c.iid })),
           ...(defensesNeeded(s) > 1 ? [] : discardDefenses(s, db, p).map(a => ({ type: 'DEFEND_DISCARD' as const, player: p, key: a.key }))),
@@ -94,7 +94,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
       if (powerOpt) out.push({ type: 'USE_POWER', player: p })
       out.push(...activeAbilities(s, db, p).map(a => ({ type: 'USE_ABILITY' as const, player: p, key: a.key })))
       if (copyableAttack(s, db, p)) out.push({ type: 'COPY_ATTACK', player: p })
-      out.push(...takeovers(s, p))
+      out.push(...takeovers(s, p, db))
       if (s.rules.trunks.finalPhysicalAttack && !attackRestriction(s, p, 'ATTACK_PHYSICAL', false)) {
         out.push(...pl.hand.map(c => ({ type: 'FINAL_PHYSICAL_ATTACK' as const, player: p, iid: c.iid })))
       }
@@ -185,9 +185,9 @@ function nonCombatLimitReached(s: GameState, db: CardDB, p: PlayerId): boolean {
 }
 
 /** Trunks Saga: allies that can take over the combat for p right now. */
-function takeovers(s: GameState, p: PlayerId): Action[] {
+function takeovers(s: GameState, p: PlayerId, db?: CardDB): Action[] {
   if (s.combat?.lockdown) return []
-  if (!canTakeOver(s, p)) return []
+  if (!canTakeOver(s, p, db)) return []
   return s.players[p].allies.filter(a => a.stage > 0).map(a => ({ type: 'ALLY_TAKEOVER' as const, player: p, iid: a.card.iid }))
 }
 

@@ -4,7 +4,7 @@ import type { CardDB, StrikeDef } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
 import { shuffleInPlace } from './rng'
 import { attackPowerOption, beginStrike, react, strikeOf } from './sequencer'
-import { canUseCard, changeStages, checkDragonBallVictory, checkMostPowerful, def, drawCards, win, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
+import { canUseCard, constantParams, changeStages, checkDragonBallVictory, checkMostPowerful, def, drawCards, win, handLimit, isOnTable, log, mpDef, over, pur, removeFromHand, retire, schedule, step, takeCard, millCards } from './state'
 import { other, type Frame, type GameState, type PlayerId } from './types'
 
 // Step 1
@@ -150,7 +150,14 @@ export function endNonCombat(s: GameState, db: CardDB) {
   const p = s.attacker
   const gain = pur(s, db, p)
   changeStages(s, p, gain)
-  for (const a of s.players[p].allies) a.stage = Math.min(s.rules.maxStage, a.stage + s.rules.allyPowerUp)
+  // BU-115 (allies gain their PUR instead of 1), BU-130 (+1 per Dragon Ball you control, on top)
+  const mods = constantParams(s, db, p, 'modifyPowerUpGain').filter(m => m.scope === 'ALLIES')
+  for (const a of s.players[p].allies) {
+    let up = s.rules.allyPowerUp
+    if (mods.some(m => m.instead && m.amount === 'PUR')) up = def(db, a.card).personality?.pur ?? up
+    for (const m of mods) if (m.additional && m.amountPerDragonBall) up += Number(m.amountPerDragonBall) * s.players[p].dragonBalls.length
+    a.stage = Math.min(s.rules.maxStage, a.stage + up)
+  }
   log(s, 'POWER_UP', `Player ${p + 1} powers up ${gain} (stage ${s.players[p].mp.stage})`, p)
   if (s.locationPlayedThisTurn) {
     log(s, 'NO_COMBAT', 'A location was played this turn, combat cannot be declared')
@@ -256,8 +263,11 @@ export function finalPhysicalAttack(s: GameState, db: CardDB, p: PlayerId, iid: 
 }
 
 /** Trunks Saga: allies may fight for a main personality at 0 or 1 power stages, until this combat ends. */
-export function canTakeOver(s: GameState, p: PlayerId) {
-  return s.rules.trunks.allyRules && !!s.combat && s.players[p].mp.stage <= 1 && !s.combat.controllers.some(c => c.player === p)
+export function canTakeOver(s: GameState, p: PlayerId, db?: CardDB) {
+  // BU-120 (constant power) and BU-121 (Dragon Ball): allies may take over at higher stages; BU-112 forbids it for this combat
+  const anyStage = !!db && (constantParams(s, db, p, 'allowAllyControl').length > 0 ||
+    tableEffects(s, db, p, 'allowAllyControl').some(t => !t.params.whenMainPersonalityStagesAtMost || s.players[p].mp.stage <= Number(t.params.whenMainPersonalityStagesAtMost)))
+  return s.rules.trunks.allyRules && !!s.combat && !s.combat.noTakeover?.includes(p) && (anyStage || s.players[p].mp.stage <= 1) && !s.combat.controllers.some(c => c.player === p)
     && s.players[p].allies.some(a => a.stage > 0)
 }
 

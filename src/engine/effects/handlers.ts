@@ -2,7 +2,7 @@
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
 import { computeDamage, applyDamage } from '../damage'
-import { changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
+import { constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
@@ -240,6 +240,33 @@ export const handlers: Record<string, CustomHandler> = {
     if (p.alsoDrills) (ctx.s.combat.noDrills ??= []).push(who)
     log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot use ${p.alsoDrills ? 'Mastery and Drills' : 'Mastery'} this combat`, ctx.user)
   },
+  stopsAlso: noop, // sequencer.defenseFor (BU-5)
+  stoppedAsAttackType: noop, // sequencer.defenseFor (BU-34)
+  allowAllyControl: noop, // turn.canTakeOver
+  modifyPowerUpGain: noop, // turn.endNonCombat
+  returnToLifeDeckAfterUse: noop, // sequencer.retireUsed
+  removeDamageCardsFromGame: noop, // sequencer.dealDamage
+  ifFusedPersonality: noop, // no Fusion yet: never a Fused Personality
+  preventionBonus(ctx, p) {
+    if (typeof p.multiplier !== 'number') return // BB-45 is read in damagemods
+    const st = ctx.s.combat?.strike
+    if (st) st.preventMult = p.multiplier
+  },
+  preventAllyControl(ctx, p) {
+    if (!ctx.s.combat) return
+    ;(ctx.s.combat.noTakeover ??= []).push(targetOf(ctx, p.target))
+    log(ctx.s, 'RESTRICT', `${ctx.source}: no Ally can take control of this combat`, ctx.user)
+  },
+  increaseEmpower(ctx, p) {
+    if (!ctx.s.combat) return
+    ctx.s.combat.empowerBonus = ctx.s.combat.empowerBonus ?? [0, 0]
+    ctx.s.combat.empowerBonus[ctx.user] += num(p.amount, 1)
+    log(ctx.s, 'EMPOWER', `${ctx.source}: your Empower cards have +${num(p.amount, 1)} for the rest of this combat`, ctx.user)
+  },
+  ifOpponentNoConstantPower(ctx, p) {
+    const power = mpDef(ctx.s, ctx.db, other(ctx.user)).personality!.power
+    if (!power || !constantEffectsOf(power).length) resolveEffects(ctx, then(p))
+  },
   additionalPower: noop, // BU-197..199: read as a second Constant Combat Power (state.constantEffectsOf); BU-200's second attack is not selectable yet
   damageCannotBePrevented: unpreventable,
   damageCannotBeModified: unpreventable,
@@ -375,6 +402,7 @@ export const handlers: Record<string, CustomHandler> = {
 
   empower(ctx, p) {
     // Buu Saga rulebook p. 53: +N life cards of damage, in exchange for the text that follows the Empower
+    p = { ...p, amount: num(p.amount, 1) + (ctx.s.combat?.empowerBonus?.[ctx.user] ?? 0) }
     queueChoice(ctx.s, {
       kind: 'OPTION', player: ctx.user, source: ctx.source, purpose: 'empower',
       prompt: `${ctx.source}: Empower ${num(p.amount, 1)}?`,

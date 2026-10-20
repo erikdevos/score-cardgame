@@ -5,6 +5,7 @@
 - [x] grantAttack on USE_ABILITY: BB-56, BB-83, BU-167
 - [x] BU-142, BU-43 on USE_ABILITY; WG-156 waits for Sensei
 - [x] discardToStopAttack (BB-P10, BU-91, CS-126) via DEFEND_DISCARD (CS-126's Blue Style anger bonus not applied)
+- [x] Batch 3 of small hooks (see dsl-gaps.md)
 - [ ] nameCardsRemoveFromLifeDeck (3 cards), replacePostResolution (BB-9, BU-106, WG-165)
 - [ ] Remaining attached effects: Blue/Black Gambit, Blue Eye Gouge, Stomach Throw, drill-attached cards
 - [ ] BU-200 second attack power selectable

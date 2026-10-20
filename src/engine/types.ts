@@ -77,6 +77,8 @@ export interface StrikeState {
   noLifeCards?: boolean
   /** BB-87, BB-120, BU-17: damage from this attack cannot be reduced or prevented */
   unpreventable?: boolean
+  /** BU-163: effects that prevent damage prevent this many times their amount against this attack */
+  preventMult?: number
 }
 
 /** A card fixed to a personality or another card (attach.ts). */
@@ -169,6 +171,10 @@ export interface CombatState {
   noEndurance?: PlayerId[]
   keepEndurance?: PlayerId[]
   noMastery?: PlayerId[]
+  /** BU-112: allies cannot take control of this combat */
+  noTakeover?: PlayerId[]
+  /** BU-77: extra Empower per player for this combat */
+  empowerBonus?: number[]
   noDrills?: PlayerId[]
   /** life cards the defender lost to the last successful attack (for "per life card received") */
   lastLifeLost?: number

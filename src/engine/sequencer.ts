@@ -1,12 +1,12 @@
 // The 8-point battle sequencer for a single strike.
 import { attachAfterAttack, attachAfterLifeDamage } from './attach'
-import { canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
+import { activeCustom, permanentSources, canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
 import { applyNewModifiers } from './damagemods'
 import { resolveEffects } from './effects'
 import { triggerFrames } from './effects/triggers'
-import { canUseCard, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
+import { canUseCard, constantParams, masteryParams, changeStages, checkDragonBallVictory, controllingAlly, def, fighterStage, log, millCards, mpDef, over, retire, schedule, step, takeCard } from './state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from './types'
 
 /** AS-44: named cards cost extra life cards while such a Location is in play. */
@@ -33,10 +33,19 @@ export function strikeOf(db: CardDB, c: CardInstance): StrikeDef {
 
 /** How a card in hand or on the table would answer the current strike, if it can. */
 export function defenseFor(s: GameState, db: CardDB, defender: PlayerId, c: CardInstance): DefenseOption | null {
-  const attack = attackTypeOf(s.combat?.strike?.strike.combatRole)
-  if (!attack) return null
+  const base = attackTypeOf(s.combat?.strike?.strike.combatRole)
+  if (!base) return null
+  // BU-34: "can only be stopped as if it were an energy attack"
+  const attack = (findCustom(s.combat?.strike?.strike.effects.onPlaySecondary ?? [], 'stoppedAsAttackType')[0]?.attackType as 'PHYSICAL' | 'ENERGY' | undefined) ?? base
   const d = def(db, c)
-  const opt = cardDefense(d, attack) ?? attackAsDefense(s, db, defender, d, attack)
+  let opt = cardDefense(d, attack) ?? attackAsDefense(s, db, defender, d, attack)
+  // BU-5: used by a personality with "Kai" or "Popo" in the title, it also stops an energy attack
+  if (!opt) {
+    const name = mpDef(s, db, defender).name
+    const extra = findCustom(d.effects.onPlaySecondary, 'ifUserNameContains').find(p => (p.texts as string[]).some(t => name.includes(t)) &&
+      findCustom((p.then ?? []) as Effect[], 'stopsAlso').some(x => x.attackType === attack))
+    if (extra) opt = cardDefense(d, attack === 'ENERGY' ? 'PHYSICAL' : 'ENERGY')
+  }
   // focused attacks cannot be stopped by cards that stop both attack types
   if (opt?.strike.combatRole === 'DEFENSE_ANY' && isFocused(s.combat?.strike?.strike) && !canStopFocused(d)) return null
   if (!opt || !canUseCard(s, db, defender, d) || !canPayCost(s, db, defender, opt.strike)) return null
@@ -346,6 +355,14 @@ export function dealDamage(s: GameState, db: CardDB) {
   const ally = st.damageTo ? s.players[defender].allies.find(a => a.card.iid === st.damageTo) : controllingAlly(s, defender)
   const stageBefore = ally ? ally.stage : s.players[defender].mp.stage
   st.lifeCardsDealt = ally ? applyDamageToAlly(s, db, defender, ally, dmg) : applyDamage(s, defender, dmg, db, st.noLifeCards)
+  // BU-107: the first 3 life cards of damage from each of the attacker's attacks leave the game
+  const rm = permanentSources(s, db, st.initiator).flatMap(src => activeCustom(s, db, src.effects, 'removeDamageCardsFromGame')).reduce((n, m) => n + Number(m.amount ?? 0), 0)
+  if (rm && st.lifeCardsDealt > 0) {
+    const pile = s.players[defender].discard
+    const gone = pile.splice(Math.max(0, pile.length - Math.min(rm, st.lifeCardsDealt)))
+    s.players[defender].removed.push(...gone)
+    log(s, 'REMOVE', `${gone.length} life card(s) of damage are removed from the game`, st.initiator)
+  }
   s.combat!.lastLifeLost = st.lifeCardsDealt
   if (over(s)) return
   attachAfterLifeDamage(s, db, defender, st.lifeCardsDealt)
@@ -489,7 +506,15 @@ export function retireUsed(s: GameState, db: CardDB, card: CardInstance) {
   const alt = findCustom(def(db, card).effects.onEnterPlay, 'conditionalPostResolution')[0]
   const condition = alt?.condition as { inPlay?: string } | undefined
   if (alt && condition?.inPlay && inPlayAnywhere(s, db, { cardName: condition.inPlay })) return retire(s, card, alt.postResolution as 'DISCARD' | 'REMOVE' | 'STAYS')
-  retire(s, card, def(db, card).effects.postResolution)
+  // BU-116 / BU-144: the card goes to the bottom of the Life Deck instead of the discard pile
+  const d = def(db, card)
+  for (const m of [...constantParams(s, db, card.owner, 'returnToLifeDeckAfterUse'), ...masteryParams(s, db, card.owner, 'returnToLifeDeckAfterUse')]) {
+    if (m.style && d.style !== m.style) continue
+    if ((m.excludeTypes as string[] | undefined)?.includes(d.type)) continue
+    if (m.onlyWhen === 'stoppedAttack' && s.combat?.strike?.defenseCard?.iid !== card.iid) continue
+    s.retireTo[card.iid] = 'LIFE_BOTTOM'
+  }
+  retire(s, card, d.effects.postResolution)
 }
 
 /** Conditions of granted effects: "opponentNoDrills", { ownDrillsInPlay: { style, min } }; no condition = always. */
