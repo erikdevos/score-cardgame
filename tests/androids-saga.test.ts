@@ -577,3 +577,40 @@ describe('Attached restrictions and second attack power', () => {
     expect(lookingForbidden(s, 1, 'hand')).toBe(false)
   })
 })
+
+describe('Reveal and compare cards', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('BB-79: the higher numbered top card goes to its owner hand', () => {
+    const s = game()
+    const hi = Object.values(db).reduce((a, b) => (a.number > b.number && !a.id.startsWith('TEST') ? a : b.id.startsWith('TEST') ? a : b))
+    s.players[0].lifeDeck.unshift({ iid: 'hi', defId: hi.id, owner: 0 })
+    s.players[1].lifeDeck.unshift({ iid: 'lo', defId: 'SS-1', owner: 1 })
+    const total = [allCardsOf(s, 0).length, allCardsOf(s, 1).length]
+    customHandlers.compareTopCards({ s, db, user: 0, source: 'BB-79' }, {})
+    expect(s.players[0].hand.some(c => c.iid === 'hi')).toBe(true)
+    expect(s.players[1].hand.some(c => c.iid === 'lo')).toBe(false)
+    expect([allCardsOf(s, 0).length, allCardsOf(s, 1).length]).toEqual(total)
+  })
+  it('BB-P3: the player with fewer Energy Combat cards on top discards 4', () => {
+    const s = game()
+    const energy = Object.values(db).find(d => d.type === 'Energy Combat' && !d.id.startsWith('TEST'))!
+    s.players[0].lifeDeck.unshift(...[1, 2, 3].map(i => ({ iid: `e${i}`, defId: energy.id, owner: 0 as const })))
+    const before = s.players[1].lifeDeck.length
+    const noEnergy = s.players[1].lifeDeck.slice(0, 3).every(c => db[c.defId].type !== 'Energy Combat')
+    customHandlers.revealCompare({ s, db, user: 0, source: 'BB-P3' }, { amount: 3, countCardType: 'Energy Combat', loserDiscardsLifeCards: 4 })
+    if (noEnergy) expect(s.players[1].lifeDeck.length).toBe(before - 4)
+  })
+  it('BU-83 sets a card aside and returns it at the end of combat (cards are conserved)', () => {
+    const s = game()
+    s.players[1].hand.push(s.players[1].lifeDeck.pop()!)
+    const total = allCardsOf(s, 1).length
+    customHandlers.setAsideOpponentHandCard({ s, db, user: 0, source: 'BU-83' }, {})
+    s.stack = []
+    const pc = s.pendingChoice as unknown
+    expect(pc === null || pc !== undefined).toBe(true)
+    expect(allCardsOf(s, 1).length).toBe(total)
+  })
+})

@@ -1,7 +1,7 @@
 // CUSTOM effect handlers for card text the atomic DSL cannot express (see docs/dsl-gaps.md).
 import { dragonBallsProtected, drillsProtected, inPlayAnywhere, restrictAttacks, type Params } from '../abilities'
 import type { Effect } from '../cards'
-import { computeDamage, applyDamage } from '../damage'
+import { computeDamage, applyDamage, defaultDamage } from '../damage'
 import { constantEffectsOf, changeAnger, changeStages, def, drawCards, fighterStage, log, millCards, mpDef, powerRating, schedule, win } from '../state'
 import { other, type AttackType, type GameState, type PickZone, type PlayerId } from '../types'
 import type { CardDB, CardDef } from '../cards'
@@ -549,6 +549,80 @@ export const handlers: Record<string, CustomHandler> = {
   discardNamedCardFromDeck(ctx) {
     const names = [...new Set(Object.values(ctx.db).filter(d => d.type !== 'Dragon Ball' && !d.id.startsWith('TEST')).map(d => d.name))].sort()
     queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: {} })
+  },
+
+  revealTopChooseOne(ctx, p) {
+    // BB-43: the top cards are shown; the opponent (the owner at personality level 3+) chooses one for the owner's hand; the rest stay on top
+    const { s } = ctx
+    const owner = ctx.user
+    const top = s.players[owner].lifeDeck.slice(0, num(p.amount, 3))
+    if (!top.length) return log(s, 'NO_EFFECT', `${ctx.source}: empty life deck`, owner)
+    const alt = p.chooserIf as { mainPersonalityLevelAtLeast?: number } | undefined
+    const chooser = alt && s.players[owner].mp.levelIndex + 1 >= Number(alt.mainPersonalityLevelAtLeast ?? 99) ? owner : other(owner)
+    log(s, 'REVEAL', `${ctx.source}: ${top.map(c => def(ctx.db, c).name).join(', ')}`, owner)
+    queueChoice(s, pickRequest(chooser, owner, 'lifeDeck', top, 1, 'OWNER_HAND', ctx.source))
+  },
+
+  compareTopCards(ctx) {
+    // BB-79: the higher numbered card goes to its owner's hand; the other player (both on a tie) shuffles the card back
+    const { s, db } = ctx
+    const tops = s.players.map(pl => pl.lifeDeck[0])
+    if (tops.some(c => !c)) return log(s, 'NO_EFFECT', `${ctx.source}: a life deck is empty`)
+    const [a, b] = tops.map(c => def(db, c).number)
+    log(s, 'REVEAL', `${ctx.source}: ${def(db, tops[0]).name} (${a}) against ${def(db, tops[1]).name} (${b})`)
+    const winner = a === b ? null : a > b ? 0 : 1
+    if (winner !== null) {
+      s.players[winner].hand.push(s.players[winner].lifeDeck.shift()!)
+      log(s, 'MOVE', `Player ${winner + 1} takes the card into hand`, winner)
+    }
+    for (const pl of s.players) if (winner === null || pl.id !== winner) s.rngSeed = shuffleInPlace(pl.lifeDeck, s.rngSeed)
+  },
+
+  revealCompare(ctx, p) {
+    // BB-P3: the player with fewer cards of the type among their top cards discards the top cards of their life deck
+    const { s, db } = ctx
+    const counts = s.players.map(pl => pl.lifeDeck.slice(0, num(p.amount, 3)).filter(c => def(db, c).type === p.countCardType).length)
+    log(s, 'REVEAL', `${ctx.source}: ${p.countCardType} cards in the top cards: ${counts[0]} against ${counts[1]}`)
+    if (counts[0] === counts[1]) return log(s, 'NO_EFFECT', `${ctx.source}: a tie, no one discards`)
+    const loser: PlayerId = counts[0] < counts[1] ? 0 : 1
+    millCards(s, loser, num(p.loserDiscardsLifeCards, 4), db)
+  },
+
+  revealForDamage(ctx, p) {
+    // BB-116: count the Red Style cards in the top cards of the discard pile or life deck (the better pile is picked) as extra life cards
+    const { s, db } = ctx
+    const st = s.combat?.strike
+    const pl = s.players[ctx.user]
+    const foeAnger = s.players[other(ctx.user)].mp.anger
+    const rule = (p.byOpponentAnger as { zero: { piles: string[]; amount: number }; nonZero: { piles: string[]; amount: number } })[foeAnger === 0 ? 'zero' : 'nonZero']
+    const count = (pile: string) => (pile === 'discard' ? pl.discard.slice(-rule.amount) : pl.lifeDeck.slice(0, rule.amount)).filter(c => def(db, c).style === p.countStyle).length
+    const n = Math.max(...rule.piles.map(count))
+    log(s, 'REVEAL', `${ctx.source}: ${n} ${p.countStyle} Style card(s) found`, ctx.user)
+    if (!st || !n) return
+    const d = st.strike.damage ?? defaultDamage(st.strike, s.rules)
+    st.strike = { ...st.strike, damage: { ...d, modifierLifeCards: d.modifierLifeCards + n * num(p.lifeCardsPerMatch, 1) } }
+  },
+
+  discardHandForDamage(ctx, p) {
+    const hand = ctx.s.players[ctx.user].hand.length
+    if (!hand) return
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: discard how many cards? (+${num(p.lifeCardsPerCard, 3)} life cards each)`,
+      options: Array.from({ length: hand + 1 }, (_, i) => `${i} card${i === 1 ? '' : 's'}`), purpose: 'discardForDamage', data: { per: num(p.lifeCardsPerCard, 3) } })
+  },
+
+  revealCardsForBonus(ctx, p) {
+    const hand = ctx.s.players[ctx.user].hand.filter(c => def(ctx.db, c).combatRole === 'ATTACK_PHYSICAL').length
+    if (!hand) return
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: `${ctx.source}: reveal how many physical attack cards?`,
+      options: Array.from({ length: hand + 1 }, (_, i) => `${i} card${i === 1 ? '' : 's'}`), purpose: 'revealBonus', data: { per: num(p.stagesPerCard, 3) } })
+  },
+
+  setAsideOpponentHandCard(ctx) {
+    // BU-83: look at the opponent's hand, set one card aside until the end of this combat
+    const foe = other(ctx.user)
+    const hand = ctx.s.players[foe].hand
+    if (!hand.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: the hand is empty`)
+    queueChoice(ctx.s, pickRequest(ctx.user, foe, 'hand', hand, 1, 'SET_ASIDE', ctx.source))
   },
 
   nameCardsRemoveFromLifeDeck(ctx, p) {

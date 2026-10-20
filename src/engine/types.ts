@@ -199,12 +199,16 @@ export type PickDest =
   | 'MARK_ALLY_SHIELD'
   /** use the Non-Combat card's power right away (AS-120); the card then retires as usual */
   | 'USE_NONCOMBAT'
+  /** into the pile owner's hand (BB-43: the opponent picks, the card goes to the deck's owner) */
+  | 'OWNER_HAND'
+  /** BU-83: set aside until the end of this combat, then back into the owner's hand */
+  | 'SET_ASIDE'
 
 /** Choices raised by card effects; they wait until the current action has resolved. */
 export type QueuedChoice =
   | { kind: 'PICK'; player: PlayerId; owner: PlayerId; zones: PickZone[]; count: number; dest: PickDest; eligible: string[]; source: string; allyStage?: number }
   | { kind: 'CONFIRM'; player: PlayerId; effects: Effect[]; source: string; prompt: string }
-  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower'; data: Record<string, string | number> }
+  | { kind: 'OPTION'; player: PlayerId; source: string; prompt: string; options: string[]; purpose: 'honorDuel' | 'transferStages' | 'shuffle' | 'anger' | 'nameCard' | 'variableCost' | 'borrowDrill' | 'lifeForDrills' | 'damageTarget' | 'chooseOne' | 'disableDrill' | 'loseStages' | 'nameCardDiscard' | 'empower' | 'discardForDamage' | 'revealBonus'; data: Record<string, string | number> }
 
 /** Pending work: what is left to resolve. The top of the stack (last element) runs first. */
 export type Frame =
@@ -269,6 +273,8 @@ export interface GameState {
   angerLock: PlayerId[]
   /** AS-24, AS-36: this player's main personality cannot use its power until the condition is met */
   attachments: Attachment[]
+  /** BU-83: cards set aside until the end of the combat */
+  setAside: { card: CardInstance; to: PlayerId }[]
   powerLocks: { player: PlayerId; until: string; cardIid?: string }[]
   /** AS-21: drills (by iid) whose power cannot be used any more */
   disabledDrills: string[]

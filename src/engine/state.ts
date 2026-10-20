@@ -361,7 +361,7 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
     out.push(...pl.mp.stack, ...pl.lifeDeck, ...pl.hand, ...pl.discard, ...pl.removed, ...pl.drills, ...pl.dragonBalls, ...pl.nonCombat, ...pl.allies.map(a => a.card))
   }
   if (s.location) out.push(s.location)
-  out.push(...s.resolving, ...s.attachments.map(a => a.card))
+  out.push(...s.resolving, ...s.attachments.map(a => a.card), ...s.setAside.map(x => x.card))
   const st = s.combat?.strike
   if (st?.card) out.push(st.card)
   if (st?.defenseCard) out.push(st.defenseCard)

@@ -302,6 +302,11 @@ export function advanceCombat(s: GameState, db: CardDB) {
       pl.nonCombat = pl.nonCombat.filter(x => !(x.iid in c.extraUses))
       extra.forEach(x => retire(s, x, def(db, x).effects.postResolution))
     }
+    for (const x of s.setAside) {
+      s.players[x.to].hand.push(x.card)
+      log(s, 'MOVE', `${def(db, x.card).name} returns to player ${x.to + 1}'s hand`, x.to)
+    }
+    s.setAside = []
     s.combat = null
     s.discardAsLife = s.discardAsLife.filter(x => !x.armed)
     return beginDiscardStep(s, db)

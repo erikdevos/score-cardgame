@@ -6,6 +6,7 @@ import type { CardDB, Effect } from '../cards'
 import type { CardInstance, GameState, PickDest, PickZone, PlayerId, QueuedChoice } from '../types'
 export type { QueuedChoice }
 import { defaultDamage } from '../damage'
+import { registerDamageModifier } from '../damagemods'
 import { resolveEffects } from '.'
 
 type Pick = QueuedChoice & { kind: 'PICK' }
@@ -125,6 +126,22 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     if (st && dropped.onHit?.length) st.strike = { ...st.strike, effects: { ...st.strike.effects, onHit: [...st.strike.effects.onHit, ...dropped.onHit] } }
     return resolveEffects({ s, db, user: q.player, source: q.source }, dropped.onPlaySecondary ?? [])
   }
+  if (q.purpose === 'discardForDamage') {
+    // BB-119: each discarded card adds life cards of damage to the attack being performed
+    const st = s.combat?.strike
+    if (!index || !st) return
+    const d = st.strike.damage ?? defaultDamage(st.strike, s.rules)
+    st.strike = { ...st.strike, damage: { ...d, modifierLifeCards: d.modifierLifeCards + index * Number(q.data.per) } }
+    log(s, 'DAMAGE_X', `${q.source}: ${index} card(s) discarded, +${index * Number(q.data.per)} life cards of damage`, q.player)
+    return queueChoice(s, pickRequest(q.player, q.player, 'hand', s.players[q.player].hand, index, 'DISCARD', q.source))
+  }
+  if (q.purpose === 'revealBonus') {
+    // BB-81: show N physical attack cards, +3 power stages per card for the rest of this combat
+    if (!index) return
+    const bonus = index * Number(q.data.per)
+    registerDamageModifier(s, q.player, q.source, { flatStages: bonus, attackType: 'PHYSICAL', duration: 'thisCombat' })
+    return log(s, 'REVEAL', `${q.source}: player ${q.player + 1} reveals ${index} physical attack card(s): +${bonus} power stages on physical attacks this combat`, q.player)
+  }
   if (q.purpose === 'disableDrill') {
     s.disabledDrills.push(String(q.data[String(index)]))
     return log(s, 'RESTRICT', `${q.source}: ${q.options[index]} can no longer be used`, q.player)
@@ -208,9 +225,12 @@ function movePicked(s: GameState, db: CardDB, q: Pick, iid: string) {
     OWNER_LIFE_BOTTOM: `at the bottom of player ${q.owner + 1}'s life deck`, USE_NONCOMBAT: 'and uses it', PICKER_DRAGON_BALLS: 'and captures it',
     DISCARD: 'and discards it', REMOVED: 'and removes it from the game', PLAY: 'and puts it into play',
     LIFE_SHUFFLE: `and shuffles it into player ${q.owner + 1}'s life deck`,
+    OWNER_HAND: `and gives it to player ${q.owner + 1}'s hand`, SET_ASIDE: 'and sets it aside until the end of combat',
   }
   switch (q.dest) {
     case 'HAND': picker.hand.push(card); break
+    case 'OWNER_HAND': owner.hand.push(card); break
+    case 'SET_ASIDE': s.setAside.push({ card, to: q.owner }); break
     case 'LIFE_TOP': owner.lifeDeck.unshift(card); break
     case 'LIFE_BOTTOM':
     case 'OWNER_LIFE_BOTTOM': owner.lifeDeck.push(card); break
