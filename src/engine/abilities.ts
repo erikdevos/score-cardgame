@@ -262,6 +262,17 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
 export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
+  const base = costForBase(s, db, p, cost, role, style)
+  // BB-35: costs in power stages or life cards are doubled after the other modifiers
+  if (s.location && base.type !== 'NONE') {
+    for (const m of findCustom(def(db, s.location).effects.onEnterPlay, 'costModifier')) {
+      if (m.multiplier && (m.costTypes as string[] | undefined)?.includes(base.type)) return { ...base, amount: base.amount * Number(m.multiplier) }
+    }
+  }
+  return base
+}
+
+function costForBase(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
   if (cost.type !== 'POWER_STAGES' || role !== 'ATTACK_ENERGY') return cost
   for (const { params } of tableEffects(s, db, p, 'attackCostModifier')) {
     if (params.attackType !== 'ENERGY' || (params.role === 'attacker' && s.attacker !== p)) continue

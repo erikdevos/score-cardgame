@@ -225,6 +225,72 @@ export const handlers: Record<string, CustomHandler> = {
   },
 
   modifyCombatDraw: noop,
+  loseGameAtAnger: noop, // state.ts changeAnger (CG-99)
+  costModifier: noop, // abilities.costFor (BB-35)
+
+  removeFromDiscardThen(ctx, p) {
+    // "You may remove <card> in your discard pile from the game. If you do, ..." (always taken: it is a benefit)
+    const pile = ctx.s.players[ctx.user].discard
+    const i = pile.findIndex(c => def(ctx.db, c).name === p.cardName)
+    if (i < 0) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no ${String(p.cardName)} in the discard pile`)
+    ctx.s.players[ctx.user].removed.push(...pile.splice(i, 1))
+    log(ctx.s, 'REMOVE', `${ctx.source}: ${String(p.cardName)} is removed from the game`, ctx.user)
+    resolveEffects(ctx, then(p))
+  },
+
+  ifMoreCardsInDiscard(ctx, p) {
+    const foe = targetOf(ctx, p.than ?? 'OPPONENT')
+    if (ctx.s.players[ctx.user].discard.length > ctx.s.players[foe].discard.length) resolveEffects(ctx, then(p))
+  },
+
+  ifTopDiscardCard(ctx, p) {
+    const pile = ctx.s.players[targetOf(ctx, p.target)].discard
+    const top = pile[pile.length - 1]
+    if (top && (!p.named || def(ctx.db, top).named === p.named)) resolveEffects(ctx, then(p))
+  },
+
+  switchStages(ctx) {
+    const [a, b] = [fighterStage(ctx.s, 0), fighterStage(ctx.s, 1)]
+    changeStages(ctx.s, 0, b - a)
+    changeStages(ctx.s, 1, a - b)
+    log(ctx.s, 'STAGES', `${ctx.source}: the main personalities swap their power stages (${a} and ${b})`)
+  },
+
+  modifyStagesPerCardInPile(ctx, p) {
+    const who = targetOf(ctx, p.target)
+    const n = ctx.s.players[who].discard.length * num(p.amountPerCard, 1)
+    if (n) changeStages(ctx.s, who, n)
+    log(ctx.s, 'STAGES', `${ctx.source}: player ${who + 1} gains ${n} power stage(s) for the cards in the discard pile`, who)
+  },
+
+  discardTopLifeCardThen(ctx, p) {
+    // WG-186: discard the top card; a matching card may go to the hand
+    const pl = ctx.s.players[targetOf(ctx, p.target)]
+    if (millCards(ctx.s, targetOf(ctx, p.target), num(p.amount, 1), ctx.db) && p.then === 'hand') {
+      const top = pl.discard[pl.discard.length - 1]
+      if (top && (!p.filter || def(ctx.db, top).type === p.filter)) pl.hand.push(pl.discard.pop()!)
+    }
+  },
+
+  removeTopLifeCardThen(ctx, p) {
+    // WG-200: remove the opponent's top life card; a matching type triggers the effects
+    const foe = targetOf(ctx, p.target)
+    const card = ctx.s.players[foe].lifeDeck[0]
+    if (!card || def(ctx.db, card).type === 'Dragon Ball') return log(ctx.s, 'NO_EFFECT', `${ctx.source}: nothing to remove`)
+    ctx.s.players[foe].removed.push(ctx.s.players[foe].lifeDeck.shift()!)
+    log(ctx.s, 'REMOVE', `${ctx.source}: ${def(ctx.db, card).name} is removed from the game`, foe)
+    if (!p.filter || def(ctx.db, card).type === p.filter) resolveEffects(ctx, then(p))
+  },
+
+  lookAtHand(ctx, p) {
+    log(ctx.s, 'LOOK', `${ctx.source}: player ${ctx.user + 1} looks at player ${targetOf(ctx, p.target) + 1}'s hand`, ctx.user)
+  },
+
+  lookAtTopCards(ctx, p) {
+    // only the order-preserving look (BU-25); the "keep one, remove the rest" variants are not implemented
+    if (p.keep) return log(ctx.s, 'WARN', `${ctx.source}: custom effect "lookAtTopCards" with keep is not implemented yet`)
+    log(ctx.s, 'LOOK', `${ctx.source}: player ${ctx.user + 1} looks at the top ${num(p.amount, 1)} card(s) of a life deck`, ctx.user)
+  },
 
   empower(ctx, p) {
     // Buu Saga rulebook p. 53: +N life cards of damage, in exchange for the text that follows the Empower

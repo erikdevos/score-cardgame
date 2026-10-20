@@ -256,6 +256,9 @@ export function changeAnger(s: GameState, db: CardDB, p: PlayerId, delta: number
       changeAnger(s, db, other(p), -reduced, true)
     }
   }
+  // CG-99: "when you reach 5 anger you lose the game"
+  const doom = s.players[p].nonCombat.some(c => findCustom(def(db, c).effects.onEnterPlay, 'loseGameAtAnger').some(x => mp.anger >= Number(x.anger ?? 5)))
+  if (doom) return win(s, other(p), 'SURVIVAL')
   if (mp.anger >= max) onMaxAnger(s, db, p)
 }
 
