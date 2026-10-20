@@ -165,6 +165,11 @@ export interface CombatState {
   grants: { player: PlayerId; kind: 'onHit' | 'focused'; condition?: unknown; effects: Effect[] }[]
   /** TS-P10: no drills, allies or personality powers this combat */
   lockdown?: boolean
+  /** per player, for this combat: Endurance disabled (BB-20), kept in the discard pile (BB-75, BU-178), Mastery and Drills disabled (BU-108, WG-140) */
+  noEndurance?: PlayerId[]
+  keepEndurance?: PlayerId[]
+  noMastery?: PlayerId[]
+  noDrills?: PlayerId[]
   /** life cards the defender lost to the last successful attack (for "per life card received") */
   lastLifeLost?: number
 }

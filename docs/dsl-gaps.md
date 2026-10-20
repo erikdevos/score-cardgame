@@ -329,3 +329,10 @@ New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): i
 ## Granted attacks (2026-10-20)
 
 `grantAttack` with `phase: attackerAttacks` (BB-56 Hercule Lv2, BB-83 Red Physical Drill, BU-167 Kid Trunks Lv2) is offered as USE_ABILITY (`key` with `@`). Costs: stages (as the strike cost), discard from hand (PICK), top life card (BB-56), `limit` per combat. The attack is a normal strike (BB-56 focused) and, as it goes through the usual defense/advance flow, takes the place of that phase's attack. BB-83's `onUse` (gain 2 stages if the opponent's anger is 0) runs first. TS-70's next-phase grant is still not offered.
+
+## Endurance modifiers, Mastery/Drill lock, Hercule, BU-142/BU-43 (2026-10-20)
+
+- `disableEndurance` (BB-20 opponent for the combat; BU-196 own constant power), `ignoreEndurance` (BB-48 drill: attacker's damage cannot be prevented by Endurance), `enduranceNoRemoval` (BB-75, BU-178: the card stays in the discard pile) are read in `damage.millWithEndurance` through `CombatState.noEndurance / keepEndurance`.
+- `disableMastery` (BU-108 with drills, WG-140) sets `noMastery / noDrills` for the combat; WG-140's "rest of the turn" lasts only the current combat.
+- `allowUsableBy` (BB-56, BU-133 Hercule): `canUseCard` accepts "Villains only" cards.
+- BU-142 (discard an Orange Drill to put 2 Drills from the Life Deck into play) and BU-43 (attached: discard a card to discard an opponent's Non-Combat/Ally/Battleground) are USE_ABILITY kinds `discardPlay` and `triggered`. `searchDeck` now takes `amount` picks; "different" names are not enforced.

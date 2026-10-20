@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { allCardsOf, legalActions, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
 import { customHandlers } from '../src/engine/effects'
-import { ownDamageBoost, defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
+import { permanentSources, ownDamageBoost, defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
 import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
-import { constantParams, retire, powerRating } from '../src/engine/state'
+import { canUseCard, constantParams, retire, powerRating } from '../src/engine/state'
 import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
@@ -414,5 +414,32 @@ describe('Attack-phase abilities, part 2', () => {
     s = applyAction(s, db, act!).state
     for (let i = 0; i < 4 && s.pendingChoice?.kind === 'PICK'; i++) s = applyAction(s, db, { type: 'PICK', player: 0, iid: (s.pendingChoice as { eligible: string[] }).eligible[0] }).state
     expect(s.players[1].nonCombat.some(c => c.iid === 'victim')).toBe(false)
+  })
+})
+
+describe('Endurance modifiers, disabled Mastery, Hercule', () => {
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    return s
+  }
+  it('disableEndurance and enduranceNoRemoval set the combat flags; disableMastery switches off Mastery sources', () => {
+    const s = setup()
+    s.players[1].mastery = { iid: 'm', defId: 'BU-126', owner: 1 }
+    expect(permanentSources(s, db, 1).some(x => x.name === db['BU-126'].name)).toBe(true)
+    customHandlers.disableMastery({ s, db, user: 0, source: 'BU-108' }, { target: 'OPPONENT', alsoDrills: true })
+    expect(permanentSources(s, db, 1).some(x => x.name === db['BU-126'].name)).toBe(false)
+    customHandlers.disableEndurance({ s, db, user: 0, source: 'BB-20' }, { target: 'OPPONENT' })
+    customHandlers.enduranceNoRemoval({ s, db, user: 1, source: 'BB-75' }, {})
+    expect(s.combat!.noEndurance).toEqual([1])
+    expect(s.combat!.keepEndurance).toEqual([1])
+  })
+  it('Hercule may use Villains only cards through his constant power', () => {
+    const s = setup()
+    const villainOnly = Object.values(db).find(d => d.usableBy?.alignments?.length === 1 && d.usableBy.alignments[0] === 'Villain' && !d.usableBy.characters)!
+    s.players[0].mp.stack[0] = { iid: 'her', defId: 'BU-133', owner: 0 }
+    s.players[0].mp.levelIndex = 0
+    expect(canUseCard(s, db, 0, villainOnly)).toBe(true)
   })
 })

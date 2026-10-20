@@ -218,6 +218,28 @@ export const handlers: Record<string, CustomHandler> = {
       { k: 'choice', q: pickRequest(ctx.user, ctx.user, 'hand', choices, n, 'DISCARD', ctx.source) },
       { k: 'effects', user: ctx.user, source: ctx.source, card: ctx.card, effects: then(p) })
   },
+  discardToStopAttack: noop, // activeabilities.discardDefenses
+  inPlaceOfAttackDiscard: noop, // activeabilities.activeAbilities
+  grantMajin: noop, // state.canUseCard (attached BB-103)
+  allowUsableBy: noop, // state.canUseCard (Hercule's constant powers)
+  ignoreEndurance: noop, // damage.millWithEndurance
+  disableEndurance(ctx, p) {
+    if (p.ongoing || !ctx.s.combat) return
+    ;(ctx.s.combat.noEndurance ??= []).push(targetOf(ctx, p.target))
+    log(ctx.s, 'RESTRICT', `${ctx.source}: no Endurance for the rest of this combat`, ctx.user)
+  },
+  enduranceNoRemoval(ctx) {
+    if (!ctx.s.combat) return
+    ;(ctx.s.combat.keepEndurance ??= []).push(ctx.user)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: Endurance cards stay in the discard pile for the rest of this combat`, ctx.user)
+  },
+  disableMastery(ctx, p) {
+    if (!ctx.s.combat) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no combat`, ctx.user)
+    const who = targetOf(ctx, p.target)
+    ;(ctx.s.combat.noMastery ??= []).push(who)
+    if (p.alsoDrills) (ctx.s.combat.noDrills ??= []).push(who)
+    log(ctx.s, 'RESTRICT', `${ctx.source}: player ${who + 1} cannot use ${p.alsoDrills ? 'Mastery and Drills' : 'Mastery'} this combat`, ctx.user)
+  },
   additionalPower: noop, // BU-197..199: read as a second Constant Combat Power (state.constantEffectsOf); BU-200's second attack is not selectable yet
   damageCannotBePrevented: unpreventable,
   damageCannotBeModified: unpreventable,

@@ -110,6 +110,7 @@ export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): b
   const mp = mpDef(s, db, p).personality!
   // "Majin only": every Majin personality (Majin Buu, Majin Vegeta, ...)
   const majin = !!u.characters?.includes('Majin') && (mp.character.startsWith('Majin') || s.attachments.some(a => a.host.kind === 'mp' && a.host.player === p && a.effects.some(e => e.action === 'CUSTOM' && e.handler === 'grantMajin')))
+  if (constantParams(s, db, p, 'allowUsableBy').some(x => u.alignments?.includes(x.alignment as 'Hero' | 'Villain'))) return true
   return !!(u.alignments?.includes(mp.alignment as 'Hero' | 'Villain') || u.characters?.includes(mp.character) || majin)
 }
 

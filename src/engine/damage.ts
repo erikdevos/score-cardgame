@@ -1,6 +1,6 @@
 import type { CardDB, StrikeDef } from './cards'
 import { tableEffects } from './abilities'
-import { activePassives, def, findCustom, log, millCards, powerRating, pur } from './state'
+import { activePassives, constantParams, def, findCustom, log, millCards, powerRating, pur } from './state'
 import type { GameState, PlayerId, Rules } from './types'
 
 export function bracketOf(rating: number, rules: Rules): number {
@@ -109,6 +109,11 @@ function enduranceOf(s: GameState, db: CardDB, owner: PlayerId, card: { defId: s
  */
 function millWithEndurance(s: GameState, target: PlayerId, n: number, db?: CardDB): number {
   if (!db || !s.players[target].tokuiWaza) return millCards(s, target, n, db)
+  // BB-20 (opponent), BU-196 (own power), BB-48 (the attacker's drill): no Endurance
+  const attacker = s.combat?.strike?.initiator
+  if (s.combat?.noEndurance?.includes(target) || constantParams(s, db, target, 'disableEndurance').length ||
+    (attacker !== undefined && attacker !== target && tableEffects(s, db, attacker, 'ignoreEndurance').length)) return millCards(s, target, n, db)
+  const keep = !!s.combat?.keepEndurance?.includes(target)
   const pl = s.players[target]
   let remaining = n
   let done = 0
@@ -119,8 +124,8 @@ function millWithEndurance(s: GameState, target: PlayerId, n: number, db?: CardD
     const card = pl.discard[pl.discard.length - 1]
     const endurance = card ? enduranceOf(s, db, target, card) : 0
     if (endurance > 0 && remaining > 0) {
-      pl.removed.push(pl.discard.pop()!)
-      log(s, 'ENDURANCE', `${def(db, card).name} is removed from the game: Endurance ${endurance} prevents ${Math.min(endurance, remaining)} life card(s) of damage`, target)
+      if (!keep) pl.removed.push(pl.discard.pop()!)
+      log(s, 'ENDURANCE', `${def(db, card).name}${keep ? ' stays in the discard pile' : ' is removed from the game'}: Endurance ${endurance} prevents ${Math.min(endurance, remaining)} life card(s) of damage`, target)
       remaining = Math.max(0, remaining - endurance)
     }
   }

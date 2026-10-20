@@ -138,8 +138,8 @@ export const worksFromTable = (d: CardDef) => TABLE_HANDLERS.some(h => findCusto
 export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: string): { card: CardInstance; params: Params }[] {
   const pl = s.players[p]
   const borrowed = (s.combat?.borrowedDrills ?? []).filter(b => b.player === p).map(b => ({ iid: `borrowed-${b.defId}`, defId: b.defId, owner: p }))
-  const drills = s.combat?.lockdown ? [] : [...pl.drills.filter(c => !s.disabledDrills.includes(c.iid)), ...borrowed]
-  return [...drills, ...pl.nonCombat, ...pl.dragonBalls, ...(pl.mastery ? [pl.mastery] : [])].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
+  const drills = s.combat?.lockdown || s.combat?.noDrills?.includes(p) ? [] : [...pl.drills.filter(c => !s.disabledDrills.includes(c.iid)), ...borrowed]
+  return [...drills, ...pl.nonCombat, ...pl.dragonBalls, ...(pl.mastery && !s.combat?.noMastery?.includes(p) ? [pl.mastery] : [])].flatMap(card => findCustom(def(db, card).effects.onEnterPlay, handler).map(params => ({ card, params })))
 }
 
 /**
@@ -149,8 +149,8 @@ export function tableEffects(s: GameState, db: CardDB, p: PlayerId, handler: str
 export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] {
   const pl = s.players[p]
   const out: { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] = []
-  if (!s.combat?.lockdown) for (const card of pl.drills.filter(c => !s.disabledDrills.includes(c.iid))) out.push({ name: def(db, card).name, card, effects: def(db, card).effects.onEnterPlay })
-  if (pl.mastery) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
+  if (!s.combat?.lockdown && !s.combat?.noDrills?.includes(p)) for (const card of pl.drills.filter(c => !s.disabledDrills.includes(c.iid))) out.push({ name: def(db, card).name, card, effects: def(db, card).effects.onEnterPlay })
+  if (pl.mastery && !s.combat?.noMastery?.includes(p)) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
   out.push(...attachmentSources(s, db, p))
   const power = mpDef(s, db, p).personality!.power
   if (power && !s.combat?.noConstantPowers) {
