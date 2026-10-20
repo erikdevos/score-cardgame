@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { allCardsOf, legalActions, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
 import { customHandlers } from '../src/engine/effects'
 import { permanentSources, ownDamageBoost, defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
+import { baseDamage } from '../src/engine/damage'
 import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
@@ -482,5 +483,24 @@ describe('Small rule hooks (batch 3)', () => {
     s.combat.strike = { initiator: 0, card: null, strike: { combatRole: 'ATTACK_ENERGY', effects: { onEnterPlay: [], onPlaySecondary: [], onHit: [], postResolution: 'DISCARD' } }, label: 't', phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0 } as never
     customHandlers.preventionBonus({ s, db, user: 0, source: 'BU-163' }, { multiplier: 2 })
     expect((s.combat.strike as unknown as { preventMult: number }).preventMult).toBe(2)
+  })
+})
+
+describe('Z power stages and the Double Power Rule', () => {
+  const game = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    return createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+  }
+  it('two personalities have Z power stages', () => {
+    expect(Object.values(db).filter(d => d.personality?.zPower).map(d => d.id).sort()).toEqual(['BB-121', 'WG-132'])
+  })
+  it('base damage is always 2 against or with a Z personality', () => {
+    const s = game()
+    s.players[0].mp.stack[0] = { iid: 'gk', defId: 'WG-132', owner: 0 }
+    s.players[0].mp.levelIndex = 0
+    s.players[0].mp.stage = 10
+    s.players[1].mp.stage = 1
+    expect(baseDamage(s, db, 0, 1)).toBe(2)
+    expect(baseDamage(s, db, 1, 0)).toBe(2)
   })
 })

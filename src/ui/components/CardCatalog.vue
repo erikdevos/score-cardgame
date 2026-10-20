@@ -90,7 +90,7 @@ const rows = computed<[string, string][]>(() => {
   const out: [string, unknown][] = [['Card text', c.rawText], ['Type', c.type], ['Style', c.style], ['Rarity', c.rarity]]
   const p = c.personality
   if (p) {
-    out.push(['Character', p.character], ['Level', p.level], ['Alignment', p.alignment], ['PUR', p.pur], ['Power rating', p.powerRatings?.join(' / ')])
+    out.push(['Character', p.character], ['Level', p.level], ['Alignment', p.alignment], ['PUR', p.pur], ['Power rating', p.zPower ? 'Z power stages (base damage is always 2)' : p.powerRatings?.join(' / ')])
     if (p.power) out.push(['Power', `${p.power.name}: ${p.power.text}`])
   }
   out.push(

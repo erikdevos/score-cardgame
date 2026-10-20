@@ -5806,6 +5806,7 @@
       ],
       "pur": 2,
       "alignment": "Hero",
+      "zPower": true,
       "power": {
         "name": "Constant Combat Power",
         "text": "All your attacks do +1 power stages of damage. Grand Kai does not need to take control of Combat to use this power.",

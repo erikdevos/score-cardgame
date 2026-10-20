@@ -1,6 +1,6 @@
 import type { CardDB, StrikeDef } from './cards'
 import { tableEffects } from './abilities'
-import { activePassives, constantParams, def, findCustom, log, millCards, powerRating, pur } from './state'
+import { activePassives, constantParams, def, findCustom, log, millCards, mpDef, powerRating, pur } from './state'
 import type { GameState, PlayerId, Rules } from './types'
 
 export function bracketOf(rating: number, rules: Rules): number {
@@ -12,6 +12,12 @@ export function bracketOf(rating: number, rules: Rules): number {
 
 export function patDamage(attackerRating: number, defenderRating: number, rules: Rules): number {
   return rules.pat.matrix[bracketOf(attackerRating, rules)][bracketOf(defenderRating, rules)]
+}
+
+/** Base damage from the Physical Attack Table; a personality with Z power stages on either side always makes it 2. */
+export function baseDamage(s: GameState, db: CardDB, attacker: PlayerId, defender: PlayerId): number {
+  if (mpDef(s, db, attacker).personality!.zPower || mpDef(s, db, defender).personality!.zPower) return 2
+  return patDamage(powerRating(s, db, attacker), powerRating(s, db, defender), s.rules)
 }
 
 export interface Damage {
@@ -33,7 +39,7 @@ export function computeDamage(s: GameState, db: CardDB, attacker: PlayerId, stri
   const dmg = strike.damage ?? defaultDamage(strike, rules)
   let stages = 0
   let lifeCards = 0
-  if (dmg.calculation === 'PAT') stages = patDamage(powerRating(s, db, attacker), powerRating(s, db, defender), rules)
+  if (dmg.calculation === 'PAT') stages = baseDamage(s, db, attacker, defender)
   else if (dmg.calculation === 'FLAT') {
     stages = dmg.stages
     lifeCards = dmg.lifeCards

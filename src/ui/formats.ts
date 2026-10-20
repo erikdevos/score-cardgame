@@ -30,11 +30,11 @@ export const FORMATS = {
   },
   SAIYAN_FRIEZA_TRUNKS_ANDROIDS_CELL: {
     label: 'Up to Cell Saga', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga'] as SetName[],
-    rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
+    rules: { pat: { brackets: patCell.brackets, matrix: patCell.matrix }, trunks: { ...TRUNKS_CORE, doublePower: true } } as Partial<Rules>,
   },
   ALL_SETS: {
     label: 'All sets', sets: ['Saiyan Saga', 'Frieza Saga', 'Trunks Saga', 'Androids Saga', 'Cell Saga', 'Cell Games Saga', 'World Games Saga', 'Babidi Saga', 'Buu Saga'] as SetName[],
-    rules: { pat: { brackets: patBuu.brackets, matrix: patBuu.matrix }, trunks: TRUNKS_CORE } as Partial<Rules>,
+    rules: { pat: { brackets: patBuu.brackets, matrix: patBuu.matrix }, trunks: { ...TRUNKS_CORE, doublePower: true } } as Partial<Rules>,
   },
 } as const
 export type FormatKey = keyof typeof FORMATS

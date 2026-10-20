@@ -20,6 +20,7 @@
     "finalPhysicalAttack": false,
     "skipCombatRecovers": false,
     "heroFirst": false,
+    "doublePower": false,
     "allyRules": false,
     "dragonBalls": false,
     "tokuiWaza": false

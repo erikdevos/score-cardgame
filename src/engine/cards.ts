@@ -81,6 +81,8 @@ export const PersonalitySchema = z.object({
   pur: z.number().int().min(0).max(5),
   alignment: z.enum(['Hero', 'Villain', 'Rogue']),
   cannotWinMPP: z.boolean().default(false),
+  /** Z power stages (Buu Saga rulebook p. 60): base damage on the Physical Attack Table is always 2 */
+  zPower: z.boolean().default(false),
   power: z.object({ name: z.string(), text: z.string(), strike: StrikeSchema }).optional(),
 })
 

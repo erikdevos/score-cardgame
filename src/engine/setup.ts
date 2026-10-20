@@ -74,7 +74,28 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
   return s
 }
 
+/** Double Power Rule (Cell and Buu Saga rulebooks): a Main Personality with double the other's starting power rating starts at 2 stages, the weaker one at his highest stage and goes first. Not for Z power stages. */
+function doublePower(s: GameState, db: CardDB): PlayerId | null {
+  const ini = s.rules.initiative
+  const mps = ([0, 1] as PlayerId[]).map(p => mpDef(s, db, p).personality!)
+  if (!ini.dominanceRatio || mps.some(m => m.zPower)) return null
+  const [r0, r1] = [powerRating(s, db, 0), powerRating(s, db, 1)]
+  const strong: PlayerId = r0 >= r1 ? 0 : 1
+  const [rs, rw] = strong === 0 ? [r0, r1] : [r1, r0]
+  if (rw <= 0 || rs < ini.dominanceRatio * rw) return null
+  const weak: PlayerId = strong === 0 ? 1 : 0
+  s.players[strong].mp.stage = ini.dominantStage
+  s.players[weak].mp.stage = ini.weakerStage
+  log(s, 'SETUP', `Double Power Rule: player ${strong + 1} starts at stage ${ini.dominantStage}, player ${weak + 1} at stage ${ini.weakerStage} and goes first`, weak)
+  return weak
+}
+
 function rollInitiative(s: GameState, db: CardDB): PlayerId {
+  if (s.rules.trunks.heroFirst) {
+    // Cell Saga rulebook onwards
+    const dp = s.rules.trunks.doublePower ? doublePower(s, db) : null
+    if (dp !== null) return dp
+  }
   if (s.rules.trunks.heroFirst) {
     // Trunks Saga: the hero player goes first; with two heroes or two villains, a coin flip
     const heroes = ([0, 1] as PlayerId[]).filter(p => mpDef(s, db, p).personality!.alignment === 'Hero')

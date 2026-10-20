@@ -10,7 +10,7 @@ import { give } from './helpers'
 // Trunks Saga cards on the Trunks Saga rules
 const TRUNKS: Partial<Rules> = {
   pat: { brackets: patTrunks.brackets, matrix: patTrunks.matrix },
-  trunks: { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, allyRules: true, dragonBalls: true, tokuiWaza: true },
+  trunks: { levelStages: true, mostPowerfulByHighestLevel: true, finalPhysicalAttack: true, skipCombatRecovers: true, heroFirst: true, doublePower: false, allyRules: true, dragonBalls: true, tokuiWaza: true },
 }
 const db = { ...testDb, ...buildCardDB(saiyan as unknown[]), ...buildCardDB(trunksSaga as unknown[]) }
 const act = (s: GameState, a: Action) => applyAction(s, db, a).state

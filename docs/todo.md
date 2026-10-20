@@ -11,6 +11,7 @@
 - [ ] BU-200 second attack power selectable
 - [ ] Sensei Deck / Sensei cards, Fusion, Z power
 - [ ] Accepted-but-inactive damage variants (see dsl-gaps.md)
+- [x] Z power stages and the Double Power Rule
 - [ ] Schema limits: level 5, PUR above 5, rating boxes
 - [ ] Other Cell rulebook rules (Double Power, direct ally play, Nowhere to Hide), deck legality limits
 

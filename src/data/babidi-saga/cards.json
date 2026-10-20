@@ -5925,6 +5925,7 @@
       ],
       "pur": 3,
       "alignment": "Hero",
+      "zPower": true,
       "power": {
         "name": "Constant Combat Power",
         "text": "After drawing your cards during the \"Defender Draws 3 Cards\" phase, you may shuffle your hand into your Life Deck and draw the same amount of cards into your hand.",

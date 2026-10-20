@@ -345,3 +345,7 @@ New action `DEFEND_DISCARD {player, key}` (`activeabilities.discardDefenses`): i
 - BU-116 / BU-144: `retireUsed` sets `retireTo = LIFE_BOTTOM` (`returnToLifeDeckAfterUse`).
 - BU-107: `dealDamage` removes the first N damage cards from the game. BU-77: `empowerBonus`. BU-51: `ifOpponentNoConstantPower`. BU-132: `ifFusedPersonality` is never true (no Fusion).
 - BB-45 (+1 prevented per type, not yet for Endurance) and BU-163 (prevention doubled for that attack) in `damagemods`.
+
+## Z power stages and the Double Power Rule (2026-10-20)
+
+`personality.zPower` (WG-132 Grand Kai Lv1, BB-121 Supreme Kai Lv2: their ratings are placeholders, the boxes print Z): `damage.baseDamage` returns 2 whenever either fighter has Z power stages, for every PAT use (damage, per-PAT life card modifiers, noModifiers). The Double Power Rule (a main personality with double the other's starting rating starts at 2 stages, the weaker at his highest stage and goes first) now also runs in the hero-first setup when `rules.trunks.doublePower` is on (Cell Saga and all-sets pools; not for Z personalities). The Tournament Dragon Ball rule is still open.

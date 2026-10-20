@@ -3,7 +3,7 @@
 // Old-style params keep their old code paths; a modifier is "new style" when it carries one of NEW_KEYS.
 import { activeCustom, permanentSources } from './abilities'
 import type { CardDB, CardDef } from './cards'
-import { defaultDamage, patDamage, type Damage } from './damage'
+import { baseDamage, defaultDamage, type Damage } from './damage'
 import { def, log, mpDef, powerRating, pur } from './state'
 import { other, type CardInstance, type DamageModEntry, type GameState, type PlayerId, type StrikeState } from './types'
 
@@ -198,7 +198,7 @@ function valueOf(m: P, owner: PlayerId, c: Ctx, base: Damage) {
   }
   if (m.stagesPerOpponentAngerBelow) stages += Math.max(0, num(m.stagesPerOpponentAngerBelow) - s.players[foe].mp.anger)
   if (m.lifeCardsX === 'ownPur') life += pur(s, db, attacker)
-  if (m.lifeCardsFromPhysicalAttackTable) life += patDamage(powerRating(s, db, attacker), powerRating(s, db, defender), s.rules)
+  if (m.lifeCardsFromPhysicalAttackTable) life += baseDamage(s, db, attacker, defender)
   if (m.patBaseDamage && c.type === 'PHYSICAL') stages += num(m.patBaseDamage)
   if (typeof m.multiplyBaseDamage === 'number') { stages += base.stages * (m.multiplyBaseDamage - 1); life += base.lifeCards * (m.multiplyBaseDamage - 1) }
   if (m.baseOnly && typeof m.multiplier === 'number') { stages += base.stages * (m.multiplier - 1); life += base.lifeCards * (m.multiplier - 1) }
@@ -288,7 +288,7 @@ export function applyNewModifiers(s: GameState, db: CardDB, st: StrikeState, typ
     // CS-183: "no modifiers are added": only the base damage of the attack counts
     const d = st.strike.damage ?? defaultDamage(st.strike, s.rules)
     const pat = d.calculation === 'PAT'
-    stages = pat ? patDamage(powerRating(s, db, attacker), powerRating(s, db, c.defender), s.rules) : d.calculation === 'FLAT' ? d.stages : 0
+    stages = pat ? baseDamage(s, db, attacker, c.defender) : d.calculation === 'FLAT' ? d.stages : 0
     life = d.calculation === 'FLAT' ? d.lifeCards : 0
   }
   if (used.length) log(s, 'DAMAGE_X', `${[...new Set(used)].join(', ')} change the damage`, attacker)
