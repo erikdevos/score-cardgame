@@ -77,6 +77,15 @@ export interface StrikeState {
   noLifeCards?: boolean
 }
 
+/** A card fixed to a personality or another card (attach.ts). */
+export interface Attachment {
+  card: CardInstance
+  host: { player: PlayerId; kind: 'mp' | 'card'; iid?: string }
+  until?: string
+  effects: Effect[]
+  removeWhenDone: boolean
+}
+
 export type AttackType = 'PHYSICAL' | 'ENERGY' | 'ANY'
 
 /** "cannot make attacks of type X" for a number of that player's attack phases. */
@@ -246,6 +255,7 @@ export interface GameState {
   /** anger cannot rise until this player forces a life card discard */
   angerLock: PlayerId[]
   /** AS-24, AS-36: this player's main personality cannot use its power until the condition is met */
+  attachments: Attachment[]
   powerLocks: { player: PlayerId; until: string; cardIid?: string }[]
   /** AS-21: drills (by iid) whose power cannot be used any more */
   disabledDrills: string[]

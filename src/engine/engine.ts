@@ -6,6 +6,7 @@ import {
   cleanup, copyAttack, dealDamage, defend, defendWithPower, resolveHit, retireResolved, stealDragonBall,
   strikeAfterOnHit, strikeAfterSecondaries, strikeAttackTrigger, strikeReact,
 } from './sequencer'
+import { sweepAttachments } from './attach'
 import { clone, def, log, schedule } from './state'
 import {
   advanceCombat, checkDragonBalls, declareCombat, discardFromHand, endNonCombat, endOfTurnWindow, endTurn,
@@ -61,6 +62,7 @@ export function applyAction(state: GameState, db: CardDB, action: Action): { sta
     run(s, db)
   }
   sweepDiscards(s, db)
+  sweepAttachments(s, db)
   return { state: s, events: s.log.slice(before) }
 }
 

@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { allCardsOf, applyAction, chooseAction, createGame, type GameState } from '../src/engine'
 import { customHandlers } from '../src/engine/effects'
-import { defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
+import { ownDamageBoost, defenseShield, isFocused, powerOptions, tableEffects } from '../src/engine/abilities'
 import { applyDamage } from '../src/engine/damage'
 import { newCombat } from '../src/engine'
 import { resolveOption } from '../src/engine/effects/choices'
 import { computeDamage } from '../src/engine/damage'
-import { retire } from '../src/engine/state'
+import { retire, powerRating } from '../src/engine/state'
+import { attachAfterAttack, attachAfterLifeDamage, attachCard, discardAttachedOf, isForbidden, nonCombatForbidden, sweepAttachments } from '../src/engine/attach'
 import { applyNewModifiers, registerDamageModifier } from '../src/engine/damagemods'
 import { db, realCards } from '../src/ui/cardDb'
 import { deckChoices } from '../src/ui/decks'
@@ -211,5 +212,89 @@ describe('Generic damage modifiers', () => {
     s.players[0].removed.push(...Array.from({ length: 3 }, (_, i) => ({ iid: `r${i}`, defId: 'AS-55', owner: 0 as const })))
     expect(applyNewModifiers(s, db, st, 'PHYSICAL', { stages: 2, lifeCards: 0 }).stages).toBe(5)
     expect(applyNewModifiers(s, db, st, 'PHYSICAL', { stages: 2, lifeCards: 0 }).stages).toBe(2)
+  })
+})
+
+describe('Attached cards', () => {
+  const setup = () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    s.combat = newCombat(0)
+    return s
+  }
+  const fx = (id: string, handler: string) => db[id].effects.onEnterPlay.concat(db[id].effects.onPlaySecondary, db[id].effects.onHit)
+    .flatMap(function find(e): typeof db[string]['effects']['onEnterPlay'] { return e.action === 'CUSTOM' ? [e, ...(Array.isArray(e.params?.then) ? (e.params!.then as never[]).flatMap(find) : [])] : [] }).filter(e => e.action === 'CUSTOM' && e.handler === handler)
+  const inner = (id: string) => (fx(id, 'attachToMainPersonality')[0] as { params: { effect: never } }).params.effect
+
+  it('Red Gambit adds 3 stages to every attack of the host and Saiyan Gambit adds power rating unless at stage 0', () => {
+    const s = setup()
+    const c = (id: string, i: number) => ({ iid: `a${i}`, defId: id, owner: 0 as const })
+    attachCard(s, db, c('BU-95', 1), { player: 0, kind: 'mp' }, { effects: [inner('BU-95')] })
+    expect(ownDamageBoost(s, db, 0, 'ENERGY', undefined).stages).toBe(3)
+    expect(ownDamageBoost(s, db, 1, 'ENERGY', undefined).stages).toBe(0)
+    const base = powerRating(s, db, 0)
+    attachCard(s, db, c('BU-103', 2), { player: 0, kind: 'mp' }, { effects: [inner('BU-103')] })
+    s.players[0].mp.stage = 2
+    expect(powerRating(s, db, 0) - db[s.players[0].mp.stack[0].defId].personality!.powerRatings[2]).toBe(1000000)
+    s.players[0].mp.stage = 0
+    expect(powerRating(s, db, 0)).toBe(db[s.players[0].mp.stack[0].defId].personality!.powerRatings[0])
+    expect(base).toBeGreaterThan(0)
+  })
+
+  it('attached cards stay out of the discard pile, are conserved and leave on their condition', () => {
+    const s = setup()
+    const before = allCardsOf(s, 0).length
+    const card = s.players[0].hand.pop()!
+    attachCard(s, db, card, { player: 0, kind: 'mp' }, { until: 'opponentDealsLifeCardDamage', effects: [] })
+    retire(s, card, 'DISCARD')
+    expect(s.players[0].discard.includes(card)).toBe(false)
+    expect(allCardsOf(s, 0).length).toBe(before)
+    attachAfterLifeDamage(s, db, 0, 1)
+    expect(s.attachments.length).toBe(0)
+    expect(s.players[0].discard.includes(card)).toBe(true)
+  })
+
+  it('removes on an energy attack and when the host is at its highest stage; discardAttached clears the host', () => {
+    const s = setup()
+    const a = s.players[0].hand.pop()!
+    const b = s.players[0].hand.pop()!
+    const c = s.players[0].hand.pop()!
+    attachCard(s, db, a, { player: 0, kind: 'mp' }, { until: 'attachedPerformsEnergyAttack', removeWhenDone: true, effects: [] })
+    attachCard(s, db, b, { player: 0, kind: 'mp' }, { until: 'attachedPersonalityAtHighestStage', effects: [] })
+    attachAfterAttack(s, db, 0, 'PHYSICAL', true)
+    expect(s.attachments.length).toBe(2)
+    attachAfterAttack(s, db, 0, 'ENERGY', false)
+    expect(s.players[0].removed.includes(a)).toBe(true)
+    s.players[0].mp.stage = s.rules.maxStage
+    sweepAttachments(s, db)
+    expect(s.players[0].discard.includes(b)).toBe(true)
+    attachCard(s, db, c, { player: 0, kind: 'mp' }, { effects: [] })
+    expect(discardAttachedOf(s, db, 0)).toBe(1)
+  })
+
+  it('Red Trap forbids Non-Combat cards of the host and a Black Snap Kick forbids its host card', () => {
+    const s = setup()
+    const t = { iid: 't1', defId: 'WG-103', owner: 0 as const }
+    attachCard(s, db, t, { player: 1, kind: 'mp' }, { effects: db['WG-103'].effects.onEnterPlay })
+    expect(nonCombatForbidden(s, 1)).toBe(true)
+    expect(nonCombatForbidden(s, 0)).toBe(false)
+    const host = { iid: 'h1', defId: 'AS-55', owner: 1 as const }
+    s.players[1].nonCombat.push(host)
+    attachCard(s, db, { iid: 'k1', defId: 'BU-48', owner: 0 }, { player: 1, kind: 'card', iid: 'h1' }, { effects: db['BU-48'].effects.onHit })
+    expect(isForbidden(s, 'h1')).toBe(true)
+    s.players[1].nonCombat = []
+    sweepAttachments(s, db)
+    expect(isForbidden(s, 'h1')).toBe(false)
+  })
+
+  it('AI games with attach cards in the pool still finish and conserve cards', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+      let s = createGame(db, [choices[seed % choices.length].build(seed), choices[(seed + 3) % choices.length].build(seed + 100)], { seed, rules: FORMATS.ALL_SETS.rules })
+      const total = [allCardsOf(s, 0).length, allCardsOf(s, 1).length]
+      for (let i = 0; i < 4000 && s.winner === null; i++) s = applyAction(s, db, chooseAction(s, db)!).state
+      expect(s.winner).not.toBeNull()
+      expect([allCardsOf(s, 0).length, allCardsOf(s, 1).length]).toEqual(total)
+    }
   })
 })

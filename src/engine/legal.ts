@@ -1,6 +1,7 @@
 import { attackRestriction, attackTypeOf, findCustom, isAutoOnly, requirementsMet, tableEffects, timingAllows, typeMatches, worksFromTable, type Window } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef } from './cards'
 import { attackPowerOption, canPayCost, copyableAttack, legalDefenses, legalPowerDefense, strikeOf } from './sequencer'
+import { nonCombatForbidden } from './attach'
 import { canUseCard, def, mpDef, trunksAllyAllowed } from './state'
 import { canTakeOver, mustSkipCombat } from './turn'
 import { other, type Action, type CardInstance, type GameState, type PlayerId } from './types'
@@ -119,6 +120,7 @@ function baseActions(s: GameState, db: CardDB): Action[] {
 function usableNow(s: GameState, db: CardDB, p: PlayerId, c: CardInstance, window: Window) {
   const d = def(db, c)
   if (worksFromTable(d)) return false
+  if (d.type === 'Non-Combat' && nonCombatForbidden(s, p)) return false
   if (d.noStacking && s.combat?.usedCardIds.includes(d.id)) return false
   const effects = [...d.effects.onPlaySecondary, ...d.effects.onEnterPlay]
   // "for the remainder of this combat" does nothing outside combat

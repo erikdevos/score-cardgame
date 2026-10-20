@@ -8,6 +8,7 @@ import type { CardDB, CardDef } from '../cards'
 import { resolveEffects, type CustomHandler, type EffectContext } from '.'
 import { pickRequest, queueChoice, zoneCards } from './choices'
 import { nextRandom, shuffleInPlace } from '../rng'
+import { attachCard, discardAttachedOf } from '../attach'
 import { isNewStyle, registerDamageModifier } from '../damagemods'
 
 /** SELF / OPPONENT relative to the card user, ATTACKER / DEFENDER relative to this turn. */
@@ -53,6 +54,18 @@ function matchesFilter(s: GameState, db: CardDB, user: PlayerId, d: CardDef, fil
 }
 
 const ZONE_BY_TYPE: Record<string, PickZone> = { Drill: 'drills', Ally: 'allies', 'Non-Combat': 'nonCombat' }
+
+function discardAttachedHandler(ctx: EffectContext, p: Params) {
+  const n = discardAttachedOf(ctx.s, ctx.db, targetOf(ctx, p.target ?? 'SELF'))
+  log(ctx.s, n ? 'DISCARD' : 'NO_EFFECT', `${ctx.source}: ${n} attached card(s) discarded`, ctx.user)
+}
+
+/** Fix the card being played to a personality; its effects (the given ones, else the nested "effect") then work from there. */
+function attachFrom(ctx: EffectContext, p: Params, kind: 'mp', player: PlayerId, effects?: Effect[]) {
+  if (!ctx.card) return
+  const eff = effects ?? (p.effect ? [p.effect as Effect] : [])
+  attachCard(ctx.s, ctx.db, ctx.card, { player, kind }, { until: p.until as string | undefined, effects: eff, removeWhenDone: !!p.removeWhenDone })
+}
 
 export const handlers: Record<string, CustomHandler> = {
   // Read elsewhere (legal actions, defenses, timing, damage), nothing to resolve.
@@ -180,7 +193,24 @@ export const handlers: Record<string, CustomHandler> = {
   focused: noop, // read in damage.ts / abilities.ts
   focusedAttack: noop, // read in damage.ts / abilities.ts
   temporaryPurModifier: noop, // CG-5, not applied yet
-  discardAttached: noop, // CG-44: the engine has no attached cards except AS-36
+  discardAttached: discardAttachedHandler, // CG-44
+  discardAttachedCards: discardAttachedHandler, // CG-67
+  attachToMainPersonality(ctx, p) { attachFrom(ctx, p, 'mp', targetOf(ctx, p.target ?? 'SELF')) },
+  attachToOpponentMainPersonality(ctx, p) {
+    const upkeep = (Array.isArray(p.upkeep) ? p.upkeep : []) as Effect[]
+    attachFrom(ctx, { ...p, effect: undefined, until: p.discardWhen === 'opponentMainPersonalityAtHighestStage' ? 'attachedPersonalityAtHighestStage' : p.until }, 'mp', other(ctx.user), upkeep)
+  },
+  attachToCard(ctx, p) {
+    // own drill/Non-Combat by name, or one of the opponent's cards of a type; the first one that fits
+    const who = targetOf(ctx, p.target ?? 'SELF')
+    const pl = ctx.s.players[who]
+    const types = (p.cardTypes ?? []) as string[]
+    const pool = [...pl.drills, ...pl.nonCombat, ...pl.allies.map(a => a.card)]
+    const host = pool.find(c => (!p.cardName || def(ctx.db, c).name === p.cardName) && (!types.length || types.includes(def(ctx.db, c).type)) && !ctx.s.attachments.some(a => a.host.iid === c.iid))
+    if (!host) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: nothing to attach to`, ctx.user)
+    const eff = (p.grants ?? p.effect) as Effect | undefined
+    attachCard(ctx.s, ctx.db, ctx.card!, { player: who, kind: 'card', iid: host.iid }, { until: p.until as string | undefined, effects: eff ? [eff] : [] })
+  },
 
   ifOwnStages(ctx, p) {
     const n = fighterStage(ctx.s, ctx.user)

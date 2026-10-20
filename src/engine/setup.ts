@@ -51,6 +51,7 @@ export function createGame(db: CardDB, decks: [DeckList, DeckList], opts: GameOp
     delayed: [],
     endNextCombat: [],
     angerLock: [],
+    attachments: [],
     powerLocks: [],
     disabledDrills: [],
     retireTo: {},

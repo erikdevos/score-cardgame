@@ -2,6 +2,7 @@
 // timing gates, defenses (cards, dual-use cards and personality powers) and damage changes.
 import { DefenseSchema, isDefenseRole, type CardDB, type CardDef, type CombatRole, type Defense, type Effect, type StrikeDef } from './cards'
 import type { Damage } from './damage'
+import { attachmentSources } from './attach'
 import { isNewStyle } from './damagemods'
 import { constantParams, controllingAlly, def, findCustom, inPlayAnywhere, log, mpDef } from './state'
 export { findCustom, inPlayAnywhere }
@@ -150,6 +151,7 @@ export function permanentSources(s: GameState, db: CardDB, p: PlayerId): { name:
   const out: { name: string; card?: CardInstance; effects: Effect[]; constant?: boolean }[] = []
   if (!s.combat?.lockdown) for (const card of pl.drills.filter(c => !s.disabledDrills.includes(c.iid))) out.push({ name: def(db, card).name, card, effects: def(db, card).effects.onEnterPlay })
   if (pl.mastery) out.push({ name: def(db, pl.mastery).name, card: pl.mastery, effects: def(db, pl.mastery).effects.onEnterPlay })
+  out.push(...attachmentSources(s, db, p))
   const power = mpDef(s, db, p).personality!.power
   if (power && !s.combat?.noConstantPowers) {
     const effects = findCustom(power.strike.effects.onPlaySecondary, 'constantPower').flatMap(c => (c.then ?? []) as Effect[])
@@ -264,6 +266,8 @@ export function powerOptions(s: GameState, db: CardDB, p: PlayerId) {
 /** Cost of a strike for this player, with drills like SS-146 ("pay 1 stage instead of 2"). */
 export function costFor(s: GameState, db: CardDB, p: PlayerId, cost: { type: 'NONE' | 'POWER_STAGES' | 'LIFE_CARDS'; amount: number }, role: CombatRole, style?: string) {
   const base = costForBase(s, db, p, cost, role, style)
+  // BU-85: an attached card waives the costs of the player's card effects
+  if (base.type !== 'NONE' && attachmentSources(s, db, p).some(a => findCustom(a.effects, 'costModifier').some(m => m.waive))) return { type: 'NONE' as const, amount: 0 }
   // BB-35: costs in power stages or life cards are doubled after the other modifiers
   if (s.location && base.type !== 'NONE') {
     for (const m of findCustom(def(db, s.location).effects.onEnterPlay, 'costModifier')) {

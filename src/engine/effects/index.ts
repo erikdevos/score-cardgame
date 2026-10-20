@@ -1,6 +1,8 @@
 import type { CardDB, Effect } from '../cards'
 import { changeAnger, changeStages, drawCards, log, millCards, recoverCards, schedule } from '../state'
 import { other, type CardInstance, type Frame, type GameState, type PlayerId } from '../types'
+import { attachCard } from '../attach'
+import { def } from '../state'
 import { handlers } from './handlers'
 
 export interface EffectContext {
@@ -19,6 +21,36 @@ export type CustomHandler = (ctx: EffectContext, params: Record<string, unknown>
 
 /** Card-specific behaviour that the atomic DSL cannot express, keyed by handler name. */
 export const customHandlers: Record<string, CustomHandler> = handlers
+
+/** Effects that carry "attached": true when the card is fixed to something while its effect works. */
+const ATTACHED_HANDLERS = ['damageModifier', 'forbidCards', 'grantMajin', 'triggeredEffect']
+
+/** Fix the card to its host (see attach.ts); the card's ongoing effects then work from there. */
+function attachEffectCard(ctx: EffectContext, e: Effect & { action: 'CUSTOM' }) {
+  const { s, db } = ctx
+  const p = e.params ?? {}
+  const foe = other(ctx.user)
+  const restrictive = Number(p.stages ?? 0) < 0 || Number(p.lifeCards ?? 0) < 0 || typeof p.maxStages === 'number'
+  const to = String(p.attachTo ?? 'mainPersonality')
+  const own = s.players[ctx.user]
+  const opp = s.players[foe]
+  let host: { player: PlayerId; kind: 'mp' | 'card'; iid?: string } | undefined
+  if (to === 'mainPersonality') host = { player: ctx.user, kind: 'mp' }
+  else if (to === 'opponentMainPersonality') host = { player: foe, kind: 'mp' }
+  else if (to === 'choice') host = { player: restrictive ? foe : ctx.user, kind: 'mp' }
+  else if (to === 'opponentNonCombat') {
+    const c = opp.nonCombat.find(x => !s.attachments.some(a => a.host.iid === x.iid))
+    if (c) host = { player: foe, kind: 'card', iid: c.iid }
+  } else if (to === 'drill') {
+    const c = own.drills.find(x => (!p.attachToName || def(db, x).name === p.attachToName) && !s.attachments.some(a => a.host.iid === x.iid))
+    if (c) host = { player: ctx.user, kind: 'card', iid: c.iid }
+  }
+  if (!host) return log(s, 'NO_EFFECT', `${ctx.source}: nothing to attach to`, ctx.user)
+  const d = def(db, ctx.card!)
+  // a Non-Combat card's other ongoing effects go with it; an attack card attaches only for this effect
+  const own2 = d.effects.onEnterPlay.includes(e) ? d.effects.onEnterPlay.filter(x => !(x.action === 'CUSTOM' && ['playTiming', 'senseiDeck'].includes(x.handler))) : [e]
+  attachCard(s, db, ctx.card!, host, { until: p.until as string | undefined, effects: own2, removeWhenDone: !!p.removeWhenDone })
+}
 
 /**
  * Schedule effects on the stack. They resolve in order, before anything scheduled earlier,
@@ -66,6 +98,7 @@ function resolveEffect(ctx: EffectContext, e: Effect) {
       if (s.combat) s.combat.ended = true
       return log(s, 'END_COMBAT', `${ctx.source} ends combat`)
     case 'CUSTOM': {
+      if (e.params?.attached && !ctx.triggered && ATTACHED_HANDLERS.includes(e.handler) && ctx.card) return attachEffectCard(ctx, e)
       const h = customHandlers[e.handler]
       if (!h) return log(s, 'WARN', `${ctx.source}: custom effect "${e.handler}" not implemented yet`)
       return h(ctx, e.params ?? {})

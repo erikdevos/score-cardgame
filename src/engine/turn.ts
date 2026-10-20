@@ -1,3 +1,4 @@
+import { attachUpkeep, attachmentSources } from './attach'
 import { drillsProtected, endAttackPhase, findCustom, newCombat, requirementsMet, tableEffects, timingAllows } from './abilities'
 import type { CardDB, StrikeDef } from './cards'
 import { autoPowerFrames, triggerFrames } from './effects/triggers'
@@ -26,6 +27,8 @@ export function startTurn(s: GameState, db: CardDB) {
   if (s.rules.trunks.mostPowerfulByHighestLevel) checkMostPowerful(s, db, s.attacker)
   if (over(s)) return
   drawCards(s, s.attacker, s.rules.drawPerTurn)
+  // BU-127: an attached card makes the host discard life cards at the beginning of the turn
+  for (const e of attachUpkeep(s, db, s.attacker)) if (e.action === 'DISCARD_LIFE') millCards(s, s.attacker, e.amount, db)
   runDelayed(s, db)
   // FS-67: drills that act "at the beginning of every turn"
   schedule(s, ...triggerFrames(s, db, { kind: 'turnStart' }))
@@ -341,8 +344,11 @@ export function rejuvenate(s: GameState, db: CardDB, accept: boolean) {
   s.pendingChoice = null
   const pl = s.players[s.attacker]
   if (accept) {
-    pl.lifeDeck.push(pl.discard.pop()!)
-    log(s, 'REJUVENATE', `Player ${s.attacker + 1} rejuvenates 1 card`, s.attacker)
+    // BU-78: an attached card lets the player return 3 cards instead of 1
+    const three = attachmentSources(s, db, s.attacker).some(a => findCustom(a.effects, 'rejuvenationOverride').length)
+    const n = Math.min(three ? 3 : 1, pl.discard.length)
+    for (let i = 0; i < n; i++) pl.lifeDeck.push(pl.discard.pop()!)
+    log(s, 'REJUVENATE', `Player ${s.attacker + 1} rejuvenates ${n} card(s)`, s.attacker)
   }
   finishTurn(s)
 }

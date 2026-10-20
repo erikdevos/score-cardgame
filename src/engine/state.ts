@@ -35,7 +35,16 @@ export function powerRating(s: GameState, db: CardDB, p: PlayerId): number {
   const d = mpDef(s, db, p)
   const st = s.combat?.strike
   const stage = st && st.initiator === p && st.tempStage !== undefined ? st.tempStage : fighterStage(s, p)
-  return d.personality!.powerRatings[stage]
+  let bonus = 0
+  for (const a of s.attachments) {
+    if (a.host.kind !== 'mp' || a.host.player !== p) continue
+    for (const e of a.effects) {
+      if (e.action !== 'CUSTOM' || e.handler !== 'powerRatingBonus') continue
+      if (e.params?.unlessAtStage !== undefined && stage === e.params.unlessAtStage) continue
+      bonus += Number(e.params?.amount ?? 0)
+    }
+  }
+  return d.personality!.powerRatings[stage] + bonus
 }
 
 export function cardName(db: CardDB, c: CardInstance | null): string {
@@ -100,7 +109,7 @@ export function canUseCard(s: GameState, db: CardDB, p: PlayerId, d: CardDef): b
   if (!u) return true
   const mp = mpDef(s, db, p).personality!
   // "Majin only": every Majin personality (Majin Buu, Majin Vegeta, ...)
-  const majin = !!u.characters?.includes('Majin') && mp.character.startsWith('Majin')
+  const majin = !!u.characters?.includes('Majin') && (mp.character.startsWith('Majin') || s.attachments.some(a => a.host.kind === 'mp' && a.host.player === p && a.effects.some(e => e.action === 'CUSTOM' && e.handler === 'grantMajin')))
   return !!(u.alignments?.includes(mp.alignment as 'Hero' | 'Villain') || u.characters?.includes(mp.character) || majin)
 }
 
@@ -344,7 +353,7 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
     out.push(...pl.mp.stack, ...pl.lifeDeck, ...pl.hand, ...pl.discard, ...pl.removed, ...pl.drills, ...pl.dragonBalls, ...pl.nonCombat, ...pl.allies.map(a => a.card))
   }
   if (s.location) out.push(s.location)
-  out.push(...s.resolving)
+  out.push(...s.resolving, ...s.attachments.map(a => a.card))
   const st = s.combat?.strike
   if (st?.card) out.push(st.card)
   if (st?.defenseCard) out.push(st.defenseCard)
@@ -353,6 +362,7 @@ export function allCardsOf(s: GameState, p: PlayerId): CardInstance[] {
 
 /** Send a card to its owner's discard pile, or remove it from the game. */
 export function retire(s: GameState, c: CardInstance, mode: 'DISCARD' | 'REMOVE' | 'STAYS') {
+  if (s.attachments.some(a => a.card.iid === c.iid)) return // attached cards stay on the table
   const owner = s.players[c.owner]
   const to = s.retireTo[c.iid]
   if (to) {

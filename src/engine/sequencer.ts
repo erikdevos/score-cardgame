@@ -1,4 +1,5 @@
 // The 8-point battle sequencer for a single strike.
+import { attachAfterAttack, attachAfterLifeDamage } from './attach'
 import { canStopFocused, isFocused, allyAbsorbs, applyDefense, currentStrikeBlock, defenseShield, ownDamageBoost, constantPowerEffects, inPlayAnywhere, isConstantPower, strikeDefenseBlock, attackRestriction, attackTypeOf, autoStop, costFor, dragonBallsProtected, findCustom, isAutoOnly, powerOptions, tableEffects, cardDefense, ongoingDamageChanges, powerDefense, requirementsMet, timingAllows, useShield, type DefenseOption } from './abilities'
 import { isAttackRole, isDefenseRole, type CardDB, type CardDef, type Effect, type StrikeDef } from './cards'
 import { applyDamage, computeDamage, strikeCost } from './damage'
@@ -152,6 +153,7 @@ export function beginStrike(s: GameState, db: CardDB, initiator: PlayerId, card:
   const combat = s.combat!
   combat.strikeSeq++
   combat.strike = { initiator, card, strike, label, phase: 'AWAIT_DEFENSE', defenseCard: null, defense: null, lifeCardsDealt: 0, paidStages: 0, mods: [], seq: combat.strikeSeq }
+  { const t = attackTypeOf(strike.combatRole); if (t) attachAfterAttack(s, db, initiator, t, false) }
   if (card) combat.usedCardIds.push(card.defId)
   log(s, 'STRIKE', `Player ${initiator + 1} plays ${label}`, initiator)
   combat.strike.paidStages = payCost(s, db, initiator, strike, card ? def(db, card).style : undefined)
@@ -344,6 +346,8 @@ export function dealDamage(s: GameState, db: CardDB) {
   st.lifeCardsDealt = ally ? applyDamageToAlly(s, db, defender, ally, dmg) : applyDamage(s, defender, dmg, db, st.noLifeCards)
   s.combat!.lastLifeLost = st.lifeCardsDealt
   if (over(s)) return
+  attachAfterLifeDamage(s, db, defender, st.lifeCardsDealt)
+  attachAfterAttack(s, db, st.initiator, type, true)
   afterDamage(s, db, defender, stageBefore - (ally ? ally.stage : s.players[defender].mp.stage), st.lifeCardsDealt)
   if (over(s)) return
 
