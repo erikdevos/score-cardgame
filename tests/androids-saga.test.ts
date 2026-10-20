@@ -224,7 +224,7 @@ describe('Attached cards', () => {
   }
   const fx = (id: string, handler: string) => db[id].effects.onEnterPlay.concat(db[id].effects.onPlaySecondary, db[id].effects.onHit)
     .flatMap(function find(e): typeof db[string]['effects']['onEnterPlay'] { return e.action === 'CUSTOM' ? [e, ...(Array.isArray(e.params?.then) ? (e.params!.then as never[]).flatMap(find) : [])] : [] }).filter(e => e.action === 'CUSTOM' && e.handler === handler)
-  const inner = (id: string) => (fx(id, 'attachToMainPersonality')[0] as { params: { effect: never } }).params.effect
+  const inner = (id: string) => ((fx(id, 'attachToMainPersonality')[0] as unknown) as { params: { effect: never } }).params.effect
 
   it('Red Gambit adds 3 stages to every attack of the host and Saiyan Gambit adds power rating unless at stage 0', () => {
     const s = setup()
