@@ -548,6 +548,14 @@ export const handlers: Record<string, CustomHandler> = {
     queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: {} })
   },
 
+  nameCardsRemoveFromLifeDeck(ctx, p) {
+    // BU-89: name a card, all copies leave the opponent's Life Deck (BB-5 / WG-160 need the Sensei Deck and use the same choice)
+    const physical = p.namedCardFilter === 'canPerformPhysicalAttack'
+    const names = [...new Set(Object.values(ctx.db)
+      .filter(d => d.type !== 'Dragon Ball' && !d.id.startsWith('TEST') && (!physical || d.combatRole === 'ATTACK_PHYSICAL')).map(d => d.name))].sort()
+    queueChoice(ctx.s, { kind: 'OPTION', player: ctx.user, source: ctx.source, prompt: physical ? 'Name a card that can perform a physical attack' : 'Name a non-Dragon Ball card', options: names, purpose: 'nameCardDiscard', data: { all: p.allCopies ? 1 : 0, to: String(p.to ?? 'removed') } })
+  },
+
   useNonCombatInPlay(ctx, p) {
     const cards = ctx.s.players[ctx.user].nonCombat.filter(c => !def(ctx.db, c).combatRole)
     if (!cards.length) return log(ctx.s, 'NO_EFFECT', `${ctx.source}: no Non-Combat card in play`)

@@ -138,15 +138,17 @@ function resolveOptionWith(s: GameState, db: CardDB, q: QueuedChoice & { kind: '
     return
   }
   if (q.purpose === 'nameCardDiscard') {
-    // AS-52: one copy of the named card leaves the opponent's life deck for the discard pile
+    // AS-52: one copy (BU-89: all copies) of the named card leaves the opponent's life deck
     const foe = (1 - q.player) as PlayerId
     const name = q.options[index]
     const deck = s.players[foe].lifeDeck
-    const hit = deck.findIndex(c => def(db, c).name === name)
-    if (hit < 0) return log(s, 'NO_EFFECT', `${q.source}: no ${name} in player ${foe + 1}'s life deck`, foe)
-    s.players[foe].discard.push(...deck.splice(hit, 1))
-    s.rngSeed = shuffleInPlace(deck, s.rngSeed)
-    return log(s, 'DISCARD', `${q.source}: player ${foe + 1} discards ${name} from their life deck`, foe)
+    const hits = deck.filter(c => def(db, c).name === name)
+    if (!hits.length) return log(s, 'NO_EFFECT', `${q.source}: no ${name} in player ${foe + 1}'s life deck`, foe)
+    const gone = q.data.all ? hits : hits.slice(0, 1)
+    s.players[foe].lifeDeck = deck.filter(c => !gone.includes(c))
+    ;(q.data.to === 'discard' || q.data.to === undefined ? s.players[foe].discard : s.players[foe].removed).push(...gone)
+    s.rngSeed = shuffleInPlace(s.players[foe].lifeDeck, s.rngSeed)
+    return log(s, 'DISCARD', `${q.source}: ${gone.length} copy/copies of ${name} leave player ${foe + 1}'s life deck`, foe)
   }
   if (q.purpose === 'nameCard') {
     const foe = (1 - q.player) as PlayerId

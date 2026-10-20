@@ -536,3 +536,21 @@ describe('Cell-era odds and ends', () => {
     expect(s.players[0].allies.find(a => a.card.iid === 'al1')!.stage).toBeGreaterThanOrEqual(3)
   })
 })
+
+describe('Name a card', () => {
+  it('BU-89 discards all copies of the named card from the opponent life deck', () => {
+    const choices = deckChoices('ALL_SETS').filter(c => c.key.startsWith('auto-'))
+    const s = createGame(db, [choices[0].build(1), choices[1].build(2)], { seed: 1, rules: FORMATS.ALL_SETS.rules })
+    const phys = Object.values(db).find(d => d.combatRole === 'ATTACK_PHYSICAL' && !d.id.startsWith('TEST'))!
+    s.players[1].lifeDeck.push({ iid: 'p1', defId: phys.id, owner: 1 }, { iid: 'p2', defId: phys.id, owner: 1 })
+    customHandlers.nameCardsRemoveFromLifeDeck({ s, db, user: 0, source: 'BU-89' }, { namedCardFilter: 'canPerformPhysicalAttack', allCopies: true, to: 'discard' })
+    const frame = s.stack.find(f => f.k === 'choice') as { q: { options: string[] } & Record<string, unknown> } | undefined
+    const q = (frame?.q ?? s.pendingChoice) as { options: string[] }
+    expect(q.options.includes(phys.name)).toBe(true)
+    s.stack = []
+    s.pendingChoice = q as never
+    resolveOption(s, db, q.options.indexOf(phys.name))
+    expect(s.players[1].lifeDeck.filter(c => db[c.defId].name === phys.name).length).toBe(0)
+    expect(s.players[1].discard.filter(c => db[c.defId].name === phys.name).length).toBeGreaterThanOrEqual(2)
+  })
+})
